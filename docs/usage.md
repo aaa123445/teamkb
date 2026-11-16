@@ -19,7 +19,7 @@ Shell 入口会先检查操作系统与架构、curl、Python 3.11+、venv / ens
 
 ```bash
 # Codex：CLI 安装并写入指令
-curl -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex cli user
+curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex cli user
 # Claude Code：把 codex 改成 claudecode
 # MCP：把 cli 改成 mcp；不修改系统提示词
 # 项目范围：把 user 改成 project；安装时询问项目路径

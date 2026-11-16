@@ -52,15 +52,14 @@ trap 'rm -rf "$tmpdir"' EXIT
 # Retry only read-only downloads; keep certificate errors fatal.
 curl_download() {
   local url="$1" output="$2" attempt=1 rc=0 delay=1
-  local protocol=()
   while ((attempt <= 4)); do
-    if curl --fail --silent --show-error --location --connect-timeout 15 --max-time 60 "${protocol[@]}" "$url" -o "$output"; then
+    if curl --fail --silent --show-error --location --connect-timeout 15 --max-time 60 --http1.1 "$url" -o "$output"; then
       return 0
     else
       rc=$?
     fi
     case "$rc" in
-      35|92) protocol=(--http1.1) ;;
+      35|92) ;;
       5|6|7|18|22|28|52|55|56) ;;
       *) echo "下载失败（curl $rc）；请检查系统证书或代理配置，TLS 校验未关闭。" >&2; return "$rc" ;;
     esac
