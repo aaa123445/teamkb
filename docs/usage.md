@@ -6,9 +6,11 @@ TeamKB 统一提供分类知识管理、团队规范、贡献审核和 Agent 经
 
 ## 一键接入本地 Agent
 
-在工作台左侧选择「一键接入」，推荐使用「MCP + Skill」，也可仅安装 MCP、Skill 或 CLI。页面会根据当前站点和客户端 SHA-256 校验清单生成安装提示词，复制后发送给你本机正在使用的 Agent，由它检查系统、安装独立 Python 环境、合并已有配置并验证连接。
+在工作台左侧选择「一键接入」，推荐使用「MCP + Skill」，也可仅安装 MCP、Skill 或 CLI。再选择「全局接入」或「项目接入」；生成的提示词会包含对应范围的初始化、MCP 注册和 Skill 安装步骤。页面会根据当前站点和客户端 SHA-256 校验清单生成安装提示词，复制后发送给你本机正在使用的 Agent，由它检查系统、安装独立 Python 环境、合并已有配置并验证连接。
 
 可以留空 Key，在本机由 Agent 引导填写；也可粘贴已有个人 Key 并勾选「复制时包含个人 Key」。已入网账号可以直接创建 reader / writer 接入专用 Key，创建后用于本次提示词。个人中心刚创建的 Key 也可通过「用此 Key 生成安装提示词」带入。完整 Key 不放入链接或页面持久存储，离开接入页后清除本次填写内容；复制的提示词包含 Key 时，请只交给你信任的本地 Agent，不要发到共享聊天或提交到仓库。已创建的 Key 可在个人中心吊销。
+
+**安装客户端不等于完成接入。** 必须先初始化服务地址和个人 Key，再配置 MCP / Skill 并验证工具调用。全局接入对当前系统用户生效；项目接入仅为确认后的项目配置。
 
 默认只安装知识访问能力。「在当前开发项目启用经验候选提交」是可选项，需要 writer 权限；默认仍需管理员审核。接入页生成提示词不会自行修改本机或提交知识，实际安装由本地 Agent 完成。以其返回的鉴权、MCP 工具调用和 Skill 加载结果为准；需要重启 Agent 会话时按提示操作。
 
@@ -25,7 +27,7 @@ TeamKB 统一提供分类知识管理、团队规范、贡献审核和 Agent 经
 
 ## Agent 自动沉淀：项目开关与候选材料
 
-先安装下文 CLI，在客户端设置 `TEAMKB_URL` 与 `TEAMKB_KEY`（或继续使用兼容的 `V8WB_URL` / `V8WB_KEY`）。新版客户端需要本次更新后的代码；已安装的旧客户端应更新本地源码。以下命令在开发项目中执行：
+先安装下文 CLI 并执行 `wb init` 完成知识访问初始化；自动沉淀需要 writer Key。临时环境方式也可在客户端设置 `TEAMKB_URL` 与 `TEAMKB_KEY`（或继续使用兼容的 `V8WB_URL` / `V8WB_KEY`）。新版客户端需要本次更新后的代码；已安装的旧客户端应更新本地源码。以下命令在开发项目中执行：
 
 ```bash
 export TEAMKB_URL="https://www.ljc.monster"
@@ -142,96 +144,131 @@ wb --help
 
 后续再次打开终端时，先激活这个虚拟环境，或直接使用 `.venv/bin/wb` 的绝对路径。Windows PowerShell 中激活命令为 `.\.venv\Scripts\Activate.ps1`，可执行文件路径为 `.venv\Scripts\wb.exe`。
 
-配置地址和个人 Key：
+### 先初始化，再使用 CLI 或 MCP
+
+新版客户端增加 `wb init`，CLI 和 `wb mcp` 共用初始化配置。先执行 `wb init --help`；若提示没有该命令，请更新客户端。下载包仍为 0.5.0 时也需加 `--force-reinstall --no-cache-dir` 重装，以服务器当前 SHA-256 清单为准。
+
+| 范围 | 初始化命令 | 保存位置 | 后续使用 |
+| --- | --- | --- | --- |
+| 全局接入 | `wb init --scope user` | `~/.teamkb/client.json` | 当前用户在任意目录使用，项目配置可覆盖它 |
+| 项目接入 | `wb --project /absolute/path/to/project init --scope project` | `PROJECT_ROOT/.teamkb/client.json` | 在该项目或子目录使用；从别处启动时传 `--project` |
+
+以下先临时提供服务地址，Key 由终端隐藏输入，不放到命令行历史中：
 
 ```bash
-export V8WB_URL="https://www.ljc.monster"
-# 下面的值换成个人中心创建的 Key。
-export V8WB_KEY="YOUR_PERSONAL_KEY"
-wb health
-wb stats
+export TEAMKB_URL="https://www.ljc.monster"
+# 全局接入（不必给每个项目重复初始化）
+wb init --scope user
+# 或选择项目接入；先把路径换成真实项目根目录
+wb --project /absolute/path/to/project init --scope project
 ```
 
-PowerShell 设置环境变量：
+如已通过本机安全方式设置 `TEAMKB_KEY`，初始化会读取它；兼容 `V8WB_URL` / `V8WB_KEY`。不要把 `YOUR_PERSONAL_KEY` 占位符作为真实凭据。Windows PowerShell 使用 `$env:TEAMKB_URL = "https://www.ljc.monster"`，其余 `wb` 初始化参数相同；目录中有空格时给路径加引号。
 
-```powershell
-$env:V8WB_URL = "https://www.ljc.monster"
-$env:V8WB_KEY = "YOUR_PERSONAL_KEY"
+全局配置存在当前用户目录；项目配置自动追加到项目 `.gitignore`，不提交凭据。POSIX 配置文件权限为 600，Windows 应限制为当前用户可读写。重新执行同范围初始化会更新该连接配置，保留其他字段；不覆盖其他 MCP 或 Skill。
+
+**配置优先级：**命令行 `--url` / `--key` > `TEAMKB_*`（兼容 `V8WB_*`）环境变量 > 当前项目或其祖先目录的 `.teamkb/client.json` > 用户 `~/.teamkb/client.json`。项目配置整体覆盖全局连接，不把全局 Key 自动套到项目的另一个服务地址。显式切换到不同 URL 时，需要为该 URL 提供匹配的 Key。环境变量仍优先生效，旧变量可能覆盖新初始化的配置。
+
+初始化后开一个没有临时连接变量的新进程验证；如果在当前终端测试，先清除本次临时设置（不要删除自己原有持久配置）：
+
+```bash
+unset TEAMKB_URL TEAMKB_KEY V8WB_URL V8WB_KEY
+# 全局接入可在任意目录执行；项目接入先 cd 到项目或使用下方显式路径
 wb health
 wb stats
+wb categories
+wb --json search "开发" -n 3
+# 从项目外部调用
+wb --project /absolute/path/to/project stats
 ```
 
-`health` 免鉴权，只能验证服务连通；`stats` 成功返回文档数量，才表示 Key 验证通过。需要持久保存环境变量时，放到你自己管理的本地配置中，不要提交到 Git 或共享配置。轮换 Key 后要同步更新客户端并重启 Agent。
+PowerShell 清除本次临时环境变量可用 `Remove-Item Env:TEAMKB_URL,Env:TEAMKB_KEY,Env:V8WB_URL,Env:V8WB_KEY -ErrorAction SilentlyContinue`。
+
+`health` 免鉴权，只验证连通；`stats`、`categories` 和检索成功才表示地址与 Key 可用。初始化不会自动开启贡献或上传：`wb agent init --project PROJECT_ROOT` 仅是经验候选提交开关，不能替代 `wb init`。普通知识检索无需执行 `wb agent init`。
 
 升级客户端：进入克隆目录，执行 `git pull --ff-only` 和 `python -m pip install -e .`。
+
+### 已安装却无法接入时
+
+- `wb: command not found`：激活虚拟环境或使用 wb 的绝对路径。
+- 仍连接 `127.0.0.1:8770`：没有可用的接入配置；先执行对应范围的 `wb init`。
+- 终端可用而 MCP 失败：确认 MCP 使用同一虚拟环境的 wb；项目模式加 `--project` 绝对路径。IDE 不一定继承终端环境。
+- 切换项目后失败：当前项目可能覆盖用户配置；检查项目初始化及残留 `TEAMKB_*` / `V8WB_*` 环境变量。
+- 401/403：Key 失效、账号待审核或权限不够，检查个人中心，不用网页登录密码代替 Key。
+- MCP 无工具或 Skill 未出现：确认所选用户 / 项目注册范围，信任项目并重启 Agent 会话，再实际调用工具。
+
 
 ## 3. MCP 安装与接入
 
 本项目目前提供 **本地 stdio MCP 代理**：Agent 启动本机的 `wb mcp`，由它调用工作台 HTTPS API。不要把网站地址直接当作远程 MCP URL；本项目没有对外提供 `/mcp` HTTP 服务，也不使用 OAuth 登录。
 
-先完成上一节 CLI 安装，并确认 `wb stats` 成功。以下路径必须换成你开发电脑上的绝对路径。
+先完成上一节 CLI 安装与 `wb init` 初始化，并确认在没有临时环境变量的新进程中 `wb stats` 成功。以下路径必须换成你开发电脑上的绝对路径。
 
-### Codex
+### Codex：全局或项目接入
 
-在 `~/.codex/config.toml` 增加：
+全局接入先执行 `wb init --scope user`，再在当前用户的 `~/.codex/config.toml` 合并：
 
 ```toml
-[mcp_servers.v8-workbench]
-command = "/absolute/path/to/v8-workbench/.venv/bin/wb"
+[mcp_servers.teamkb]
+command = "/absolute/path/to/.teamkb-venv/bin/wb"
 args = ["mcp"]
-env_vars = ["V8WB_URL", "V8WB_KEY"]
 startup_timeout_sec = 20
-tool_timeout_sec = 60
+tool_timeout_sec = 90
 ```
 
-先在终端导出 `V8WB_URL`、`V8WB_KEY`，再从该终端启动 Codex。`env_vars` 用于转发启动环境中的变量。桌面应用或 IDE 不一定继承终端环境，此时可在本机配置中用下列环境段显式配置，并妥善保护该文件：
+项目接入先执行 `wb --project /absolute/path/to/project init --scope project`。在受信任项目的 `.codex/config.toml` 中合并：
 
 ```toml
-[mcp_servers.v8-workbench.env]
-V8WB_URL = "https://www.ljc.monster"
-V8WB_KEY = "YOUR_PERSONAL_KEY"
+[mcp_servers.teamkb]
+command = "/absolute/path/to/.teamkb-venv/bin/wb"
+args = ["--project", "/absolute/path/to/project", "mcp"]
+startup_timeout_sec = 20
+tool_timeout_sec = 90
 ```
 
-检查配置：
+配置中不需要放 Key；`wb` 会读取相应范围的私有配置。项目目录必须是绝对路径，不能依赖 Agent 的启动目录。Codex 仅对受信任项目加载项目配置；以本机 `codex --help`、现有设置和官方文档核实当前版本的支持情况。
+
+已有配置如果使用 `env_vars` 转发或 `[mcp_servers.teamkb.env]` 固定 `V8WB_URL` / `V8WB_KEY`，这些变量仍优先于初始化配置。切换到新初始化方式时只移除 TeamKB 条目里失效的变量，不动其他服务。不要同时注册同一连接的 `v8-workbench` 与 `teamkb`。
 
 ```bash
 codex mcp list
 ```
 
-重新开启会话，在 Codex 的 `/mcp` 中检查 `v8-workbench` 是否已连接。连接后请求：“调用 v8_stats 验证工作台，然后检索组织同步文档。”
+重新开启会话，通过 `/mcp` 检查 teamkb，再实际调用 `kb_categories` 或 `kb_search`，不能只检查配置文件已写入。
 
-### Claude Code
+### Claude Code：全局或项目接入
 
-激活客户端虚拟环境、设置环境变量后，在克隆目录执行：
+全局接入完成用户初始化后执行：
 
 ```bash
-claude mcp add --transport stdio --scope user \
-  --env V8WB_URL="$V8WB_URL" \
-  --env V8WB_KEY="$V8WB_KEY" \
-  v8-workbench -- "$PWD/.venv/bin/wb" mcp
+claude mcp add --transport stdio --scope user teamkb -- /absolute/path/to/.teamkb-venv/bin/wb mcp
+```
+
+项目接入先初始化项目，再在**实际开发项目根目录**执行：
+
+```bash
+claude mcp add --transport stdio --scope project teamkb -- /absolute/path/to/.teamkb-venv/bin/wb --project /absolute/path/to/project mcp
 claude mcp list
 ```
 
-该命令将 Key 写进本机用户配置，请勿分享该配置。重新打开 Claude Code，通过 `/mcp` 查看连接状态。若弹出工具授权，按实际需要批准。
+项目 MCP 注册写入 `.mcp.json`，其中只放命令、路径及参数，不放 Key；个人访问凭据由 `.teamkb/client.json` 提供。项目配置可能需要信任或授权，重新开启 Claude Code，通过 `/mcp` 核实工具列表并实际检索。
 
 ### 其他支持 stdio 的 MCP 客户端
 
-下面是常见的 `mcpServers` 配置格式。不同客户端配置文件位置可能不同，以其官方说明为准。
+先查客户端支持的用户 / 工作区配置范围。下面是项目接入的常见 `mcpServers` 配置；`command` 替换为虚拟环境中的 wb 绝对路径：
 
 ```json
 {
   "mcpServers": {
-    "v8-workbench": {
-      "command": "/absolute/path/to/v8-workbench/.venv/bin/wb",
-      "args": ["mcp"],
-      "env": {
-        "V8WB_URL": "https://www.ljc.monster",
-        "V8WB_KEY": "YOUR_PERSONAL_KEY"
-      }
+    "teamkb": {
+      "command": "/absolute/path/to/.teamkb-venv/bin/wb",
+      "args": ["--project", "/absolute/path/to/project", "mcp"]
     }
   }
 }
 ```
+
+全局接入则使用用户级配置、先执行用户初始化，并改成 `"args": ["mcp"]`。Windows 使用虚拟环境的 `Scripts\wb.exe`，JSON 中反斜杠需要转义。配置路径和注册格式以当前客户端帮助为准；客户端不支持项目范围时明确说明限制，不静默扩大为全局接入。
 
 ### 可用工具与验证任务
 
@@ -252,7 +289,7 @@ claude mcp list
 
 Skill 是本仓库的 `skill/team-knowledge/` 目录，包含 `SKILL.md`、`references/` 和 `scripts/`。请复制整个目录，不能只复制 `SKILL.md`。Skill 约定工作流程，本身不携带知识库；仍然需要已经可用的 MCP 或 `wb` CLI。
 
-先进入上文克隆的 `v8-workbench` 仓库目录，再执行相应命令。
+先完成所选范围的 `wb init` 和 CLI 鉴权验证。下面的复制命令在上文克隆的 `teamkb` 源码目录执行；若用下载包安装，从解压后的 Skill 目录复制。全局接入放用户 Skill 目录，项目接入放该开发项目 Skill 目录，不能只装工作流而漏掉初始化。
 
 ### Codex：用户级安装
 

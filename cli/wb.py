@@ -392,11 +392,16 @@ def build_parser() -> argparse.ArgumentParser:
   wb sync --force
 """,
     )
-    p.add_argument("--url", default=DEFAULT_URL, help=f"服务地址（默认 {DEFAULT_URL}）")
-    p.add_argument("--key", default=DEFAULT_KEY, help="API Key（或环境变量 V8WB_KEY）")
+    p.add_argument("--url", default=None, help="服务地址（覆盖环境变量及初始化配置）")
+    p.add_argument("--key", default=None, help="API Key（推荐环境变量或 wb init 私有配置）")
+    p.add_argument("--project", default=None, help="显式指定接入配置所在的项目根目录")
     p.add_argument("--json", action="store_true", help="输出 JSON，便于脚本/agent 解析")
     p.add_argument("--timeout", type=float, default=60.0, help="请求超时秒数")
     sub = p.add_subparsers(dest="cmd", required=True)
+
+    init = sub.add_parser("init", help="初始化 CLI / MCP 接入，不开启经验上传")
+    init.add_argument("--scope", choices=["user", "project"], default="project", help="user 全局接入；project 项目接入（默认）")
+    init.set_defaults(initialize=True)
 
     s = sub.add_parser("search", help="检索知识库")
     s.add_argument("query")
@@ -477,6 +482,20 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> None:
     parser = build_parser()
     a = parser.parse_args(argv)
+
+    from cli.connection import initialize, resolve_connection
+
+    if getattr(a, "initialize", False):
+        try:
+            print(json.dumps(initialize(a), ensure_ascii=False, indent=2))
+        except (ValueError, OSError, EOFError) as exc:
+            _die(str(exc))
+        return
+    if not getattr(a, "serve", False):
+        try:
+            a.url, a.key = resolve_connection(a.url, a.key, a.project if a.cmd != "push" else None)
+        except (ValueError, OSError) as exc:
+            _die(str(exc))
 
     if getattr(a, "serve", False):
         cmd_serve(a)

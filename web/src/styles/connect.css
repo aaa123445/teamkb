@@ -279,3 +279,11 @@
     padding: 20px;
   }
 }
+.connect-scope-title {
+  margin: 22px 0 12px;
+  font-size: 12px;
+  color: #475467;
+}
+.connect-init-note {
+  margin-bottom: 0;
+}

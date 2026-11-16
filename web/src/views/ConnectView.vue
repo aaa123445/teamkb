@@ -22,7 +22,7 @@ import { currentUser } from "../composables/session";
 import { apiKey, notify } from "../composables/workspace";
 import { takeConnectionKey } from "../composables/connection";
 import { post } from "../services/api";
-import { connectionPrompt, modes } from "../services/connectionPrompt";
+import { connectionPrompt, modes, scopes } from "../services/connectionPrompt";
 import "../styles/connect.css";
 const route = useRoute();
 const mode = ref(
@@ -30,6 +30,7 @@ const mode = ref(
     ? route.query.mode
     : "recommended",
 );
+const scope = ref(route.query.scope === "project" ? "project" : "user");
 const key = ref(takeConnectionKey()),
   includeKey = ref(!!key.value),
   autoSubmit = ref(false);
@@ -50,6 +51,7 @@ const prompt = computed(() =>
     ? connectionPrompt({
         origin,
         mode: mode.value,
+        scope: scope.value,
         manifest: manifest.value,
         key: includeKey.value ? key.value.trim() : "",
         autoSubmit: autoSubmit.value,
@@ -125,7 +127,7 @@ async function selectPrompt() {
   manualText.value?.focus();
   manualText.value?.select();
 }
-watch([mode, key, includeKey, autoSubmit], () => {
+watch([mode, scope, key, includeKey, autoSubmit], () => {
   copied.value = false;
   manualCopy.value = false;
 });
@@ -142,7 +144,7 @@ onBeforeUnmount(() => {
       <div>
         <div class="eyebrow section-eyebrow">CONNECT YOUR LOCAL AGENT</div>
         <h1>一键接入</h1>
-        <p>复制安装提示词，交给本地 Agent，完成安装、配置与连接验证。</p>
+        <p>复制安装提示词，交给本地 Agent，完成安装、初始化与连接验证。</p>
       </div>
       <RouterLink to="/guide" class="button"
         >完整使用说明 <ArrowRight :size="15"
@@ -153,7 +155,7 @@ onBeforeUnmount(() => {
       <div>
         <h2>把团队知识带到你的开发现场</h2>
         <p>
-          1 选择接入方式 <ArrowRight :size="13" /> 2 配置个人 Key
+          1 选择接入方式 <ArrowRight :size="13" /> 2 选择范围并配置 Key
           <ArrowRight :size="13" /> 3 复制给 Agent 安装
         </p>
       </div>
@@ -176,6 +178,28 @@ onBeforeUnmount(() => {
               ><small>{{ item.description }}</small>
             </button>
           </div>
+          <h3 class="connect-scope-title">接入范围</h3>
+          <div class="connect-modes" role="group" aria-label="接入范围">
+            <button
+              v-for="item in scopes"
+              :key="item.id"
+              :class="['connect-mode', { active: scope === item.id }]"
+              :aria-pressed="scope === item.id"
+              @click="scope = item.id"
+            >
+              <span
+                ><strong>{{ item.title }}</strong
+                ><Check v-if="scope === item.id" :size="17" /></span
+              ><small>{{ item.description }}</small>
+            </button>
+          </div>
+          <p class="connect-help connect-init-note">
+            {{
+              scope === "user"
+                ? "先运行 wb init --scope user 初始化用户配置，再注册全局 MCP / Skill。"
+                : "先在项目根目录运行 wb init --scope project，再注册项目级 MCP / Skill。"
+            }}接入初始化与经验上传开关独立，默认只启用知识访问。
+          </p>
           <div class="connect-server">
             <span>当前团队服务</span><code>{{ origin }}</code>
           </div>

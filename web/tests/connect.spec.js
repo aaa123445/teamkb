@@ -136,3 +136,41 @@ test("new personal key can be handed to the installer without URL or storage", a
     await manual.evaluate((el) => el.selectionEnd - el.selectionStart),
   ).toBeGreaterThan(100);
 });
+
+test("scope selection generates matching initialization, MCP and Skill setup", async ({
+  page,
+}) => {
+  await page.goto("/#/connect");
+  const preview = page.getByLabel("安装提示词预览");
+  await expect(preview).toContainText("wb init --scope user");
+  await expect(preview).toContainText("~/.teamkb/client.json");
+  await expect(preview).toContainText('args=["mcp"]');
+  await page.getByRole("button", { name: "项目接入", exact: false }).click();
+  await expect(preview).toContainText(
+    "wb --project PROJECT_ROOT init --scope project",
+  );
+  await expect(preview).toContainText(
+    'args=["--project", "PROJECT_ROOT", "mcp"]',
+  );
+  await expect(preview).toContainText("项目级 Skill 目录");
+  await expect(preview).toContainText(".gitignore");
+  await expect(preview).not.toContainText("wb init --scope user");
+  await page
+    .getByRole("button", { name: "复制安装提示词", exact: true })
+    .click();
+  expect(await page.evaluate(() => window.copiedPrompt)).toContain(
+    "接入范围：项目接入",
+  );
+  await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
+  await expect(preview).toContainText(
+    "wb --project PROJECT_ROOT init --scope project",
+  );
+  await expect(preview).not.toContainText("args=");
+  await page.getByRole("button", { name: "全局接入", exact: false }).click();
+  await expect(preview).toContainText("wb init --scope user");
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
