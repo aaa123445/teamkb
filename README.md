@@ -17,7 +17,7 @@
 - [一键接入本地 Agent](https://www.ljc.monster/#/connect)
 - [使用说明](docs/usage.md)：账号审批、个人 Key、MCP / Skill / CLI、任务完成 Hook 与审核。
 
-在「一键接入」选择接入方式，复制提示词发给本地 Agent。默认推荐 MCP + Skill，也可只安装 CLI。可以在本机填写 Key，或明确选择随提示词复制个人 Key；不要将含 Key 的提示词提交到仓库或共享聊天。安装与连接状态以本地 Agent 实际验证结果为准。Codex / Claude Code 提供交互式一键安装命令（macOS / Linux 使用 Shell，Windows 使用 Python），安装前检测 Python、venv、Agent CLI 和网络，支持 `--check-only`；运行时隐藏输入 Key；CLI 模式自动合并持久化指令，MCP 模式只注册工具、不修改系统提示词。其他 Agent（含 dsh）保留提示词安装。默认允许任务结束后按需提交已验证、可复用且脱敏的知识，可在接入页关闭。
+在「一键接入」选择接入方式，复制提示词发给本地 Agent。默认推荐 MCP + Skill，也可只安装 CLI。可以在本机填写 Key，或明确选择随提示词复制个人 Key；不要将含 Key 的提示词提交到仓库或共享聊天。安装与连接状态以本地 Agent 实际验证结果为准。Codex / Claude Code 提供交互式一键安装命令（macOS / Linux 使用 Shell，Windows 使用 Python），安装前检测 Python、venv、Agent CLI 和网络，支持 `--check-only`；运行时隐藏输入 Key；CLI 模式自动合并持久化指令，MCP 模式只注册工具、不修改系统提示词。DeepSeek Harness 支持原生 Desktop / Web 插件，其他 Agent 保留提示词安装。默认允许任务结束后按需提交已验证、可复用且脱敏的知识，可在接入页关闭。
 
 ## 客户端安装与初始化
 
@@ -41,6 +41,17 @@ wb categories
 - [SHA-256 校验清单](https://www.ljc.monster/static/downloads/manifest.json)
 
 升级时从同一域名重新安装客户端，校验包与清单一致，随后重启 Agent / MCP 会话。当前已移除 `v8_*` MCP 工具和旧 V8 Skill，统一使用 `kb_*` 与 `team-knowledge`；旧工具白名单或自定义提示词也需同步更新。V8、V5 及其他知识继续通过分类筛选检索。
+
+## DeepSeek Harness 插件
+
+在 Harness「Plugins → Add plugin」输入 [dsh-teamkb 插件包](https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz)，或执行：
+
+```bash
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz
+# Desktop / GUI 使用 --profile desktop
+```
+
+插件设置页填写地址、个人 Key 和贡献开关；包含分类、规范、检索、阅读、知识链和知识提交，无需 Python、MCP 或项目初始化。按官方预览版 `0.2.2-rc.1` 验证，兼容范围和宿主凭据说明见 [插件说明](plugins/dsh-teamkb/README.md)。
 
 ## 架构
 

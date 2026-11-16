@@ -6,7 +6,7 @@ TeamKB 统一提供分类知识管理、团队规范、贡献审核和 Agent 经
 
 ## 一键接入本地 Agent
 
-在工作台左侧选择「一键接入」，先选择 **Codex**、**Claude Code** 或 **其他智能体（含 dsh）**。Codex 和 Claude Code 各自生成可直接在本机终端执行的一键安装命令（macOS / Linux 为 Shell，Windows 为 Python），选择 macOS / Linux 或 Windows PowerShell；其他智能体继续复制安装提示词交给本地 Agent。
+在工作台左侧选择「一键接入」，先选择 **Codex**、**Claude Code** 、**DeepSeek Harness 原生插件** 或 **其他智能体**。Codex 和 Claude Code 各自生成可直接在本机终端执行的一键安装命令（macOS / Linux 为 Shell，Windows 为 Python），选择 macOS / Linux 或 Windows PowerShell；其他智能体继续复制安装提示词交给本地 Agent。
 
 Shell 入口会先检查操作系统与架构、curl、Python 3.11+、venv / ensurepip / TLS、Agent 命令和域名下载服务；缺失时明确指出解决方式。检查通过后才请求个人 Key、创建独立虚拟环境并安装客户端。可追加 `--check-only` 仅检测环境，不读取凭据或改写配置。CLI 模式不强制要求 Agent 命令存在，MCP 则要求所选 Agent CLI 已安装。安装期间在终端隐藏输入个人 API Key；项目接入还会询问已有项目路径。Key 不出现在安装命令或 shell 历史中。安装器会验证凭据、完成用户／项目连接初始化，不需要再让 Agent 执行安装提示词。
 
@@ -30,6 +30,27 @@ curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://w
 
 所有下载均走本站域名，完整安装命令请从接入页按 Agent、接入方式、范围和系统复制。项目范围只用于连接隔离；提交知识不要求项目候选初始化。个人中心可以创建并吊销 Key，writer 才能提交知识；默认贡献仍待管理员审核。使用独立 Key，避免提交到仓库或共享聊天。
 
+### DeepSeek Harness 原生插件（Desktop / Web）
+
+官方预览版 Harness 可直接安装 `dsh-teamkb` bundle，无需本地 Python / wb / MCP。进入 Harness「Plugins → Add plugin」粘贴本站下载地址：
+
+```text
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz
+```
+
+CLI 对应命令（只安装自己使用的 profile）：
+
+```bash
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz
+```
+
+需要 Node.js 24.9+ 与 Harness 0.2.2 rc 系列；界面安装使用宿主自带包管理器，独立 CLI 若提示缺少 pnpm 则按其提示安装。插件打包了可直接运行的 JS，不运行安装构建脚本。
+
+安装后打开「TeamKB 团队知识库」插件详情页（也可进入 `teamkb` 行配置），填写服务地址和个人 Key；留空 Key 保留原值，勾选清除才删除。需要任务后按需沉淀时开启贡献开关并使用 writer Key。保存后新建会话，调用 `kb_stats` 验证，再使用分类、规范、检索和阅读工具。默认不开放贡献；开启后通过 `kb_propose` 直接提交待审核知识，不需要项目初始化。Key 使用 Harness 的 secret 配置，远端读取脱敏，持久化由宿主 profile 管理；多人不要共享同一 profile 的凭据。
+
+Desktop 和 Web 共用设置组件与工具逻辑，网络请求发生在宿主；Web 浏览器无需访问 TeamKB API 或额外配置 CORS。运行时注入工作流，卸载自动撤回，不改本地系统指令文件。完整开发与兼容说明见仓库 `plugins/dsh-teamkb/README.md`。
+
 ## 平台使用：分类、审核与版本
 
 - 「团队知识库」按分类树浏览，点击标签可筛选；「知识检索」支持分类（包括子分类）内的全文检索。
@@ -43,7 +64,7 @@ curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://w
 
 ## Agent 自动沉淀：直接提交与可选项目 Hook
 
-CLI / 仅 Skill 安装会将知识工作流写入本地 Agent 的持久化指令（MCP 模式不写入）：Codex 全局使用实际 `CODEX_HOME/AGENTS.md`（默认 `~/.codex/AGENTS.md`），项目使用 `AGENTS.md`；Claude Code 全局使用 `~/.claude/CLAUDE.md`，项目使用 `CLAUDE.md`。先检查覆盖设置并确认实际加载。dsh 先检查本机帮助和配置以核实系统提示词入口，不假设路径。其他 Agent 无法确认持久化入口时，安装者交付可复制的提示词，由用户粘贴到自定义指令入口；仅会话有效的方式需在新会话重新粘贴。安装者保留已有规则、备份文件，只替换 `TEAMKB:BEGIN` / `TEAMKB:END` 区块，不写入 Key。完整模板见仓库 `skill/team-knowledge/references/agent-instructions.md`。
+CLI / 仅 Skill 安装会将知识工作流写入本地 Agent 的持久化指令（MCP 模式不写入）：Codex 全局使用实际 `CODEX_HOME/AGENTS.md`（默认 `~/.codex/AGENTS.md`），项目使用 `AGENTS.md`；Claude Code 全局使用 `~/.claude/CLAUDE.md`，项目使用 `CLAUDE.md`。先检查覆盖设置并确认实际加载。DeepSeek Harness 原生插件通过运行时注入工作流，不改本地指令文件。其他 Agent 无法确认持久化入口时，安装者交付可复制的提示词，由用户粘贴到自定义指令入口；仅会话有效的方式需在新会话重新粘贴。安装者保留已有规则、备份文件，只替换 `TEAMKB:BEGIN` / `TEAMKB:END` 区块，不写入 Key。完整模板见仓库 `skill/team-knowledge/references/agent-instructions.md`。
 
 **提交知识不要求项目初始化。** 先完成用户级连接 `wb init --scope user`，然后可在任意目录使用 `kb_propose` 或 `wb propose /absolute/path/to/candidate.json`。候选文件可存放在用户私有目录，无需项目根路径、`wb agent init` 或 `.teamkb/config.json`。连接配置用于地址和鉴权，项目 Hook 开关只是另一种可选的任务完成触发方式。
 

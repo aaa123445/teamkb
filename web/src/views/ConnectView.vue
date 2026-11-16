@@ -35,7 +35,10 @@ const mode = ref(
     ? route.query.mode
     : "recommended",
 );
-const agent = ref(route.query.agent === "other" ? "other" : "codex");
+const agent = ref(
+  ["other", "dsh"].includes(route.query.agent) ? route.query.agent : "codex",
+);
+const dshProfile = ref("web");
 const platform = ref("posix");
 const commandMode = computed(() => agent.value !== "other");
 const instructionMode = computed(
@@ -58,26 +61,28 @@ const canWrite = computed(() =>
 );
 const origin = window.location.origin;
 const prompt = computed(() =>
-  manifest.value
-    ? commandMode.value
-      ? installationCommand({
-          origin,
-          agent: agent.value,
-          scope: scope.value,
-          mode: mode.value,
-          autoSubmit: autoSubmit.value,
-          manifest: manifest.value,
-          platform: platform.value,
-        })
-      : connectionPrompt({
-          origin,
-          mode: mode.value,
-          scope: scope.value,
-          manifest: manifest.value,
-          key: includeKey.value ? key.value.trim() : "",
-          autoSubmit: autoSubmit.value,
-        })
-    : "",
+  agent.value === "dsh"
+    ? `dsh plugin --profile ${dshProfile.value} add ${origin}/static/downloads/dsh-teamkb-0.1.1.tgz`
+    : manifest.value
+      ? commandMode.value
+        ? installationCommand({
+            origin,
+            agent: agent.value,
+            scope: scope.value,
+            mode: mode.value,
+            autoSubmit: autoSubmit.value,
+            manifest: manifest.value,
+            platform: platform.value,
+          })
+        : connectionPrompt({
+            origin,
+            mode: mode.value,
+            scope: scope.value,
+            manifest: manifest.value,
+            key: includeKey.value ? key.value.trim() : "",
+            autoSubmit: autoSubmit.value,
+          })
+      : "",
 );
 const preview = computed(() =>
   !commandMode.value && includeKey.value && key.value.trim()
@@ -157,10 +162,13 @@ async function selectPrompt() {
   manualText.value?.focus();
   manualText.value?.select();
 }
-watch([agent, platform, mode, scope, key, includeKey, autoSubmit], () => {
-  copied.value = false;
-  manualCopy.value = false;
-});
+watch(
+  [agent, dshProfile, platform, mode, scope, key, includeKey, autoSubmit],
+  () => {
+    copied.value = false;
+    manualCopy.value = false;
+  },
+);
 onMounted(loadManifest);
 onBeforeUnmount(() => {
   controller.abort();
@@ -200,16 +208,17 @@ onBeforeUnmount(() => {
             >本地智能体<AppSelect v-model="agent">
               <option value="codex">Codex · 一键安装命令</option>
               <option value="claudecode">Claude Code · 一键安装命令</option>
-              <option value="other">其他智能体（含 dsh）· 提示词安装</option>
+              <option value="dsh">DeepSeek Harness · GUI / Web 插件</option>
+              <option value="other">其他智能体 · 提示词安装</option>
             </AppSelect></label
           >
-          <label v-if="commandMode" class="field"
+          <label v-if="commandMode && agent !== 'dsh'" class="field"
             >终端系统<AppSelect v-model="platform">
               <option value="posix">macOS / Linux</option>
               <option value="windows">Windows PowerShell</option>
             </AppSelect></label
           >
-          <div class="connect-modes">
+          <div v-if="agent !== 'dsh'" class="connect-modes">
             <button
               v-for="item in modes"
               :key="item.id"
@@ -223,8 +232,38 @@ onBeforeUnmount(() => {
               ><small>{{ item.description }}</small>
             </button>
           </div>
-          <h3 class="connect-scope-title">接入范围</h3>
-          <div class="connect-modes" role="group" aria-label="接入范围">
+          <section v-if="agent === 'dsh'" class="connect-help">
+            <h3>原生 Harness 插件</h3>
+            <label class="field"
+              >Harness profile<AppSelect v-model="dshProfile">
+                <option value="web">Web</option>
+                <option value="desktop">Desktop / GUI</option>
+              </AppSelect></label
+            >
+            <p>
+              复制安装命令，或在 Harness「插件 →
+              添加插件」粘贴下面的域名包地址。安装后打开「TeamKB
+              团队知识库」详情页配置，填写个人 Key。无需 Python 或项目初始化。
+            </p>
+            <a
+              :href="origin + '/static/downloads/dsh-teamkb-0.1.1.tgz'"
+              class="text-link"
+              >下载 TeamKB 插件包 →</a
+            >
+            <p>地址：{{ origin }}/static/downloads/dsh-teamkb-0.1.1.tgz</p>
+            <p>
+              支持官方预览版 0.2.2 rc 系列；Desktop 和 Web 安装到各自实际使用的
+              profile，提示重启时重启对应应用。贡献开关在 Harness
+              插件设置中开启。
+            </p>
+          </section>
+          <h3 v-if="agent !== 'dsh'" class="connect-scope-title">接入范围</h3>
+          <div
+            v-if="agent !== 'dsh'"
+            class="connect-modes"
+            role="group"
+            aria-label="接入范围"
+          >
             <button
               v-for="item in scopes"
               :key="item.id"
@@ -238,7 +277,7 @@ onBeforeUnmount(() => {
               ><small>{{ item.description }}</small>
             </button>
           </div>
-          <p class="connect-help connect-init-note">
+          <p v-if="agent !== 'dsh'" class="connect-help connect-init-note">
             {{
               scope === "user"
                 ? "先运行 wb init --scope user 初始化用户配置，再注册全局 MCP / Skill。"
@@ -249,7 +288,7 @@ onBeforeUnmount(() => {
             <span>当前团队服务</span><code>{{ origin }}</code>
           </div>
         </section>
-        <section class="panel connect-panel">
+        <section v-if="agent !== 'dsh'" class="panel connect-panel">
           <h2><span class="connect-number">2</span>个人访问凭据</h2>
           <RouterLink v-if="commandMode" to="/account" class="text-link"
             >前往个人中心创建 Key →</RouterLink
@@ -339,7 +378,7 @@ onBeforeUnmount(() => {
           </template>
         </section>
         <section
-          v-if="!['mcp', 'recommended'].includes(mode)"
+          v-if="agent !== 'dsh' && !['mcp', 'recommended'].includes(mode)"
           class="panel connect-panel"
         >
           <h2>经验沉淀</h2>
@@ -363,14 +402,18 @@ onBeforeUnmount(() => {
             </h2>
           </div>
           <span class="badge">{{
-            modes.find((m) => m.id === mode)?.title
+            agent === "dsh"
+              ? "原生 GUI / Web 插件"
+              : modes.find((m) => m.id === mode)?.title
           }}</span>
         </div>
         <p class="connect-help">
           {{
-            commandMode
-              ? "在本机交互终端执行下方命令。Shell 会先检测系统、Python、venv、Agent 命令和网络；可在命令末尾追加 --check-only 仅检测。Windows 使用 Python 安装入口。CLI 直接合并 Agent 指令；MCP 仅注册工具，不修改系统提示词。"
-              : "复制提示词交给本地 Agent，它会识别系统与客户端、保留已有配置并验证连接。"
+            agent === "dsh"
+              ? "在 Harness 插件页粘贴包地址，或运行下面的 profile 安装命令。Key 在插件设置中填写；无需 Python、MCP 或项目初始化。"
+              : commandMode
+                ? "在本机交互终端执行下方命令。Shell 会先检测系统、Python、venv、Agent 命令和网络；可在命令末尾追加 --check-only 仅检测。Windows 使用 Python 安装入口。CLI 直接合并 Agent 指令；MCP 仅注册工具，不修改系统提示词。"
+                : "复制提示词交给本地 Agent，它会识别系统与客户端、保留已有配置并验证连接。"
           }}
         </p>
         <div v-if="loading" class="connect-loading">

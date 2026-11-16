@@ -195,7 +195,9 @@ test("Codex and Claude Code offer credential-free commands with mode and scope",
   await expect(preview).toContainText("/install.sh -o teamkb-install.sh");
   await expect(preview).toContainText("codex recommended user");
   await expect(preview).toContainText("--retry-all-errors");
-  await expect(preview).toContainText('&& source "$HOME/.teamkb-venv/bin/activate"');
+  await expect(preview).toContainText(
+    '&& source "$HOME/.teamkb-venv/bin/activate"',
+  );
   await expect(page.getByLabel("已有个人 Key", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
   await expect(preview).toContainText("codex cli user");
@@ -215,4 +217,20 @@ test("Codex and Claude Code offer credential-free commands with mode and scope",
   await expect(preview).toContainText("py -3 -c");
   await page.getByRole("button", { name: "复制安装命令", exact: true }).click();
   expect(await page.evaluate(() => window.copiedPrompt)).not.toContain(secret);
+});
+
+test("Harness plugin installation selects independent GUI and Web profiles", async ({
+  page,
+}) => {
+  await page.goto("/#/connect?agent=dsh");
+  const preview = page.getByLabel("安装提示词预览");
+  await expect(preview).toContainText("dsh plugin --profile web add");
+  await expect(preview).toContainText("/static/downloads/dsh-teamkb-0.1.1.tgz");
+  await expect(preview).not.toContainText("python");
+  await page.getByRole("combobox", { name: "Harness profile" }).click();
+  await page
+    .getByRole("option", { name: "Desktop / GUI", exact: true })
+    .click();
+  await expect(preview).toContainText("dsh plugin --profile desktop add");
+  await expect(page.getByLabel("已有个人 Key", { exact: true })).toHaveCount(0);
 });
