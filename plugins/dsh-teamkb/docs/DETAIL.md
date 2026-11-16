@@ -17,3 +17,7 @@
 0.1.1 补齐显示元数据，并增加插件详情页的直接配置表单。更新包后重启对应 Desktop 或 Web 服务；浏览器刷新即可加载新客户端。Web 与 Desktop 使用各自 profile，请安装到实际使用的 profile。若组件关闭，先启用插件。
 
 凭据由 Harness profile 管理；不要让多人共用一个 profile 的 Key。完整说明见 https://www.ljc.monster/#/guide 。
+
+## Sidebar workbench / 侧栏工作台
+
+Open TeamKB 知识库 from the sidebar for search, document reading, connection settings and call logs. 侧栏支持连接测试、分类查询、文档检索和续读、当前个人 Key 的调用日志分页与脱敏结果详情；点击连接配置可保存设置。

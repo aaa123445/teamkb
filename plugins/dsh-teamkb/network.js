@@ -41,8 +41,12 @@ export async function request(config, path, { method = 'GET', body, signal, read
       continue;
     }
     if (!response.ok) {
-      await response.body?.cancel();
-      const hints = {401: '个人 Key 无效或已吊销', 403: '账号尚未批准或 Key 权限不足', 429: '调用额度已用尽，请稍后重试', 409: '知识版本冲突，请重新读取原文', 422: '提交字段不完整，请核对分类、正文和验证材料'};
+      let missingDocument = false;
+      if (response.status === 400 && path === '/api/v1/read') {
+        // Inspect only the machine error code; never echo arbitrary response bodies or credentials.
+        try { missingDocument = (await response.json()).error === 'not_found'; } catch {}
+      } else { await response.body?.cancel(); }
+      const hints = {400: missingDocument ? '文档 ID 不存在，请先用 kb_search 获取有效 ID，再用 kb_read 阅读' : '请求参数无效，请检查文档 ID、分类或输入内容', 404: '记录不存在、已删除或无权访问', 401: '个人 Key 无效或已吊销', 403: '账号尚未批准或 Key 权限不足', 429: '调用额度已用尽，请稍后重试', 409: '知识版本冲突，请重新读取原文', 422: '提交字段不完整，请核对分类、正文和验证材料'};
       throw new TeamKBError(`TeamKB HTTP ${response.status}：${hints[response.status] || '请求失败，请检查服务状态'}`);
     }
     try { return await response.json(); } catch { throw new TeamKBError('TeamKB 返回的内容不是有效 JSON'); }

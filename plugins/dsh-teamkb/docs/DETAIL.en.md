@@ -11,3 +11,7 @@ Contributions are disabled by default. Enable them with a writer Key to allow ve
 ## Verify and upgrade
 
 After saving, start a new session and call kb_stats to test the connection. Saving alone does not test connectivity. Version 0.1.1 adds localized metadata, artwork, documentation and a direct bundle settings form. Restart Desktop or the Web service after upgrading, then refresh the browser. Install into the profile you actually use. Credentials belong to the host profile; use separate profiles for different users.
+
+## Sidebar workbench / 侧栏工作台
+
+Open TeamKB 知识库 from the sidebar for search, document reading, connection settings and call logs. 侧栏支持连接测试、分类查询、文档检索和续读、当前个人 Key 的调用日志分页与脱敏结果详情；点击连接配置可保存设置。

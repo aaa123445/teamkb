@@ -22,7 +22,7 @@ test('shipped browser module exposes both settings entries and supplies a live b
   const sandbox=createContext({window:{__ModuleLoader__:{load:module=>{client=module.factory(name=>{assert.equal(name,'react');return react;});}}}});
   runInContext(read('client.js'),sandbox);
   assert.ok(client.inject.includes('configForms'));
-  client.apply({configForms:{get:id=>{assert.equal(id,'teamkb');return controller;}},slots:{inject:(_,fn)=>fn(),register:(entry,component)=>registered.push({entry,component})}});
+  client.apply({connection:{rpc:{}},configForms:{get:id=>{assert.equal(id,'teamkb');return controller;}},slots:{inject:(_,fn)=>fn(),register:(entry,component)=>registered.push({entry,component})}});
   const bundle=registered.find(r=>r.entry.name==='plugins.bundle.config');
   assert.equal(bundle.entry.key,'dsh-teamkb');
   const form=bundle.component({view:'page'}).props.form;

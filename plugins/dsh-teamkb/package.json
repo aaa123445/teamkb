@@ -1,6 +1,6 @@
 {
   "name": "dsh-teamkb",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "TeamKB 团队知识库：分类检索、规范、知识链和经验证的知识贡献，支持 Harness Desktop 与 Web。",
   "type": "module",
   "main": "index.js",
@@ -23,7 +23,9 @@
     "build-client.cjs",
     "locale/*.json",
     "icon.svg",
-    "docs/*.md"
+    "docs/*.md",
+    "workbench.js",
+    "workbench-client.js"
   ],
   "engines": {
     "node": ">=24.9.0",
@@ -45,7 +47,8 @@
     "client": {
       "inject": [
         "@deepseek-ai/dsh-client-ui-settings",
-        "@deepseek-ai/dsh-client-ui-plugin-manager"
+        "@deepseek-ai/dsh-client-ui-plugin-manager",
+        "@deepseek-ai/dsh-client-connection"
       ],
       "platform": "web"
     }

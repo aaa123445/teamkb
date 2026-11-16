@@ -35,14 +35,14 @@ curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://w
 官方预览版 Harness 可直接安装 `dsh-teamkb` bundle，无需本地 Python / wb / MCP。进入 Harness「Plugins → Add plugin」粘贴本站下载地址：
 
 ```text
-https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
 ```
 
 CLI 对应命令（只安装自己使用的 profile）：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz
-dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
 ```
 
 需要 Node.js 24.9+ 与 Harness 0.2.2 rc 系列；界面安装使用宿主自带包管理器，独立 CLI 若提示缺少 pnpm 则按其提示安装。插件打包了可直接运行的 JS，不运行安装构建脚本。
@@ -513,3 +513,5 @@ writer / admin 可建立相关知识、前置知识、问题与解法、应用�
 模型 API 根地址支持 HTTP 和 HTTPS，填写到 `/v1` 等根路径，不包含 `/chat/completions`。如果服务方拒绝服务器地区访问，会显示拒绝原因，需要更换允许服务器访问的端点。
 
 个人 Key 的可查看副本加密保存在数据库中，加密文件为数据目录下 `personal-key-encryption.key`（权限 600），备份和迁移时需一并保留。只有登录后的本人能查看未吊销的个人 Key，列表默认不返回完整 Key。
+
+DeepSeek Harness 插件还提供 TeamKB 侧栏工作台，可进行统计、分类查询、文档检索、正文阅读和个人调用日志查看；所有 TeamKB HTTP 请求由 Harness 宿主执行，浏览器端不直接持有 API Key。

@@ -10,7 +10,7 @@ const config = {serverUrl: 'https://team.example', apiKey: 'private-key', allowC
 
 test('official defineTool validates input and plugin registers tools and runtime prompt', async () => {
   const tools = new Map(); let section;
-  const ctx = {tools: {register: t => tools.set(t.name, t)}, systemPrompt: {section: s => {section = s;}}};
+  const ctx = {inject: () => {}, tools: {register: t => tools.set(t.name, t)}, systemPrompt: {section: s => {section = s;}}};
   apply(ctx, config);
   assert.equal(tools.size, 8);
   assert.match(section.text(), /贡献当前关闭/);
@@ -60,4 +60,11 @@ test('writes do not retry, errors redact body and key, cancellation propagates',
   const controller = new AbortController(); controller.abort();
   await assert.rejects(request(config, '/api/v1/stats', {signal: controller.signal}), {name: 'AbortError'});
   assert.throws(() => validateEndpoint('https://key:password@team.example'), /凭据/);
+});
+
+test('400 document-not-found explains ID correction without retry or exposing body', async()=>{
+  let count=0;
+  await assert.rejects(request(config,'/api/v1/read',{fetcher:async()=>{count++;return new Response(JSON.stringify({error:'not_found',message:'private-key'}),{status:400});}}),e=>/文档 ID 不存在/.test(e.message)&&/kb_search/.test(e.message)&&!e.message.includes('private-key'));
+  assert.equal(count,1);
+  await assert.rejects(request(config,'/api/v1/search',{fetcher:async()=>new Response('{}',{status:400})}),/请求参数无效/);
 });

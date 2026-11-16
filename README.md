@@ -44,14 +44,14 @@ wb categories
 
 ## DeepSeek Harness 插件
 
-在 Harness「Plugins → Add plugin」输入 [dsh-teamkb 插件包](https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz)，或执行：
+在 Harness「Plugins → Add plugin」输入 [dsh-teamkb 插件包](https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz)，或执行：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.1.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
 # Desktop / GUI 使用 --profile desktop
 ```
 
-插件设置页填写地址、个人 Key 和贡献开关；包含分类、规范、检索、阅读、知识链和知识提交，无需 Python、MCP 或项目初始化。按官方预览版 `0.2.2-rc.1` 验证，兼容范围和宿主凭据说明见 [插件说明](plugins/dsh-teamkb/README.md)。
+插件设置页填写地址、个人 Key 和贡献开关；包含侧栏工作台、分类、规范、检索、阅读、知识链、调用日志和知识提交，无需 Python、MCP 或项目初始化。按官方预览版 `0.2.2-rc.1` 验证，兼容范围和宿主凭据说明见 [插件说明](plugins/dsh-teamkb/README.md)。
 
 ## 架构
 

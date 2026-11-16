@@ -1,7 +1,8 @@
+import {Workbench, WorkbenchIcon} from './workbench-client.js';
 import React, { useState, useSyncExternalStore } from 'react';
 
 export const name = 'teamkb-settings';
-export const inject = ['slots', 'configForms'];
+export const inject = ['slots', 'configForms', 'connection'];
 const h = React.createElement;
 const style = {display: 'grid', gap: 16, maxWidth: 640, padding: 20};
 
@@ -55,6 +56,17 @@ export function apply(ctx) {
     const state = useSyncExternalStore(subscribe, snapshot, snapshot);
     return h(TeamKBSettings, {...props, form: {state, mutate: (ops, revision) => controller.mutate(ops, revision)}});
   }
+  const query = async (input, signal) => {
+    const result = await ctx.connection.rpc.call('/api', 'teamkb/query', input, signal);
+    if (!result.ok) throw new Error(result.error.message);
+    return result.value;
+  };
+  ctx.slots.inject('main', () => ctx.slots.register({
+    name:'main', key:'teamkb-workbench', inject:()=>({query, Settings:BundleSettings}),
+  }, Workbench));
+  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
+    name:'sidebar.panellist', id:'teamkb-workbench', order:15, label:()=> 'TeamKB 知识库',
+  }, WorkbenchIcon));
   // Expose settings on the bundle page as well as its individual row.
   ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
     name: 'plugins.bundle.config', key: 'dsh-teamkb',
