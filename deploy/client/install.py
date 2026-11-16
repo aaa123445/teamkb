@@ -19,7 +19,7 @@ from urllib.request import Request, urlopen
 import venv
 import zipfile
 
-VERSION = "0.5.3"
+VERSION = "0.5.4"
 WHEEL = f"v8_workbench-{VERSION}-py3-none-any.whl"
 SKILL = f"team-knowledge-{VERSION}.zip"
 class InstallError(Exception):
@@ -29,9 +29,33 @@ class InstallError(Exception):
 BEGIN, END = "<!-- TEAMKB:BEGIN -->", "<!-- TEAMKB:END -->"
 
 
-def download(url):
-    with urlopen(Request(url, headers={"User-Agent": "TeamKB-Installer/" + VERSION}), timeout=60) as response:
+def request_bytes(url, key=""):
+    if os.environ.get("TEAMKB_DOWNLOAD_TRANSPORT") == "curl":
+        # Feed credential headers through stdin, never argv or temporary files.
+        headers = ("Authorization: Bearer " + key + "\n") if key else ""
+        result = subprocess.run(
+            ["curl", "--silent", "--show-error", "--max-time", "60",
+             "--user-agent", "TeamKB-Installer/" + VERSION,
+             "--header", "@-", "--write-out", "\n%{http_code}", url],
+            input=headers.encode(), capture_output=True,
+        )
+        if result.returncode:
+            raise InstallError(f"curl 网络连接失败（退出码 {result.returncode}）；请检查系统代理与证书。未关闭 TLS 校验")
+        body, _, raw_status = result.stdout.rpartition(b"\n")
+        status = int(raw_status)
+        if not 200 <= status < 300:
+            from urllib.error import HTTPError
+            raise HTTPError(url, status, "Request failed", {}, None)
+        return body
+    headers = {"User-Agent": "TeamKB-Installer/" + VERSION}
+    if key:
+        headers["Authorization"] = "Bearer " + key
+    with urlopen(Request(url, headers=headers), timeout=60) as response:
         return response.read()
+
+
+def download(url):
+    return request_bytes(url)
 
 
 def verified_download(origin, name, manifest):
@@ -172,8 +196,7 @@ def main():
         raise InstallError("请提供有效的个人 API Key")
     print("[1/4] 验证服务地址与个人 Key…", flush=True)
     # Verify access before changing client, instructions or MCP configuration.
-    with urlopen(Request(origin + "/api/v1/stats", headers={"Authorization": "Bearer " + key, "User-Agent": "TeamKB-Installer/" + VERSION}), timeout=30) as response:
-        json.load(response)
+    json.loads(request_bytes(origin + "/api/v1/stats", key))
     print("[2/4] 下载并校验客户端文件…", flush=True)
     manifest = json.loads(download(origin + "/static/downloads/manifest.json?installer=" + VERSION))
     wheel = verified_download(origin, WHEEL, manifest)

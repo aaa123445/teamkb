@@ -1,8 +1,8 @@
 import instructionTemplate from "../../../skill/team-knowledge/references/agent-instructions.md?raw";
 
-export const clientFile = "v8_workbench-0.5.3-py3-none-any.whl";
-export const skillFile = "team-knowledge-0.5.3.zip";
-export const installerFile = "install-teamkb-0.5.3.py";
+export const clientFile = "v8_workbench-0.5.4-py3-none-any.whl";
+export const skillFile = "team-knowledge-0.5.4.zip";
+export const installerFile = "install-teamkb-0.5.4.py";
 export const modes = [
   {
     id: "recommended",
@@ -132,8 +132,8 @@ export function installationCommand({
 }) {
   const file =
     platform === "windows"
-      ? "install-teamkb-0.5.3.py"
-      : "install-teamkb-0.5.3.sh";
+      ? "install-teamkb-0.5.4.py"
+      : "install-teamkb-0.5.4.sh";
   const hash = manifest?.sha256?.[file];
   if (!/^[a-f0-9]{64}$/i.test(hash || ""))
     throw new Error("安装器校验信息尚未就绪，请重试加载。");
@@ -158,6 +158,6 @@ export function installationCommand({
     const customOrigin = origin === "https://www.ljc.monster" ? "" : ` --url ${quote(origin)}`;
     return `curl -fsSL ${origin}/install.sh -o teamkb-install.sh && bash teamkb-install.sh ${agent} ${mode} ${scope}${customOrigin}${suffix}`;
   }
-  const program = `import urllib.request,hashlib,tempfile,pathlib,runpy,sys; d=urllib.request.urlopen(urllib.request.Request(${JSON.stringify(url)},headers={"User-Agent":"TeamKB-Installer/0.5.3"}),timeout=60).read(); assert hashlib.sha256(d).hexdigest()==${JSON.stringify(hash)},"Installer SHA-256 mismatch"; t=tempfile.TemporaryDirectory(); p=pathlib.Path(t.name)/"install.py"; p.write_bytes(d); sys.argv=${JSON.stringify(args)}; runpy.run_path(str(p),run_name="__main__")`;
+  const program = `import urllib.request,hashlib,tempfile,pathlib,runpy,sys; d=urllib.request.urlopen(urllib.request.Request(${JSON.stringify(url)},headers={"User-Agent":"TeamKB-Installer/0.5.4"}),timeout=60).read(); assert hashlib.sha256(d).hexdigest()==${JSON.stringify(hash)},"Installer SHA-256 mismatch"; t=tempfile.TemporaryDirectory(); p=pathlib.Path(t.name)/"install.py"; p.write_bytes(d); sys.argv=${JSON.stringify(args)}; runpy.run_path(str(p),run_name="__main__")`;
   return `${platform === "windows" ? "py -3" : "python3"} -c '${program.replaceAll("'", platform === "windows" ? "''" : "'\"'\"'")}'`;
 }

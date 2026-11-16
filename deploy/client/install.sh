@@ -50,23 +50,23 @@ fi
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 printf '[环境检测] 正在检查站点连通性与下载服务…\n'
-curl --fail --silent --show-error --location --max-time 60 "$origin/static/downloads/manifest.json?installer=0.5.3" -o "$tmpdir/manifest.json"
-# Verify installer bytes before execution. All downloads stay on the site domain.
-"$python_cmd" - "$origin" "$tmpdir" <<'PY'
-import hashlib,json,pathlib,re,sys,urllib.request
-origin,target=sys.argv[1],pathlib.Path(sys.argv[2])
-manifest=json.loads((target/'manifest.json').read_text())
-name='install-teamkb-0.5.3.py'
-sha=manifest.get('sha256',{}).get(name,'')
+curl --fail --silent --show-error --location --max-time 60 "$origin/static/downloads/manifest.json?installer=0.5.4" -o "$tmpdir/manifest.json"
+# Use the same working curl transport for every network operation.
+"$python_cmd" - "$tmpdir" <<'PYCODE'
+import json,pathlib,re,sys
+p=pathlib.Path(sys.argv[1]);m=json.loads((p/'manifest.json').read_text())
+sha=m.get('sha256',{}).get('install-teamkb-0.5.4.py','')
 if not re.fullmatch('[a-f0-9]{64}',sha):
     raise SystemExit('安装器 SHA-256 清单无效，请刷新接入页。')
-try:
-    data=urllib.request.urlopen(urllib.request.Request(origin+'/static/downloads/'+name+'?sha256='+sha,headers={'User-Agent':'TeamKB-Installer/0.5.3'}),timeout=60).read()
-except Exception as exc:
-    raise SystemExit('无法下载安装器：'+type(exc).__name__+'；请检查代理、TLS证书与网络。')
-if hashlib.sha256(data).hexdigest()!=sha:
+(p/'expected.sha256').write_text(sha)
+PYCODE
+installer_hash=$(cat "$tmpdir/expected.sha256")
+curl --fail --silent --show-error --location --max-time 60 "$origin/static/downloads/install-teamkb-0.5.4.py?sha256=$installer_hash" -o "$tmpdir/install.py"
+"$python_cmd" - "$tmpdir" <<'PYCODE'
+import hashlib,pathlib,sys
+p=pathlib.Path(sys.argv[1])
+if hashlib.sha256((p/'install.py').read_bytes()).hexdigest()!=(p/'expected.sha256').read_text():
     raise SystemExit('安装器 SHA-256 不匹配，停止安装。')
-(target/'install.py').write_bytes(data)
-print('[环境检测] 域名下载、TLS 与安装器校验：正常')
-PY
-"$python_cmd" "$tmpdir/install.py" "${args[@]}"
+print('[环境检测] curl 网络访问与安装器校验：正常')
+PYCODE
+TEAMKB_DOWNLOAD_TRANSPORT=curl "$python_cmd" "$tmpdir/install.py" "${args[@]}"

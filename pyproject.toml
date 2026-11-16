@@ -1,6 +1,6 @@
 [project]
 name = "v8-workbench"
-version = "0.5.3"
+version = "0.5.4"
 description = "TeamKB 团队知识共享平台 — 分类检索、贡献审核与 Agent 经验沉淀"
 requires-python = ">=3.11"
 dependencies = [

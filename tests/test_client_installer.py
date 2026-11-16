@@ -94,3 +94,27 @@ def test_check_only_never_reads_key_or_writes_config(tmp_path, monkeypatch, caps
     assert installer.entrypoint() == 0
     assert '环境检测通过' in capsys.readouterr().out
     assert not list(tmp_path.iterdir())
+
+
+def test_curl_transport_keeps_credentials_out_of_arguments(monkeypatch):
+    monkeypatch.setenv('TEAMKB_DOWNLOAD_TRANSPORT', 'curl')
+    seen = []
+    def run(args, **kwargs):
+        seen.append((args, kwargs))
+        return SimpleNamespace(returncode=0, stdout=b'{"documents": 1}\n200')
+    monkeypatch.setattr(installer.subprocess, 'run', run)
+    assert json.loads(installer.request_bytes('https://team.example/api/v1/stats', 'private-key'))['documents'] == 1
+    assert 'private-key' not in json.dumps(seen[0][0])
+    assert seen[0][1]['input'] == b'Authorization: Bearer private-key\n'
+    assert '--insecure' not in seen[0][0]
+
+
+def test_curl_transport_reports_http_failure_without_response_body(monkeypatch, capsys):
+    monkeypatch.setenv('TEAMKB_DOWNLOAD_TRANSPORT', 'curl')
+    monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **kw: SimpleNamespace(returncode=0, stdout=b'sensitive-server-body\n403'))
+    monkeypatch.setattr(installer, 'main', lambda: installer.request_bytes('https://team.example', 'private-key'))
+    assert installer.entrypoint() == 1
+    error = capsys.readouterr().err
+    assert 'HTTP 403' in error
+    assert 'sensitive-server-body' not in error
+    assert 'private-key' not in error
