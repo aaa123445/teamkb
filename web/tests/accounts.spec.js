@@ -64,6 +64,7 @@ async function mockApp(
           role: body.role,
           key_prefix: "wr_test",
           enabled: true,
+          recoverable: true,
           used_today: 0,
           daily_limit: 20000,
         });
@@ -71,7 +72,9 @@ async function mockApp(
         code = 201;
       } else data = { keys };
     }
-    if (path.startsWith("/account/keys/")) {
+    if (path.endsWith("/reveal")) {
+      data = { key: "test-personal-secret-once" };
+    } else if (path.startsWith("/account/keys/")) {
       keys = keys.map((k) => ({ ...k, enabled: false }));
       data = { revoked: true };
     }
@@ -144,6 +147,38 @@ test("账号登录后只能选择获准角色，个人 Key 可创建和吊销", 
     "test-personal-secret-once",
   );
   await expect(page.locator("table")).toContainText("我的 Codex");
+  await page
+    .getByRole("button", { name: "已保存，关闭显示", exact: true })
+    .click();
+  await expect(page.locator("table")).not.toContainText(
+    "test-personal-secret-once",
+  );
+  await page.getByRole("button", { name: "查看", exact: true }).click();
+  await expect(page.locator("table")).toContainText(
+    "test-personal-secret-once",
+  );
+  await page.getByRole("button", { name: "隐藏", exact: true }).click();
+  await expect(page.locator("table")).not.toContainText(
+    "test-personal-secret-once",
+  );
+  await page.evaluate(() =>
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async (value) => {
+          window.copiedKey = value;
+        },
+      },
+      configurable: true,
+    }),
+  );
+  await page
+    .locator("table")
+    .getByRole("button", { name: "复制", exact: true })
+    .click();
+  await expect
+    .poll(() => page.evaluate(() => window.copiedKey))
+    .toBe("test-personal-secret-once");
+
   await page.getByRole("button", { name: "吊销", exact: true }).click();
   await page
     .getByRole("dialog", { name: "确认操作" })

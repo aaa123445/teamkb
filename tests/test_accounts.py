@@ -341,3 +341,66 @@ def test_existing_database_migrates_without_losing_legacy_keys(tmp_path):
     assert db.one("SELECT * FROM api_keys")["key_hash"] == hash_key("legacy-secret")
     Database(path)
     assert db.scalar("SELECT COUNT(*) FROM api_keys") == 1
+
+
+def test_personal_key_reveal_is_persistent_owner_only_and_not_in_list(env):
+    c, client, admin, _ = env
+    alice, bob = client(), client()
+    a, b = register(alice), register(bob, "bob")
+    approve(admin, a)
+    approve(admin, b)
+    login(alice)
+    login(bob, "bob")
+    key = create_key(alice)
+    path = "/api/v1/account/keys/" + key["prefix"] + "/reveal"
+    assert bob.post(path).status_code == 404
+    assert client().post(path).status_code == 401
+    bearer = client()
+    bearer.headers["Authorization"] = "Bearer " + key["key"]
+    assert bearer.post(path).status_code == 401
+    rows = alice.get("/api/v1/account/keys").json()["keys"]
+    assert rows[0]["recoverable"] is True
+    assert key["key"] not in str(rows)
+    encrypted = c.db.one(
+        "SELECT key_ciphertext FROM api_keys WHERE key_prefix=?", (key["prefix"],)
+    )["key_ciphertext"]
+    assert encrypted and key["key"] not in encrypted
+    from server.core.auth import AuthService
+
+    fresh = AuthService(c.db, require_auth=True, default_rpm=120, default_daily=20000)
+    assert fresh.reveal_key(key["prefix"], a["id"]) == key["key"]
+    response = alice.post(path)
+    assert response.status_code == 200
+    assert response.json()["key"] == key["key"]
+    assert response.headers["cache-control"] == "no-store"
+    assert (
+        c.db.path.parent / "personal-key-encryption.key"
+    ).stat().st_mode & 0o777 == 0o600
+    alice.delete("/api/v1/account/keys/" + key["prefix"])
+    assert alice.post(path).status_code == 404
+    assert (
+        c.db.one(
+            "SELECT key_ciphertext FROM api_keys WHERE key_prefix=?", (key["prefix"],)
+        )["key_ciphertext"]
+        is None
+    )
+
+
+def test_legacy_hash_only_key_still_authenticates_but_cannot_reveal(env):
+    c, client, admin, _ = env
+    alice = client()
+    a = register(alice)
+    approve(admin, a)
+    login(alice)
+    key = create_key(alice)
+    with c.db.write() as conn:
+        conn.execute(
+            "UPDATE api_keys SET key_ciphertext=NULL WHERE key_prefix=?",
+            (key["prefix"],),
+        )
+    assert (
+        alice.post("/api/v1/account/keys/" + key["prefix"] + "/reveal").status_code
+        == 404
+    )
+    assert not alice.get("/api/v1/account/keys").json()["keys"][0]["recoverable"]
+    assert c.auth.authenticate(key["key"]).user_id == a["id"]

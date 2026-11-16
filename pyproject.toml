@@ -5,6 +5,7 @@ description = "TeamKB 团队知识共享平台 — 分类检索、贡献审核�
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115",
+    "cryptography>=43",
     "uvicorn[standard]>=0.30",
     "pydantic>=2.7",
     "httpx>=0.27",

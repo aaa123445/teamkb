@@ -4,7 +4,15 @@ import { ask } from "../composables/confirmation";
 import { useRouter } from "vue-router";
 import { handoffConnectionKey } from "../composables/connection";
 import { computed, ref } from "vue";
-import { KeyRound, Copy, Plus, Trash2, LoaderCircle } from "lucide-vue-next";
+import {
+  KeyRound,
+  Copy,
+  Plus,
+  Trash2,
+  LoaderCircle,
+  Eye,
+  EyeOff,
+} from "lucide-vue-next";
 import { api, post } from "../services/api";
 import { currentUser } from "../composables/session";
 import { notify } from "../composables/workspace";
@@ -24,6 +32,42 @@ const name = ref(""),
   busy = ref(false),
   revoking = ref(""),
   newKey = ref("");
+const revealed = ref({});
+const fetching = ref("");
+async function getKey(item) {
+  fetching.value = item.key_prefix;
+  try {
+    return (
+      await post(
+        "/account/keys/" + encodeURIComponent(item.key_prefix) + "/reveal",
+        {},
+        { key: "" },
+      )
+    ).key;
+  } finally {
+    fetching.value = "";
+  }
+}
+async function reveal(item) {
+  if (revealed.value[item.key_prefix]) {
+    delete revealed.value[item.key_prefix];
+    return;
+  }
+  try {
+    revealed.value[item.key_prefix] = await getKey(item);
+  } catch (e) {
+    notify(e.message, "error");
+  }
+}
+async function copyExisting(item) {
+  try {
+    const raw = await getKey(item);
+    await navigator.clipboard.writeText(raw);
+    notify("已复制个人 Key");
+  } catch (e) {
+    notify(e.message || "复制失败，请查看后手动复制", "error");
+  }
+}
 const ranks = { reader: 1, writer: 2, admin: 3 };
 const roles = computed(() =>
   Object.keys(ranks).filter(
@@ -40,7 +84,7 @@ async function create() {
     );
     newKey.value = result.key;
     name.value = "";
-    notify("个人 Key 已创建，请立即复制保存");
+    notify("个人 Key 已创建，可随时查看和复制");
     await reload();
   } catch (e) {
     notify(e.message, "error");
@@ -61,6 +105,8 @@ async function revoke(key) {
       key: "",
       method: "DELETE",
     });
+    delete revealed.value[key.key_prefix];
+    newKey.value = "";
     notify("个人 Key 已吊销");
     await reload();
   } catch (e) {
@@ -91,7 +137,7 @@ async function copy() {
       个，权限不超过账号角色。
     </p>
     <div v-if="newKey" class="new-key-box" role="status">
-      <strong>仅显示这一次，请立即保存</strong>
+      <strong>已创建，可在下方列表再次查看和复制</strong>
       <div>
         <code>{{ newKey }}</code><button class="button small" @click="copy">
           <Copy :size="14" />复制
@@ -131,6 +177,34 @@ async function copy() {
                 }}</span>
               </td>
               <td>
+                <template v-if="key.enabled && key.recoverable">
+                  <button
+                    class="button small"
+                    :disabled="!!fetching"
+                    @click="reveal(key)"
+                  >
+                    <EyeOff v-if="revealed[key.key_prefix]" :size="13" /><Eye
+                      v-else
+                      :size="13"
+                    />{{ revealed[key.key_prefix] ? "隐藏" : "查看" }}
+                  </button>
+                  <button
+                    class="button small"
+                    :disabled="!!fetching"
+                    @click="copyExisting(key)"
+                  >
+                    <Copy :size="13" />复制
+                  </button>
+                  <code
+                    v-if="revealed[key.key_prefix]"
+                    class="table-secondary"
+                    style="overflow-wrap: anywhere; white-space: normal"
+                    >{{ revealed[key.key_prefix] }}</code
+                  >
+                </template>
+                <span v-else-if="key.enabled" class="muted"
+                  >旧 Key 无法查看，请重新创建</span
+                >
                 <button
                   v-if="key.enabled"
                   class="button small danger"

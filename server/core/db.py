@@ -210,6 +210,8 @@ class Database:
                 conn.execute(
                     "ALTER TABLE api_keys ADD COLUMN auto_publish INTEGER NOT NULL DEFAULT 0"
                 )
+            if "key_ciphertext" not in columns:
+                conn.execute("ALTER TABLE api_keys ADD COLUMN key_ciphertext TEXT")
             conn.commit()
 
     def _conn(self) -> sqlite3.Connection:

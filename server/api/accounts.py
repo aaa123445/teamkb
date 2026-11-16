@@ -173,7 +173,20 @@ def register_routes(app, principal, need):
         raw, meta = get_container().auth.create_key(
             req.name.strip(), req.role, owner_user_id=user["id"]
         )
-        return {"key": raw, "warning": "只显示一次，请立即保存", **meta}
+        return {"key": raw, "warning": "可在个人 Key 列表再次查看和复制", **meta}
+
+    @app.post("/api/v1/account/keys/{prefix}/reveal")
+    def reveal_my_key(prefix: str, response: Response, user=Depends(active_user)):
+        c = get_container()
+        c.accounts.throttle("reveal-key", user["id"], 60)
+        raw = c.auth.reveal_key(prefix, user["id"])
+        if raw is None:
+            raise AccountError(
+                "Key 不存在、已吊销或为旧版仅哈希 Key，旧 Key 请重新创建", 404
+            )
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Pragma"] = "no-cache"
+        return {"key": raw}
 
     @app.delete("/api/v1/account/keys/{prefix}")
     def revoke_my_key(prefix: str, user=Depends(active_user)):

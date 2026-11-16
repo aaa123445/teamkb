@@ -1,6 +1,6 @@
 """API Key 鉴权 + 配额。
 
-Key 格式：wb_<role-short>_<32位随机>  —— 前缀明文存库便于管理员识别，本体只存哈希。
+Key 格式：wb_<role-short>_<32位随机>  —— 前缀明文存库便于管理员识别，鉴权保存哈希，个人 Key 另存加密副本供本人查看。
 角色：
   admin  读写一切、管 key、触发同步
   writer 可提交/上传知识（本地 agent 自动推送用这个）
@@ -10,6 +10,8 @@ Key 格式：wb_<role-short>_<32位随机>  —— 前缀明文存库便于管�
 from __future__ import annotations
 
 import hashlib
+import os
+from cryptography.fernet import Fernet, InvalidToken
 import secrets
 import time
 from dataclasses import dataclass
@@ -84,6 +86,9 @@ class AuthService:
         raw = f"wb_{tag}_{secrets.token_urlsafe(24)}"
         prefix = _prefix_of(raw)
         now = time.time()
+        ciphertext = (
+            self._cipher().encrypt(raw.encode()).decode() if owner_user_id else None
+        )
         with self.db.write() as conn:
             if owner_user_id:
                 owner = conn.execute(
@@ -108,10 +113,15 @@ class AuthService:
             ).fetchone():
                 raw = f"wb_{tag}_{secrets.token_urlsafe(24)}"
                 prefix = _prefix_of(raw)
+                ciphertext = (
+                    self._cipher().encrypt(raw.encode()).decode()
+                    if owner_user_id
+                    else None
+                )
             conn.execute(
                 """INSERT INTO api_keys (key_hash, key_prefix, name, role, rpm_limit, daily_limit,
-                                         enabled, created_at, owner_user_id)
-                   VALUES (?,?,?,?,?,?,1,?,?)""",
+                                         enabled, created_at, owner_user_id, key_ciphertext)
+                   VALUES (?,?,?,?,?,?,1,?,?,?)""",
                 (
                     hash_key(raw),
                     prefix,
@@ -121,14 +131,39 @@ class AuthService:
                     daily or self.default_daily,
                     now,
                     owner_user_id,
+                    ciphertext,
                 ),
             )
         return raw, {"prefix": prefix, "name": name, "role": role}
 
+    def _cipher(self) -> Fernet:
+        # Separate from the database; back up this owner-only file with the data directory.
+        path = self.db.path.parent / "personal-key-encryption.key"
+        with self.db._write_lock:
+            if not path.exists():
+                fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+                with os.fdopen(fd, "wb") as stream:
+                    stream.write(Fernet.generate_key())
+            return Fernet(path.read_bytes())
+
+    def reveal_key(self, prefix: str, owner_user_id: str) -> str | None:
+        row = self.db.one(
+            "SELECT key_ciphertext FROM api_keys WHERE key_prefix=? AND owner_user_id=? AND enabled=1",
+            (prefix, owner_user_id),
+        )
+        if not row or not row["key_ciphertext"]:
+            return None
+        try:
+            return self._cipher().decrypt(row["key_ciphertext"].encode()).decode()
+        except (InvalidToken, ValueError, OSError):
+            raise AuthError(
+                "无法解密此 Key，请检查服务端加密文件备份或重新创建 Key"
+            ) from None
+
     def revoke(self, prefix: str, *, owner_user_id: str | None = None) -> bool:
         with self.db.write() as conn:
             cur = conn.execute(
-                "UPDATE api_keys SET enabled = 0, revoked_at = ? WHERE key_prefix = ? AND enabled = 1"
+                "UPDATE api_keys SET enabled = 0, key_ciphertext = NULL, revoked_at = ? WHERE key_prefix = ? AND enabled = 1"
                 + (" AND owner_user_id=?" if owner_user_id is not None else ""),
                 (time.time(), prefix, owner_user_id)
                 if owner_user_id is not None
@@ -139,7 +174,7 @@ class AuthService:
     def list_keys(self, *, owner_user_id: str | None = None) -> list[dict]:
         rows = self.db.query(
             """SELECT k.key_prefix, k.name, k.role, k.rpm_limit, k.daily_limit, k.enabled,
-                      k.auto_publish, k.created_at, k.last_used_at, k.owner_user_id, u.username AS owner_username
+                      k.auto_publish, (k.key_ciphertext IS NOT NULL AND k.enabled=1) AS recoverable, k.created_at, k.last_used_at, k.owner_user_id, u.username AS owner_username
                FROM api_keys k LEFT JOIN users u ON u.id=k.owner_user_id"""
             + (" WHERE k.owner_user_id=?" if owner_user_id is not None else "")
             + " ORDER BY k.created_at DESC",
@@ -154,6 +189,7 @@ class AuthService:
             )
             d = dict(r)
             d["enabled"] = bool(d["enabled"])
+            d["recoverable"] = bool(d["recoverable"])
             d["used_today"] = used or 0
             out.append(d)
         return out

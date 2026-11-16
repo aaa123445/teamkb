@@ -355,8 +355,8 @@ onBeforeUnmount(() => {
                   />创建并用于提示词
                 </button>
                 <p class="connect-help">
-                  创建后勾选“包含个人 Key”。请在离开前复制保存，完整 Key
-                  仅显示本次；可在个人中心吊销。
+                  创建后勾选“包含个人
+                  Key”。之后可在个人中心再次查看、复制或吊销。
                 </p>
                 <input
                   v-if="key"
