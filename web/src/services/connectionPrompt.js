@@ -1,9 +1,14 @@
 import instructionTemplate from "../../../skill/team-knowledge/references/agent-instructions.md?raw";
 
-export const clientFile = "teamkb-0.6.0-linux-arm64";
-export const skillFile = "team-knowledge-0.6.0.zip";
-export const installerFile = "install-teamkb-0.6.0.sh";
+export const clientFile = "teamkb-0.6.2-linux-arm64";
+export const skillFile = "team-knowledge-0.6.2.zip";
+export const installerFile = "install-teamkb-0.6.2.sh";
 export const modes = [
+  {
+    id: "plugin",
+    title: "原生插件",
+    description: "将 MCP 与知识工作流作为一个插件安装和管理。",
+  },
   {
     id: "recommended",
     title: "MCP + Skill",
@@ -35,7 +40,7 @@ export const scopes = [
   },
 ];
 
-export const nativeVersion = "0.6.0";
+export const nativeVersion = "0.6.2";
 const nativeFiles = [
   "linux-arm64",
   "linux-amd64",
@@ -107,10 +112,21 @@ export function installationCommand({
   manifest,
   platform = "posix",
 }) {
+  if (mode === "plugin" && agent === "codex" && scope === "project")
+    throw new Error("Codex 插件仅支持全局接入；项目范围请选择 MCP + Skill。");
+  if (mode === "plugin") {
+    const kind = agent === "codex" ? "codex" : "claude";
+    if (
+      !/^[a-f0-9]{64}$/i.test(
+        manifest?.sha256?.[`teamkb-${kind}-plugin-0.1.1.zip`] || "",
+      )
+    )
+      throw new Error("插件校验信息尚未就绪，请重试加载。");
+  }
   const file =
     platform === "windows"
-      ? "install-teamkb-0.6.0.ps1"
-      : "install-teamkb-0.6.0.sh";
+      ? "install-teamkb-0.6.2.ps1"
+      : "install-teamkb-0.6.2.sh";
   if (!/^[a-f0-9]{64}$/i.test(manifest?.sha256?.[file] || ""))
     throw new Error("安装器校验信息尚未就绪，请重试加载。");
   const quote = (v) => "'" + v.replaceAll("'", "'\"'\"'") + "'";

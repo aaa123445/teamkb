@@ -2,7 +2,7 @@
 # Bash 3.2 compatible. Only curl + a SHA-256 utility are required.
 set -eu
 TEAMKB_SITE=${TEAMKB_URL:-https://www.ljc.monster}
-TEAMKB_VERSION=0.6.0
+TEAMKB_VERSION=0.6.2
 TEAMKB_AGENT=${1:-codex}
 TEAMKB_MODE=${2:-cli}
 TEAMKB_SCOPE=${3:-user}
@@ -18,7 +18,7 @@ done
 TEAMKB_SITE=${TEAMKB_SITE%/}
 case "$TEAMKB_SITE" in https://*|http://*) ;; *) echo '无效的服务地址' >&2; exit 1 ;; esac
 case "$TEAMKB_AGENT" in codex|claude|claudecode|other) ;; *) echo 'Agent 须为 codex、claudecode 或 other' >&2; exit 1 ;; esac
-case "$TEAMKB_MODE" in cli|mcp|recommended|skill) ;; *) echo '不支持的安装模式' >&2; exit 1 ;; esac
+case "$TEAMKB_MODE" in cli|mcp|recommended|skill|plugin) ;; *) echo '不支持的安装模式' >&2; exit 1 ;; esac
 case "$TEAMKB_SCOPE" in user|project) ;; *) echo '范围须为 user 或 project' >&2; exit 1 ;; esac
 case "$(uname -s)" in Darwin) TEAMKB_OS=darwin ;; Linux) TEAMKB_OS=linux ;; *) echo '此系统请使用 PowerShell 安装器' >&2; exit 1 ;; esac
 case "$(uname -m)" in arm64|aarch64) TEAMKB_ARCH=arm64 ;; x86_64|amd64) TEAMKB_ARCH=amd64 ;; *) echo '暂不支持此 CPU 架构' >&2; exit 1 ;; esac

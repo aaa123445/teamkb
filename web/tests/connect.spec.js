@@ -13,12 +13,14 @@ test.beforeEach(async ({ page }) => {
             "windows-arm64.exe",
             "windows-amd64.exe",
           ]
-            .map((p) => [`teamkb-0.6.0-${p}`, "a".repeat(64)])
+            .map((p) => [`teamkb-0.6.2-${p}`, "a".repeat(64)])
             .concat([
-              ["team-knowledge-0.6.0.zip", "b".repeat(64)],
-              ["install-teamkb-0.6.0.sh", "c".repeat(64)],
-              ["install-teamkb-0.6.0.ps1", "d".repeat(64)],
+              ["team-knowledge-0.6.2.zip", "b".repeat(64)],
+              ["install-teamkb-0.6.2.sh", "c".repeat(64)],
+              ["install-teamkb-0.6.2.ps1", "d".repeat(64)],
               ["dsh-teamkb-0.1.3.tgz", "e".repeat(64)],
+              ["teamkb-codex-plugin-0.1.1.zip", "f".repeat(64)],
+              ["teamkb-claude-plugin-0.1.1.zip", "f".repeat(64)],
             ]),
         ),
       },
@@ -63,7 +65,7 @@ test("generates installation modes and explicit task-end contribution policy", a
   await page.goto("/#/connect?agent=other");
   const preview = page.getByLabel("安装提示词预览");
   await expect(preview).toContainText("SHA-256:");
-  await expect(preview).toContainText("team-knowledge-0.6.0.zip");
+  await expect(preview).toContainText("team-knowledge-0.6.2.zip");
   await expect(preview).toContainText("先安全读取 TEAMKB_KEY");
   await expect(preview).toContainText("MCP 模式不写入");
   await expect(preview).not.toContainText("TEAMKB:BEGIN");
@@ -77,17 +79,17 @@ test("generates installation modes and explicit task-end contribution policy", a
     .getByRole("button", { name: "复制安装提示词", exact: true })
     .click();
   expect(await page.evaluate(() => window.copiedPrompt)).toContain(
-    "/static/downloads/teamkb-0.6.0",
+    "/static/downloads/teamkb-0.6.2",
   );
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
-  await expect(preview).not.toContainText("team-knowledge-0.6.0.zip");
+  await expect(preview).not.toContainText("team-knowledge-0.6.2.zip");
   await expect(preview).not.toContainText('args=["mcp"]');
   await page.getByRole("button", { name: "仅 Skill", exact: false }).click();
-  await expect(preview).toContainText("team-knowledge-0.6.0.zip");
+  await expect(preview).toContainText("team-knowledge-0.6.2.zip");
   await expect(preview).not.toContainText('args=["mcp"]');
   await page.getByRole("button", { name: "仅 MCP", exact: false }).click();
   await expect(preview).toContainText('args=["mcp"]');
-  await expect(preview).not.toContainText("team-knowledge-0.6.0.zip");
+  await expect(preview).not.toContainText("team-knowledge-0.6.2.zip");
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
   await page.getByLabel("任务完成后按需提交知识").check();
   await expect(preview).toContainText("任务结束后只有真实验证");
@@ -156,11 +158,11 @@ test("invalid download manifest blocks prompt generation and can retry", async (
             "windows-arm64.exe",
             "windows-amd64.exe",
           ]
-            .map((p) => [`teamkb-0.6.0-${p}`, "a".repeat(64)])
+            .map((p) => [`teamkb-0.6.2-${p}`, "a".repeat(64)])
             .concat([
-              ["team-knowledge-0.6.0.zip", "b".repeat(64)],
-              ["install-teamkb-0.6.0.sh", "c".repeat(64)],
-              ["install-teamkb-0.6.0.ps1", "d".repeat(64)],
+              ["team-knowledge-0.6.2.zip", "b".repeat(64)],
+              ["install-teamkb-0.6.2.sh", "c".repeat(64)],
+              ["install-teamkb-0.6.2.ps1", "d".repeat(64)],
             ]),
         ),
       },
@@ -279,4 +281,32 @@ test("Harness plugin installation selects independent GUI and Web profiles", asy
     .click();
   await expect(preview).toContainText("dsh plugin --profile desktop add");
   await expect(page.getByLabel("已有个人 Key", { exact: true })).toHaveCount(0);
+});
+
+test("native plugin mode preserves supported scopes and offers both agents", async ({
+  page,
+}) => {
+  await page.goto("/#/connect");
+  const preview = page.getByLabel("安装提示词预览");
+  await page.getByRole("button", { name: "原生插件", exact: false }).click();
+  await expect(preview).toContainText("codex plugin user");
+  await expect(
+    page.getByRole("button", { name: "项目接入", exact: false }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByText("不修改系统提示词", { exact: false }).first(),
+  ).toBeVisible();
+  await page.getByRole("combobox", { name: "本地智能体" }).click();
+  await page
+    .getByRole("option", { name: "Claude Code · 一键安装命令", exact: true })
+    .click();
+  await page.getByRole("button", { name: "项目接入", exact: false }).click();
+  await expect(preview).toContainText("claudecode plugin project");
+  await page.getByLabel("任务完成后按需提交知识").uncheck();
+  await expect(preview).toContainText("--no-contribute");
+  await page.getByRole("combobox", { name: "本地智能体" }).click();
+  await page
+    .getByRole("option", { name: "Codex · 一键安装命令", exact: true })
+    .click();
+  await expect(preview).toContainText("codex plugin user");
 });

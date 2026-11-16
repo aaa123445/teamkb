@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-const Version = "0.6.0"
+const Version = "0.6.2"
 const DefaultURL = "https://www.ljc.monster"
 
 type Connection struct {

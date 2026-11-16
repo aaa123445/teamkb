@@ -25,8 +25,8 @@ import (
 	"golang.org/x/term"
 )
 
-const skillFile = "team-knowledge-0.6.0.zip"
-const instructionFile = "agent-instructions-0.6.0.md"
+const skillFile = "team-knowledge-0.6.2.zip"
+const instructionFile = "agent-instructions-0.6.2.md"
 
 type manifest struct {
 	Version string            `json:"version"`
@@ -404,11 +404,14 @@ func Run(ctx context.Context, o map[string]string, install bool) error {
 	if install && agent != "codex" && agent != "claudecode" && agent != "other" {
 		return errors.New("agent 须为 codex、claudecode 或 other")
 	}
-	if mode != "cli" && mode != "mcp" && mode != "recommended" && mode != "skill" {
+	if mode != "cli" && mode != "mcp" && mode != "recommended" && mode != "skill" && mode != "plugin" {
 		return errors.New("不支持的接入模式")
 	}
 	fmt.Fprintf(os.Stderr, "[环境检测] %s/%s；TeamKB %s 原生客户端，无需 Python 或 Node\n", runtime.GOOS, runtime.GOARCH, client.Version)
-	mcpMode := mode == "mcp" || mode == "recommended"
+	if install && mode == "plugin" && (agent == "other" || (agent == "codex" && scope == "project")) {
+		return errors.New("插件接入目前支持 Codex 全局、Claude Code 全局/项目；Codex 项目范围请用 MCP + Skill")
+	}
+	mcpMode := mode == "mcp" || mode == "recommended" || mode == "plugin"
 	if install && mcpMode && agent != "other" {
 		exe := "codex"
 		if agent == "claudecode" {
@@ -482,7 +485,7 @@ func Run(ctx context.Context, o map[string]string, install bool) error {
 	if _, e = c.Call(ctx, "GET", "/api/v1/stats", nil); e != nil {
 		return fmt.Errorf("个人 Key 验证失败，尚未修改配置：%w", e)
 	}
-	var skill, instructions []byte
+	var skill, instructions, plugin []byte
 	skillMode := mode == "skill" || mode == "recommended"
 	if install {
 		b, e := fetch(ctx, cfg.URL+"/static/downloads/go-manifest.json", 1<<20)
@@ -492,6 +495,12 @@ func Run(ctx context.Context, o map[string]string, install bool) error {
 		var mf manifest
 		if json.Unmarshal(b, &mf) != nil || mf.Version != client.Version {
 			return errors.New("原生客户端版本与站点校验清单不一致，请重新下载安装器")
+		}
+		if mode == "plugin" {
+			plugin, e = pluginBundle(ctx, cfg.URL, agent)
+			if e != nil {
+				return e
+			}
 		}
 		if skillMode {
 			skill, e = Download(ctx, cfg.URL, skillFile, mf.SHA256[skillFile])
@@ -546,6 +555,9 @@ func Run(ctx context.Context, o map[string]string, install bool) error {
 			return e
 		}
 		fmt.Fprintln(os.Stderr, "Skill 已安装："+target)
+	}
+	if mode == "plugin" {
+		return installPlugin(ctx, plugin, agent, scope, project, binary, o["no-contribute"] == "")
 	}
 	if mcpMode {
 		if agent == "other" {

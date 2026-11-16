@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "teamkb": {
+      "command": "__TEAMKB_BINARY__",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
+}

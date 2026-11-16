@@ -1,0 +1,10 @@
+{
+  "name": "teamkb",
+  "version": "0.1.1",
+  "description": "TeamKB 团队知识库：分类检索、规范、知识链与经过验证的经验沉淀",
+  "author": {
+    "name": "TeamKB"
+  },
+  "homepage": "https://www.ljc.monster",
+  "license": "MIT"
+}

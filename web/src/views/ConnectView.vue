@@ -36,15 +36,42 @@ const mode = ref(
     : "recommended",
 );
 const agent = ref(
-  ["other", "dsh"].includes(route.query.agent) ? route.query.agent : "codex",
+  ["codex", "claudecode", "other", "dsh"].includes(route.query.agent)
+    ? route.query.agent
+    : "codex",
 );
 const dshProfile = ref("web");
 const platform = ref("posix");
+const availableModes = computed(() =>
+  modes.filter(
+    (m) => m.id !== "plugin" || ["codex", "claudecode"].includes(agent.value),
+  ),
+);
+const availableScopes = computed(() =>
+  scopes.filter(
+    (s) =>
+      !(
+        mode.value === "plugin" &&
+        agent.value === "codex" &&
+        s.id === "project"
+      ),
+  ),
+);
+watch([agent, mode], () => {
+  if (mode.value === "plugin" && !["codex", "claudecode"].includes(agent.value))
+    mode.value = "recommended";
+  if (mode.value === "plugin" && agent.value === "codex") scope.value = "user";
+});
 const commandMode = computed(() => agent.value !== "other");
 const instructionMode = computed(
   () => !["mcp", "recommended"].includes(mode.value),
 );
-const scope = ref(route.query.scope === "project" ? "project" : "user");
+const scope = ref(
+  route.query.scope === "project" &&
+    !(mode.value === "plugin" && agent.value === "codex")
+    ? "project"
+    : "user",
+);
 const key = ref(takeConnectionKey()),
   includeKey = ref(!!key.value),
   autoSubmit = ref(true);
@@ -220,7 +247,7 @@ onBeforeUnmount(() => {
           >
           <div v-if="agent !== 'dsh'" class="connect-modes">
             <button
-              v-for="item in modes"
+              v-for="item in availableModes"
               :key="item.id"
               :class="['connect-mode', { active: mode === item.id }]"
               :aria-pressed="mode === item.id"
@@ -257,6 +284,10 @@ onBeforeUnmount(() => {
               插件设置中开启。
             </p>
           </section>
+          <p v-if="mode === 'plugin'" class="connect-help">
+            插件由宿主统一启停与管理，包含 9 个知识工具和工作流。与已有同名 MCP
+            重复时，请先在宿主中禁用旧配置，避免重复启动。
+          </p>
           <h3 v-if="agent !== 'dsh'" class="connect-scope-title">接入范围</h3>
           <div
             v-if="agent !== 'dsh'"
@@ -265,7 +296,7 @@ onBeforeUnmount(() => {
             aria-label="接入范围"
           >
             <button
-              v-for="item in scopes"
+              v-for="item in availableScopes"
               :key="item.id"
               :class="['connect-mode', { active: scope === item.id }]"
               :aria-pressed="scope === item.id"
@@ -411,9 +442,11 @@ onBeforeUnmount(() => {
           {{
             agent === "dsh"
               ? "在 Harness 插件页粘贴包地址，或运行下面的 profile 安装命令。Key 在插件设置中填写；无需 Python、MCP 或项目初始化。"
-              : commandMode
-                ? "在本机交互终端执行下方命令。安装器会检测系统、CPU、Agent 命令和网络，下载并校验 Go 原生客户端；不需要 Python 或 Node。macOS/Linux 追加 --check-only 仅检测；Windows 使用 -CheckOnly。CLI 直接合并 Agent 指令；MCP 仅注册工具，不修改系统提示词。"
-                : "复制提示词交给本地 Agent，它会识别系统与客户端、保留已有配置并验证连接。"
+              : mode === "plugin"
+                ? "从本站下载并校验插件目录，自动安装到所选 Agent。包含 MCP 与 Skill，无需 Python，不修改系统提示词；重启 Agent 会话后验证工具。Codex 插件仅支持全局，Claude Code 支持全局或项目。"
+                : commandMode
+                  ? "在本机交互终端执行下方命令。安装器会检测系统、CPU、Agent 命令和网络，下载并校验 Go 原生客户端；不需要 Python 或 Node。macOS/Linux 追加 --check-only 仅检测；Windows 使用 -CheckOnly。CLI 直接合并 Agent 指令；MCP 仅注册工具，不修改系统提示词。"
+                  : "复制提示词交给本地 Agent，它会识别系统与客户端、保留已有配置并验证连接。"
           }}
         </p>
         <div v-if="loading" class="connect-loading">

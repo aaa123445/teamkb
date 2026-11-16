@@ -2,7 +2,7 @@
 
 ## 一键接入（Go 原生客户端）
 
-本地 CLI / MCP 已迁移到 Go 单文件客户端 0.6.0。macOS、Linux、Windows 均提供 amd64 / arm64 包，不需要 Python、pip、venv、Node 或本机 Go 编译环境。服务端仍运行原 Python 服务，知识、账号、审核与日志保持兼容。
+本地 CLI / MCP 已迁移到 Go 单文件客户端 0.6.2。macOS、Linux、Windows 均提供 amd64 / arm64 包，不需要 Python、pip、venv、Node 或本机 Go 编译环境。服务端仍运行原 Python 服务，知识、账号、审核与日志保持兼容。
 
 在「一键接入」选择 Codex / Claude Code、CLI / MCP / Skill 和全局 / 项目范围。其他 Agent 使用安装提示词；DeepSeek Harness 继续使用原生插件。
 
@@ -112,7 +112,7 @@ Key 从已初始化的私有连接文件读取，不内联到共享 MCP 配置�
 
 ## Skill 与其他 Agent
 
-选择 `recommended` 安装 MCP + Skill，或 `skill` 安装 CLI + Skill。原生版 Skill ZIP：本站 `/static/downloads/team-knowledge-0.6.0.zip`；校验值在 `/static/downloads/go-manifest.json`。安装器验证 SHA-256 并安全解压，Codex 使用所选范围的 `.agents/skills/team-knowledge`，Claude Code 使用 `.claude/skills/team-knowledge`。
+选择 `recommended` 安装 MCP + Skill，或 `skill` 安装 CLI + Skill。原生版 Skill ZIP：本站 `/static/downloads/team-knowledge-0.6.2.zip`；校验值在 `/static/downloads/go-manifest.json`。安装器验证 SHA-256 并安全解压，Codex 使用所选范围的 `.agents/skills/team-knowledge`，Claude Code 使用 `.claude/skills/team-knowledge`。
 
 其他 Agent 在一键接入页选择「其他智能体」，复制安装提示词，让本地 Agent 识别系统、下载并校验对应二进制、初始化连接，并合并真实支持的 MCP / Skill / 自定义指令入口。无法确认持久化入口时交付可复制的指令文件，不猜路径、不扩大接入范围。新原生客户端不安装 Python completion_hook；现有旧 Hook 可在旧 Python 环境中继续运行，但不要与直接 propose 重复上传。
 
@@ -136,7 +136,7 @@ dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb
 ## 故障与兼容
 
 - `wb: command not found`：macOS/Linux 执行 `export PATH="$HOME/.local/bin:$PATH"; hash -r` 或重新打开终端；Windows 重开 PowerShell。
-- 仍显示旧版本：退出旧虚拟环境，检查 `command -v wb` / `Get-Command wb`；新版本为 `teamkb 0.6.0`。
+- 仍显示旧版本：退出旧虚拟环境，检查 `command -v wb` / `Get-Command wb`；新版本为 `teamkb 0.6.2`。
 - TLS / curl 35：确认系统时间、证书、代理与域名线路；客户端有限重试，不关闭证书校验。持续失败不等同于后端宕机。
 - 401：Key 无效或被吊销；403：账号未审批或权限不足；400/404 文档不存在：重新检索真实 ID；429：额度耗尽。
 - SHA 不一致：停止安装；核对本站清单与文件。新原生发布包按版本保持不可变，不用旧校验值验证新包。
@@ -154,6 +154,29 @@ dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb
 - 语雀仍是已配置外部知识的同步来源；后续同步可能更新其正文，同时保留版本快照。需要独立维护的团队经验应创建新知识并引用原文。
 - 个人调用日志会记录检索、阅读、提交、审核和回滚等调用的状态与结果，仍按账号隔离并执行保留期限。
 
+
+## Codex / Claude Code 插件接入
+
+TeamKB 可作为插件安装，统一管理 MCP 与 `team-knowledge` Skill。插件不会写入 `AGENTS.md` 或 `CLAUDE.md`，也不携带个人 Key；凭据仍保存在本机私有 TeamKB 配置中。
+
+在「一键接入」选择“原生插件”：
+
+- Codex：支持全局插件；项目范围使用项目级 MCP + Skill。
+- Claude Code：支持全局或项目插件。
+- 插件来自本站域名并校验 SHA-256，不从 GitHub 下载。
+- 插件包含 9 个 `kb_*` 工具和 `team-knowledge` Skill。
+
+macOS / Linux 安装 Codex 插件：
+
+```bash
+curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex plugin user
+```
+
+Claude Code 将 `codex` 换成 `claudecode`；项目插件将 `user` 换成 `project`。Windows 使用接入页面的 PowerShell 命令，并选择 `-Mode plugin`。支持插件命令的新版 Agent 是前提；旧版请升级或使用 MCP + Skill。
+
+全局插件卸载可使用 `codex plugin remove teamkb@teamkb-native`，或 `claude plugin uninstall teamkb@teamkb-native --scope user`。项目插件的市场名称带项目指纹，可从宿主插件列表中选择卸载。卸载不会删除个人连接配置或全局 CLI；新开会话后确认不再加载插件。
+
+安装后重新打开 Agent 会话，调用 `kb_categories` 验证。已有同名旧 MCP 时请先禁用，避免重复启动。插件包和校验清单分别为 `teamkb-codex-plugin-0.1.1.zip`、`teamkb-claude-plugin-0.1.1.zip`、`plugin-manifest.json`。安装命令由接入页根据平台、范围和 Agent 生成。
 
 ## 1. 开通账号与个人 Key
 

@@ -1,10 +1,14 @@
 import hashlib,json,os,pathlib,subprocess,tempfile,threading,http.server,shutil,sys
-root=pathlib.Path(__file__).resolve().parents[1];binary=pathlib.Path(sys.argv[1]).resolve() if len(sys.argv)>1 else root/'web/public/downloads/teamkb-0.6.0-linux-arm64'
+real_codex=shutil.which('codex')
+root=pathlib.Path(__file__).resolve().parents[1];binary=pathlib.Path(sys.argv[1]).resolve() if len(sys.argv)>1 else root/'web/public/downloads/teamkb-0.6.2-linux-arm64'
 # Only isolated fixture server and temporary HOME. No production keys or writes.
 with tempfile.TemporaryDirectory(prefix='teamkb-native-test-') as td:
  home=pathlib.Path(td); artifact=binary.read_bytes(); instruction=(root/'skill/team-knowledge/references/agent-instructions.md').read_bytes()
- files={binary.name:artifact,'agent-instructions-0.6.0.md':instruction}
- mf=json.dumps({'version':'0.6.0','sha256':{n:hashlib.sha256(v).hexdigest() for n,v in files.items()}},indent=2).encode()
+ files={binary.name:artifact,'agent-instructions-0.6.2.md':instruction}
+ for kind in ['codex','claude']:
+  name=f'teamkb-{kind}-plugin-0.1.1.zip';files[name]=(root/'web/public/downloads'/name).read_bytes()
+ files['plugin-manifest.json']=(root/'web/public/downloads/plugin-manifest.json').read_bytes()
+ mf=json.dumps({'version':'0.6.2','sha256':{n:hashlib.sha256(v).hexdigest() for n,v in files.items()}},indent=2).encode()
  class Handler(http.server.BaseHTTPRequestHandler):
   def log_message(self,*a): pass
   def do_GET(self):
@@ -36,7 +40,7 @@ with tempfile.TemporaryDirectory(prefix='teamkb-native-test-') as td:
  # Native stdio MCP subprocess negotiation, tools/list and nonexistent-ID error.
  proc=subprocess.Popen([str(wb),'mcp'],env=env,cwd=home,text=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
  def rpc(v):proc.stdin.write(json.dumps(v)+'\n');proc.stdin.flush();return json.loads(proc.stdout.readline())
- result=rpc({'jsonrpc':'2.0','id':1,'method':'initialize','params':{'protocolVersion':'2024-11-05','capabilities':{},'clientInfo':{'name':'fixture','version':'1'}}});assert result['result']['serverInfo']['version']=='0.6.0'
+ result=rpc({'jsonrpc':'2.0','id':1,'method':'initialize','params':{'protocolVersion':'2024-11-05','capabilities':{},'clientInfo':{'name':'fixture','version':'1'}}});assert result['result']['serverInfo']['version']=='0.6.2'
  proc.stdin.write(json.dumps({'jsonrpc':'2.0','method':'notifications/initialized'})+'\n');proc.stdin.flush()
  result=rpc({'jsonrpc':'2.0','id':2,'method':'tools/list','params':{}});assert len(result['result']['tools'])==9
  result=rpc({'jsonrpc':'2.0','id':3,'method':'tools/call','params':{'name':'kb_stats','arguments':{}}});assert not result['result'].get('isError')
@@ -45,7 +49,20 @@ with tempfile.TemporaryDirectory(prefix='teamkb-native-test-') as td:
  bindir=home/'fake-bin';bindir.mkdir();fake=bindir/'codex';fake.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "$HOME/codex-registration"\n');fake.chmod(0o700);env['PATH']=str(bindir)+':'+env['PATH'];before=(home/'.codex/AGENTS.md').read_bytes()
  run(['bash',str(root/'deploy/client/install-go.sh'),'codex','mcp','user','--url',url]);assert before==(home/'.codex/AGENTS.md').read_bytes()
  assert '/.local/bin/teamkb' in (home/'codex-registration').read_text()
+ # Real Codex plugin install using isolated home and fixture credentials.
+ if real_codex:
+  env['PATH']=os.environ['PATH'];env['CODEX_HOME']=str(home/'codex-plugin-home');pathlib.Path(env['CODEX_HOME']).mkdir()
+  run(['bash',str(root/'deploy/client/install-go.sh'),'codex','plugin','user','--url',url,'--no-contribute'])
+  plugin_config=home/'.teamkb/plugins/codex/user/plugins/teamkb/.mcp.json'
+  cfg=json.loads(plugin_config.read_text());assert cfg['mcpServers']['teamkb']['command']==str(home/'.local/bin/teamkb')
+  assert 'fixture-only-key' not in plugin_config.read_text()
+  cache=list(pathlib.Path(env['CODEX_HOME']).glob('plugins/cache/**/.codex-plugin/plugin.json'));assert cache
+  assert json.loads(cache[0].read_text())['version']=='0.1.1'
+  assert (home/'.codex/AGENTS.md').read_bytes()==before
+  run(['bash',str(root/'deploy/client/install-go.sh'),'codex','plugin','user','--url',url])
+  installed_skill=cache[0].parent.parent/'skills/team-knowledge/SKILL.md'
+  assert 'Task-end contribution is enabled' in installed_skill.read_text(), 'cached plugin policy not refreshed'
  # Tampering must stop before creating any config.
  files[binary.name]=b'broken artifact';other=home/'clean-home';other.mkdir();env['HOME']=str(other)
  r=subprocess.run(cmd,env=env,cwd=other,text=True,capture_output=True);assert r.returncode and 'SHA-256' in r.stderr;assert not (other/'.teamkb').exists()
- server.shutdown();print('PASS: native bootstrap, repeated CLI install, private config, persistent stats, stdio MCP, MCP prompt isolation, SHA tamper rejection')
+ server.shutdown();print('PASS: native bootstrap, repeated CLI install, private config, persistent stats, stdio MCP, MCP prompt isolation, real Codex plugin install/reinstall, SHA tamper rejection')

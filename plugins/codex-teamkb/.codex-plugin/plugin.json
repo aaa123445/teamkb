@@ -1,0 +1,18 @@
+{
+  "name": "teamkb",
+  "version": "0.1.1",
+  "description": "TeamKB 团队知识库：分类检索、规范、知识链与经过验证的经验沉淀",
+  "author": {
+    "name": "TeamKB"
+  },
+  "homepage": "https://www.ljc.monster",
+  "license": "MIT",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "TeamKB 团队知识库",
+    "shortDescription": "查询团队知识与规范，沉淀已验证的解决方案",
+    "developerName": "TeamKB",
+    "category": "Productivity"
+  }
+}

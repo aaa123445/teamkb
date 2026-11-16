@@ -71,9 +71,9 @@ func number(o map[string]string, k string, d int) (int, error) {
 	return n, nil
 }
 func help() {
-	fmt.Println(`TeamKB 0.6.0 · 原生 Go 客户端（无需 Python）
+	fmt.Println(`TeamKB 0.6.2 · 原生 Go 客户端（无需 Python）
 用法：teamkb / wb [--url URL] [--project DIR] [--json] COMMAND
-  setup --agent codex|claudecode --mode cli|mcp|recommended|skill --scope user|project
+  setup --agent codex|claudecode --mode cli|mcp|recommended|skill|plugin --scope user|project
   init --scope user|project          初始化连接（交互填写个人 Key）
   health | stats | categories | domains | standards
   search QUERY [-n 8] [--category-id ID] [--tag TAG]

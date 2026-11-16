@@ -17,7 +17,7 @@
 - [一键接入本地 Agent](https://www.ljc.monster/#/connect)
 - [使用说明](docs/usage.md)：账号审批、个人 Key、MCP / Skill / CLI、任务完成 Hook 与审核。
 
-在「一键接入」选择 Codex / Claude Code，复制交互式安装命令；其他 Agent 使用安装提示词。CLI / MCP 使用 Go 原生单文件客户端，不需要本地 Python、Node 或 Go 环境。支持 macOS / Linux / Windows 的 amd64、arm64；安装前检测环境，下载本站包并核对 SHA-256，隐藏输入个人 Key。支持全局 / 项目范围；CLI 合并持久化指令，MCP 不修改系统提示词。DeepSeek Harness 继续使用原生 Desktop / Web 插件。
+在「一键接入」选择 Codex / Claude Code，复制交互式安装命令；其他 Agent 使用安装提示词。CLI / MCP 使用 Go 原生单文件客户端，不需要本地 Python、Node 或 Go 环境。支持 macOS / Linux / Windows 的 amd64、arm64；安装前检测环境，下载本站包并核对 SHA-256，隐藏输入个人 Key。支持全局 / 项目范围；CLI 合并持久化指令，MCP 不修改系统提示词。DeepSeek Harness 继续使用原生 Desktop / Web 插件。Codex / Claude Code 可选择「原生插件」统一安装 MCP 和 Skill，不修改系统提示词。
 
 ```bash
 curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex cli user && export PATH="$HOME/.local/bin:$PATH" && hash -r
@@ -35,7 +35,7 @@ Claude Code 将 `codex` 换成 `claudecode`；MCP + Skill 使用 `recommended`�
 一键安装会完成连接初始化；手动下载安装二进制时，再执行 `wb init --scope user`，项目范围使用 `wb init --scope project --project /absolute/project`。连接保存在私有 client.json，Key 不写入 MCP 共享配置。
 
 - [原生客户端下载校验清单](https://www.ljc.monster/static/downloads/go-manifest.json)
-- [team-knowledge Skill 包](https://www.ljc.monster/static/downloads/team-knowledge-0.6.0.zip)
+- [team-knowledge Skill 包](https://www.ljc.monster/static/downloads/team-knowledge-0.6.2.zip)
 - [完整接入与兼容说明](docs/usage.md)
 
 直接使用 `kb_propose` 或 `wb propose FILE.json` 提交经过验证的知识，不要求项目初始化或旧 `wb agent init`。新客户端保留 `wb` 别名和通用 `kb_*` 工具；旧 Python 包作为历史兼容版本保留。升级后重启 Agent / MCP 会话。

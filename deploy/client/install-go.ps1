@@ -1,6 +1,6 @@
 param(
   [ValidateSet('codex','claudecode','other')][string]$Agent='codex',
-  [ValidateSet('cli','mcp','recommended','skill')][string]$Mode='cli',
+  [ValidateSet('cli','mcp','recommended','skill','plugin')][string]$Mode='cli',
   [ValidateSet('user','project')][string]$Scope='user',
   [string]$Url='https://www.ljc.monster',
   [string]$Project='',
@@ -8,7 +8,7 @@ param(
   [switch]$CheckOnly
 )
 $ErrorActionPreference='Stop'
-$version='0.6.0'
+$version='0.6.2'
 $Url=$Url.TrimEnd('/')
 if ($Url -notmatch '^https?://') { throw '无效的服务地址' }
 $cpu=if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'arm64' } elseif ($env:PROCESSOR_ARCHITECTURE -eq 'AMD64') { 'amd64' } else { throw '暂不支持此 CPU 架构' }

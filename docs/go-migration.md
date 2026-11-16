@@ -39,7 +39,10 @@ bash deploy/build-go-client.sh
 独立端到端验证使用临时 HOME 和本地 fixture 服务，不需要生产 Key：
 
 ```bash
-python3 tests/native_client_integration.py /path/to/teamkb-0.6.0-linux-arm64
+python3 tests/native_client_integration.py /path/to/teamkb-0.6.2-linux-arm64
 ```
 
 此处 Python 仅为仓库测试驱动；安装器与已安装客户端运行时不依赖 Python。macOS / Windows 发布包经过交叉编译，仍需在对应真机验证系统策略、Agent CLI 与终端集成。
+
+
+插件包只分发 MCP/Skill 元数据，不携带个人 Key；安装器会替换本机真实 teamkb 路径。Codex 项目范围使用项目 MCP + Skill。
