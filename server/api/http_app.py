@@ -369,7 +369,16 @@ _WEB_DIR = Path(__file__).resolve().parents[2] / "web" / "dist"
 @app.get("/install.sh", include_in_schema=False)
 async def client_installer() -> FileResponse:
     return FileResponse(
-        str(Path(__file__).resolve().parents[2] / "deploy" / "client" / "install.sh"),
+        str(Path(__file__).resolve().parents[2] / "deploy" / "client" / "install-go.sh"),
+        media_type="text/plain; charset=utf-8",
+        headers={"Cache-Control": "no-store, no-cache, must-revalidate"},
+    )
+
+
+@app.get("/install.ps1", include_in_schema=False)
+async def native_windows_installer() -> FileResponse:
+    return FileResponse(
+        str(Path(__file__).resolve().parents[2] / "deploy" / "client" / "install-go.ps1"),
         media_type="text/plain; charset=utf-8",
         headers={"Cache-Control": "no-store, no-cache, must-revalidate"},
     )

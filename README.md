@@ -17,30 +17,28 @@
 - [一键接入本地 Agent](https://www.ljc.monster/#/connect)
 - [使用说明](docs/usage.md)：账号审批、个人 Key、MCP / Skill / CLI、任务完成 Hook 与审核。
 
-在「一键接入」选择接入方式，复制提示词发给本地 Agent。默认推荐 MCP + Skill，也可只安装 CLI。可以在本机填写 Key，或明确选择随提示词复制个人 Key；不要将含 Key 的提示词提交到仓库或共享聊天。安装与连接状态以本地 Agent 实际验证结果为准。Codex / Claude Code 提供交互式一键安装命令（macOS / Linux 使用 Shell，Windows 使用 Python），安装前检测 Python、venv、Agent CLI 和网络，支持 `--check-only`；运行时隐藏输入 Key；CLI 模式自动合并持久化指令，MCP 模式只注册工具、不修改系统提示词。DeepSeek Harness 支持原生 Desktop / Web 插件，其他 Agent 保留提示词安装。默认允许任务结束后按需提交已验证、可复用且脱敏的知识，可在接入页关闭。
+在「一键接入」选择 Codex / Claude Code，复制交互式安装命令；其他 Agent 使用安装提示词。CLI / MCP 使用 Go 原生单文件客户端，不需要本地 Python、Node 或 Go 环境。支持 macOS / Linux / Windows 的 amd64、arm64；安装前检测环境，下载本站包并核对 SHA-256，隐藏输入个人 Key。支持全局 / 项目范围；CLI 合并持久化指令，MCP 不修改系统提示词。DeepSeek Harness 继续使用原生 Desktop / Web 插件。
+
+```bash
+curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex cli user && export PATH="$HOME/.local/bin:$PATH" && hash -r
+wb stats
+wb categories
+wb --json search "开发" -n 3
+```
+
+Claude Code 将 `codex` 换成 `claudecode`；MCP + Skill 使用 `recommended`；项目范围使用 `project`。安装时询问凭据与所需路径。Windows 使用本站 `/install.ps1`，参数和说明见[接入指南](docs/usage.md)。`teamkb` 与 `wb` 均可用，升级后检查 `wb --version`。
+
+服务端暂时保留 Python；本次先迁移客户端和安装链路，后续按模块替换后端，见 [Go 迁移边界与后续步骤](docs/go-migration.md)。历史 Python 包及现有数据保持兼容。
 
 ## 客户端安装与初始化
 
-CLI、MCP 客户端和 Skill 安装包均从工作台域名下载，使用者无需克隆源码仓库。需要 Python 3.11+；以下为 macOS / Linux 示例，Windows 和各 Agent 的注册配置见[完整接入指南](docs/usage.md)。自行部署时替换为自己的站点域名。
+一键安装会完成连接初始化；手动下载安装二进制时，再执行 `wb init --scope user`，项目范围使用 `wb init --scope project --project /absolute/project`。连接保存在私有 client.json，Key 不写入 MCP 共享配置。
 
-```bash
-python3 -m venv ~/.teamkb-venv
-source ~/.teamkb-venv/bin/activate
-python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.6-py3-none-any.whl"
-export TEAMKB_URL="https://www.ljc.monster"
-# 初始化时按提示隐藏输入个人 Key
-wb init --scope user
-wb stats
-wb categories
-```
+- [原生客户端下载校验清单](https://www.ljc.monster/static/downloads/go-manifest.json)
+- [team-knowledge Skill 包](https://www.ljc.monster/static/downloads/team-knowledge-0.6.0.zip)
+- [完整接入与兼容说明](docs/usage.md)
 
-知识提交可直接使用 `kb_propose` 或 `wb propose FILE.json`，无需项目路径、`wb agent init` 或项目候选开关。全局接入保存当前用户的连接配置；项目接入则使用 `wb --project /absolute/path/to/project init --scope project`，之后在该项目中执行 CLI，或显式传入 `--project`。安装包本身不会完成初始化，`wb agent init` 仅开启项目经验候选提交，不能替代 `wb init`。
-
-- [CLI / MCP 客户端包](https://www.ljc.monster/static/downloads/v8_workbench-0.5.6-py3-none-any.whl)
-- [team-knowledge Skill 包](https://www.ljc.monster/static/downloads/team-knowledge-0.5.6.zip)
-- [SHA-256 校验清单](https://www.ljc.monster/static/downloads/manifest.json)
-
-升级时从同一域名重新安装客户端，校验包与清单一致，随后重启 Agent / MCP 会话。当前已移除 `v8_*` MCP 工具和旧 V8 Skill，统一使用 `kb_*` 与 `team-knowledge`；旧工具白名单或自定义提示词也需同步更新。V8、V5 及其他知识继续通过分类筛选检索。
+直接使用 `kb_propose` 或 `wb propose FILE.json` 提交经过验证的知识，不要求项目初始化或旧 `wb agent init`。新客户端保留 `wb` 别名和通用 `kb_*` 工具；旧 Python 包作为历史兼容版本保留。升级后重启 Agent / MCP 会话。
 
 ## DeepSeek Harness 插件
 
@@ -68,7 +66,7 @@ MCP 通过本机 `wb mcp` 连接线上 API；网站没有远程 `/mcp` HTTP 端�
 
 ## 首次部署：Linux / systemd
 
-需要 Python 3.11+、Git、Node.js 20.19+ 或 22.12+，以及 systemd。为兼容已有部署，服务器安装目录和服务名继续使用 `/opt/v8-workbench` 与 `v8wb`。
+服务器需要 Python 3.11+、Go 1.27.4+、Git、Node.js 20.19+ 或 22.12+，以及 systemd。为兼容已有部署，服务器安装目录和服务名继续使用 `/opt/v8-workbench` 与 `v8wb`。
 
 ```bash
 sudo git clone https://github.com/aaa123445/teamkb.git /opt/v8-workbench

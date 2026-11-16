@@ -16,13 +16,16 @@ import sys
 import zipfile
 from pathlib import Path
 root=Path(sys.argv[1]);target=root/'web/public/downloads'
-with zipfile.ZipFile(target/'team-knowledge-0.5.6.zip','w',zipfile.ZIP_DEFLATED) as archive:
-    for path in sorted((root/'skill/team-knowledge').rglob('*')):
-        if path.is_file() and '__pycache__' not in path.parts:
-            archive.write(path,path.relative_to(root/'skill'))
+if not (target/'team-knowledge-0.5.6.zip').exists():
+    with zipfile.ZipFile(target/'team-knowledge-0.5.6.zip','w',zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted((root/'skill/team-knowledge').rglob('*')):
+            if path.is_file() and '__pycache__' not in path.parts:
+                archive.write(path,path.relative_to(root/'skill'))
 (target/'install-teamkb-0.5.6.py').write_bytes((root/'deploy/client/install.py').read_bytes())
 (target/'agent-instructions-0.5.6.md').write_bytes((root/'skill/team-knowledge/references/agent-instructions.md').read_bytes())
 (target/'install-teamkb-0.5.6.sh').write_bytes((root/'deploy/client/install.sh').read_bytes())
 files={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in target.iterdir() if p.suffix in {'.whl','.zip','.py','.md','.sh','.tgz'}}
 (target/'manifest.json').write_text(json.dumps({'version':'0.5.6','sha256':files},indent=2)+'\n')
 PY
+
+bash "$APP_DIR/deploy/build-go-client.sh"

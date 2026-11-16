@@ -4,6 +4,7 @@ COPY web/package*.json ./
 RUN npm ci --no-audit --no-fund
 COPY web/ ./
 COPY docs/ /docs/
+COPY skill/ /skill/
 RUN npm run build
 
 FROM python:3.12-slim
@@ -19,6 +20,7 @@ RUN pip install --no-cache-dir \
 COPY server ./server
 COPY cli ./cli
 COPY ingest ./ingest
+COPY deploy/client ./deploy/client
 COPY --from=frontend /web/dist ./web/dist
 
 ENV V8WB_DATA_DIR=/data \

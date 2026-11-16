@@ -1,55 +1,147 @@
-# TeamKB 团队知识共享平台使用说明
+# TeamKB 使用说明
 
-TeamKB 统一提供分类知识管理、团队规范、贡献审核和 Agent 经验沉淀。原有致远 V8 内容保留在「技术平台 / 致远 V8」分类，原文 ID 保持不变，工具统一使用通用的 `kb_*` 命名。网页面向日常操作；CLI 面向终端和脚本；MCP 让 Agent 调用工具；Skill 定义查规范、读文档、写代码和沉淀经验的工作流程。MCP 与 Skill 可以配合使用，CLI 也可以单独使用。
+## 一键接入（Go 原生客户端）
 
-本文命令以 macOS / Linux 的 Bash 或 Zsh 为例。服务地址示例为 `https://www.ljc.monster`；自行部署时换成你的实际域名。所有 `YOUR_PERSONAL_KEY` 均为占位符，不是可用凭据。
+本地 CLI / MCP 已迁移到 Go 单文件客户端 0.6.0。macOS、Linux、Windows 均提供 amd64 / arm64 包，不需要 Python、pip、venv、Node 或本机 Go 编译环境。服务端仍运行原 Python 服务，知识、账号、审核与日志保持兼容。
 
-## 一键接入本地 Agent
+在「一键接入」选择 Codex / Claude Code、CLI / MCP / Skill 和全局 / 项目范围。其他 Agent 使用安装提示词；DeepSeek Harness 继续使用原生插件。
 
-在工作台左侧选择「一键接入」，先选择 **Codex**、**Claude Code** 、**DeepSeek Harness 原生插件** 或 **其他智能体**。Codex 和 Claude Code 各自生成可直接在本机终端执行的一键安装命令（macOS / Linux 为 Shell，Windows 为 Python），选择 macOS / Linux 或 Windows PowerShell；其他智能体继续复制安装提示词交给本地 Agent。
-
-Shell 入口会先检查操作系统与架构、curl、Python 3.11+、venv / ensurepip / TLS、Agent 命令和域名下载服务；缺失时明确指出解决方式。检查通过后才请求个人 Key、创建独立虚拟环境并安装客户端。可追加 `--check-only` 仅检测环境，不读取凭据或改写配置。CLI 模式不强制要求 Agent 命令存在，MCP 则要求所选 Agent CLI 已安装。安装期间在终端隐藏输入个人 API Key；项目接入还会询问已有项目路径。Key 不出现在安装命令或 shell 历史中。安装器会验证凭据、完成用户／项目连接初始化，不需要再让 Agent 执行安装提示词。
-
-- **CLI 模式**：安装器自动备份并合并 Codex `AGENTS.md`（已有 override 时使用生效文件）或 Claude Code `CLAUDE.md`，只替换 TeamKB 管理区块。默认写入任务完成后按需提交已验证知识的规则，可关闭沉淀。
-- **MCP 模式（包括 MCP + Skill）**：注册所选范围的 MCP，不写入、不修改系统提示词或指令文件。MCP + Skill 额外安装 Skill。重复安装更新同名配置，保留其他服务；安装后重启 Agent，并验证实际工具调用。
-- **仅 Skill 模式**：安装 CLI 依赖与 Skill，并合并所选 Agent 的指令。
-- **其他 Agent**：保留提示词安装，支持在本机填写 Key；若选择 MCP，同样不允许写入系统提示词。CLI 模式由 Agent 检查支持的持久化入口，无法确定时提供可复制的规则文本。
-
-示例（macOS / Linux，以下为简版命令；接入页生成的版本还会在运行前校验安装器 SHA-256）：
+macOS / Linux，Codex CLI：
 
 ```bash
-# Codex：CLI 安装并写入指令
-curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex cli user && source "$HOME/.teamkb-venv/bin/activate"
-# Claude Code：把 codex 改成 claudecode
-# MCP：把 cli 改成 mcp；不修改系统提示词
-# 项目范围：把 user 改成 project；安装时询问项目路径
-# 仅环境检测：在 bash 的参数后加 --check-only，并去掉末尾 source
+curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex cli user && export PATH="$HOME/.local/bin:$PATH" && hash -r
+wb stats
 ```
 
-安装命令会在成功后通过 `source "$HOME/.teamkb-venv/bin/activate"` 刷新当前终端，随后可直接执行 `wb stats`。必须在当前终端执行这个外层 `source`；单独运行 Bash 子进程无法修改父级 zsh 的环境。
+Claude Code 将 `codex` 换成 `claudecode`；MCP + Skill 将 `cli` 换成 `recommended`；项目接入将 `user` 换成 `project`，按提示填写真实项目路径。仅 MCP 使用 `mcp`，仅 Skill 使用 `skill`。可追加 `--project /absolute/project`、`--no-contribute`，或 `--check-only` 仅检测系统、Agent 和连通性。
 
-所有下载均走本站域名，完整安装命令请从接入页按 Agent、接入方式、范围和系统复制。项目范围只用于连接隔离；提交知识不要求项目候选初始化。个人中心可以创建并吊销 Key，writer 才能提交知识；默认贡献仍待管理员审核。使用独立 Key，避免提交到仓库或共享聊天。
+Windows PowerShell：
 
-### DeepSeek Harness 原生插件（Desktop / Web）
+```powershell
+Invoke-WebRequest -UseBasicParsing https://www.ljc.monster/install.ps1 -OutFile teamkb-install.ps1
+& ./teamkb-install.ps1 -Agent codex -Mode cli -Scope user
+wb stats
+```
 
-官方预览版 Harness 可直接安装 `dsh-teamkb` bundle，无需本地 Python / wb / MCP。进入 Harness「Plugins → Add plugin」粘贴本站下载地址：
+Windows 对应参数为 `-Agent claudecode`、`-Mode recommended`、`-Scope project`、`-Project 'C:\your-project'`、`-NoContribute` 和 `-CheckOnly`。若组织执行策略禁止本地脚本，请按组织规定执行，不要全局关闭安全策略。
+
+安装器检测系统、架构、curl / SHA-256 工具（Shell）、Agent CLI（MCP 需要）和网络。所有包只从本站域名下载，并验证 SHA-256；不匹配立即停止。安装过程中在终端隐藏输入个人 Key，先调用 stats 验证后才写入配置。没有 Key 请先注册账号，待管理员批准后在个人账号页创建。Key 不出现在安装命令或 shell 历史中。
+
+CLI 模式自动合并 Agent 指令：Codex 的 AGENTS.md（存在 AGENTS.override.md 时使用覆盖文件）或 Claude Code 的 CLAUDE.md。保留原有内容、先备份、仅替换 TeamKB 管理区块。MCP / MCP + Skill 不写入系统提示词。Skill 指引工作流，不是必定执行的自动 Hook。重新打开 Agent 会话后确认工具／Skill 被发现。
+
+安装位置：macOS / Linux `~/.local/bin/teamkb` 和 `~/.local/bin/wb`；Windows `%LOCALAPPDATA%\TeamKB\bin`。安装命令末尾刷新当前终端 PATH，脚本子进程无法直接修改父级 Shell 环境。旧虚拟环境已经激活时，请先 `deactivate`，再执行上面的 PATH 刷新；`command -v wb` 和 `wb --version` 可确认是否仍调用旧客户端。
+
+## 连接配置与初始化
+
+一键安装已经完成初始化。手动下载二进制后，须执行：
+
+```bash
+wb init --scope user
+# 或
+wb init --scope project --project /absolute/path/to/project
+```
+
+全局连接保存到 `~/.teamkb/client.json`；项目连接保存到 `PROJECT_ROOT/.teamkb/client.json`，自动加入项目 .gitignore。个人 Key 配置仅当前用户读写，不提交仓库。
+
+连接优先级：显式 `--url / --key` > `TEAMKB_URL / TEAMKB_KEY`（兼容 V8WB_*）> 最近的项目连接 > 用户连接。项目地址与 Key 成对覆盖全局；指定新地址时不借用另一站点保存的 Key。指定 `--project` 的项目必须已初始化。普通全局检索和提交不要求项目初始化。
+
+```bash
+wb health
+wb stats
+wb categories
+wb --json search "开发" -n 3
+wb --project /absolute/project stats
+```
+
+health 仅证明连通；stats / categories 成功才证明鉴权通过。所有 CLI 查询输出结构化 JSON，兼容 `--json`。
+
+## CLI 日常查询和知识沉淀
+
+```bash
+wb search "数据库连接" --category-id CATEGORY_ID -n 8
+wb read DOCUMENT_ID
+wb read DOCUMENT_ID --offset 10000
+wb read DOCUMENT_ID --raw
+wb standards
+wb graph DOCUMENT_ID --depth 1 --scenario troubleshoot
+wb ask "如何处理这个问题？"
+wb contributions
+wb contributions CONTRIBUTION_ID
+wb propose /absolute/path/to/candidate.json
+wb queue list
+# 先核对服务端是否收到，再明确重试，避免重复提交
+wb queue retry QUEUE_ID --reset
+wb queue remove QUEUE_ID
+```
+
+从 search / categories 返回值读取真实 ID，不编造文档 ID。文档 truncated 时按 next_offset 分段读取。云端问答需要管理员配置模型。读请求遇到暂时断连或 502/503/504 会有限退避重试；写入不自动重试。propose 的候选先进入本地私有队列，不存 Key；服务端确认成功才移除。失败时用 contributions 核对结果，避免重试导致重复贡献。队列最多 100 条、每轮最多 5 次；权限或参数错误需要先修复。
+
+候选 JSON 格式见 Skill 的 references/candidate.json。必须填写标题、分类、完整 Markdown、problem、solution、verification、limitations，并且 verified / reusable 真实为 true。内容至少 80 字符，问题至少 10、解法至少 20、验证至少 10、限制至少 5 字符；不得捏造证据，不得包含凭据、客户敏感数据、完整会话或仓库。更新建议填写 target_doc_id 和原文的 base_version。默认 pending 是待审核，不等于发布成功；writer 才能提交。
+
+CLI 指令中启用沉淀后，Agent 可在任务结束时按需提交经过验证、脱敏、可复用且非重复的知识，不要求 `wb agent init`、项目路径或项目 Hook。没有新知识、未验证或 reader 权限时跳过。安装时使用 `--no-contribute` 关闭自主沉淀，用户明确要求时才上传。
+
+## MCP
+
+默认是本地 stdio，由 Agent 启动原生二进制；网站没有远程 `/mcp` HTTP 端点。工具保持：kb_stats、kb_categories、kb_search、kb_read、kb_rules、kb_graph、kb_ask、kb_contributions、kb_propose。
+
+Codex 全局配置示意（通过安装器或 `codex mcp add` 合并，保留其他 MCP）：
+
+```toml
+[mcp_servers.teamkb]
+command = "/absolute/path/to/.local/bin/teamkb"
+args = ["mcp"]
+```
+
+项目配置在受信任的 `PROJECT_ROOT/.codex/config.toml`，使用：
+
+```toml
+[mcp_servers.teamkb]
+command = "/absolute/path/to/.local/bin/teamkb"
+args = ["--project", "/absolute/path/to/project", "mcp"]
+```
+
+Claude Code：
+
+```bash
+claude mcp add --transport stdio --scope user teamkb -- /absolute/path/to/.local/bin/teamkb mcp
+# 项目范围在对应项目中执行
+claude mcp add --transport stdio --scope project teamkb -- /absolute/path/to/.local/bin/teamkb --project /absolute/path/to/project mcp
+```
+
+Key 从已初始化的私有连接文件读取，不内联到共享 MCP 配置。切换后重启 Agent，检查工具列表并调用 kb_categories；仅写好配置不能声称 MCP 已连接。不要同时保留同名的旧 Python MCP 进程。新客户端不含 `mcp --local` 离线服务。
+
+## Skill 与其他 Agent
+
+选择 `recommended` 安装 MCP + Skill，或 `skill` 安装 CLI + Skill。原生版 Skill ZIP：本站 `/static/downloads/team-knowledge-0.6.0.zip`；校验值在 `/static/downloads/go-manifest.json`。安装器验证 SHA-256 并安全解压，Codex 使用所选范围的 `.agents/skills/team-knowledge`，Claude Code 使用 `.claude/skills/team-knowledge`。
+
+其他 Agent 在一键接入页选择「其他智能体」，复制安装提示词，让本地 Agent 识别系统、下载并校验对应二进制、初始化连接，并合并真实支持的 MCP / Skill / 自定义指令入口。无法确认持久化入口时交付可复制的指令文件，不猜路径、不扩大接入范围。新原生客户端不安装 Python completion_hook；现有旧 Hook 可在旧 Python 环境中继续运行，但不要与直接 propose 重复上传。
+
+## DeepSeek Harness 原生插件
+
+Desktop / Web 插件独立于 CLI/MCP，仍无需 Python。Harness「Plugins → Add plugin」粘贴：
 
 ```text
 https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
 ```
 
-CLI 对应命令（只安装自己使用的 profile）：
+或：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
 dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
 ```
 
-需要 Node.js 24.9+ 与 Harness 0.2.2 rc 系列；界面安装使用宿主自带包管理器，独立 CLI 若提示缺少 pnpm 则按其提示安装。插件打包了可直接运行的 JS，不运行安装构建脚本。
+选择实际使用的 profile，打开 TeamKB 插件设置填写服务地址和个人 Key。包含侧栏工作台、分类、规范、检索、阅读、知识链、调用日志与提交。支持官方预览版 0.2.2 rc 系列；重装后重启宿主。配置入口、凭据及兼容范围见仓库 plugins/dsh-teamkb/README.md。
 
-安装后打开「TeamKB 团队知识库」插件详情页（也可进入 `teamkb` 行配置），填写服务地址和个人 Key；留空 Key 保留原值，勾选清除才删除。需要任务后按需沉淀时开启贡献开关并使用 writer Key。保存后新建会话，调用 `kb_stats` 验证，再使用分类、规范、检索和阅读工具。默认不开放贡献；开启后通过 `kb_propose` 直接提交待审核知识，不需要项目初始化。Key 使用 Harness 的 secret 配置，远端读取脱敏，持久化由宿主 profile 管理；多人不要共享同一 profile 的凭据。
+## 故障与兼容
 
-Desktop 和 Web 共用设置组件与工具逻辑，网络请求发生在宿主；Web 浏览器无需访问 TeamKB API 或额外配置 CORS。运行时注入工作流，卸载自动撤回，不改本地系统指令文件。完整开发与兼容说明见仓库 `plugins/dsh-teamkb/README.md`。
+- `wb: command not found`：macOS/Linux 执行 `export PATH="$HOME/.local/bin:$PATH"; hash -r` 或重新打开终端；Windows 重开 PowerShell。
+- 仍显示旧版本：退出旧虚拟环境，检查 `command -v wb` / `Get-Command wb`；新版本为 `teamkb 0.6.0`。
+- TLS / curl 35：确认系统时间、证书、代理与域名线路；客户端有限重试，不关闭证书校验。持续失败不等同于后端宕机。
+- 401：Key 无效或被吊销；403：账号未审批或权限不足；400/404 文档不存在：重新检索真实 ID；429：额度耗尽。
+- SHA 不一致：停止安装；核对本站清单与文件。新原生发布包按版本保持不可变，不用旧校验值验证新包。
+- 本次迁移只替换本地客户端和安装链路。服务端管理命令、批量导入、旧 `wb agent` 项目 Hook、离线 MCP 暂用旧 Python 环境；后端尚未宣称迁移完成。Python 0.5.6 历史下载保留，不自动删除本机旧虚拟环境。
+
 
 ## 平台使用：分类、审核与版本
 
@@ -62,90 +154,6 @@ Desktop 和 Web 共用设置组件与工具逻辑，网络请求发生在宿主�
 - 语雀仍是已配置外部知识的同步来源；后续同步可能更新其正文，同时保留版本快照。需要独立维护的团队经验应创建新知识并引用原文。
 - 个人调用日志会记录检索、阅读、提交、审核和回滚等调用的状态与结果，仍按账号隔离并执行保留期限。
 
-## Agent 自动沉淀：直接提交与可选项目 Hook
-
-CLI / 仅 Skill 安装会将知识工作流写入本地 Agent 的持久化指令（MCP 模式不写入）：Codex 全局使用实际 `CODEX_HOME/AGENTS.md`（默认 `~/.codex/AGENTS.md`），项目使用 `AGENTS.md`；Claude Code 全局使用 `~/.claude/CLAUDE.md`，项目使用 `CLAUDE.md`。先检查覆盖设置并确认实际加载。DeepSeek Harness 原生插件通过运行时注入工作流，不改本地指令文件。其他 Agent 无法确认持久化入口时，安装者交付可复制的提示词，由用户粘贴到自定义指令入口；仅会话有效的方式需在新会话重新粘贴。安装者保留已有规则、备份文件，只替换 `TEAMKB:BEGIN` / `TEAMKB:END` 区块，不写入 Key。完整模板见仓库 `skill/team-knowledge/references/agent-instructions.md`。
-
-**提交知识不要求项目初始化。** 先完成用户级连接 `wb init --scope user`，然后可在任意目录使用 `kb_propose` 或 `wb propose /absolute/path/to/candidate.json`。候选文件可存放在用户私有目录，无需项目根路径、`wb agent init` 或 `.teamkb/config.json`。连接配置用于地址和鉴权，项目 Hook 开关只是另一种可选的任务完成触发方式。
-
-启用沉淀后，Agent 完成任务应判断是否有新的排障解法、团队规范经验或适用限制；有真实验证和复用价值时先检索去重、分类、脱敏，再直接提交，不逐次要求确认。无新知识、未验证、重复或只有 reader 权限时跳过；用户在当前任务禁止上传时遵守该限制。MCP、CLI 和 Hook 只选一种提交渠道，不能重复提交。关闭沉淀时仅在用户明确要求后提交。Skill / 提示词引导模型判断，不能保证每次任务完成都触发。
-
-直接提交示例（候选按 Skill 模板整理，不能直接提交示例内容）：
-
-```bash
-wb propose "$HOME/.teamkb/candidates/verified-solution.json"
-wb contributions
-```
-
-### 可选：项目候选与任务完成 Hook
-
-只有需要项目候选文件或确定性的任务完成 Hook 时才进行以下设置；普通知识提交跳过本节。
-
-先安装下文 CLI 并执行 `wb init` 完成知识访问初始化；自动沉淀需要 writer Key。临时环境方式也可在客户端设置 `TEAMKB_URL` 与 `TEAMKB_KEY`（或继续使用兼容的 `V8WB_URL` / `V8WB_KEY`）。新版客户端需要本次更新后的代码；已安装的旧客户端应重新安装本站发布的客户端包。以下命令在开发项目中执行：
-
-```bash
-export TEAMKB_URL="https://www.ljc.monster"
-export TEAMKB_KEY="YOUR_PERSONAL_KEY"
-wb agent init --project /absolute/path/to/project
-```
-
-命令创建 `.teamkb/config.json`，内容为 `{"enabled": true, "candidate_file": ".teamkb/candidate.json"}`。只对该项目启用；停用时将 `enabled` 改为 `false`。建议把 `.teamkb/candidate.json`、`.teamkb/submitted.json` 加入项目 `.gitignore`，不要把 Key 写进项目配置。
-
-把下载并安装的 `team-knowledge/references/candidate.json` 复制为项目候选文件，再由 Agent 根据实际任务填写。模板故意将 `verified` 与 `reusable` 设为 false，不能直接提交。Agent 材料要求：问题至少 10 字符、解法至少 20 字符、真实验证说明至少 10 字符、限制至少 5 字符、正文至少 80 字符，并明确 `verified: true`、`reusable: true`。这些是完整性门槛，不代表系统已替你验证方案正确性。
-
-```bash
-# 人工触发一次任务完成处理：只读取候选文件，不扫描仓库或会话
-wb agent complete --project /absolute/path/to/project
-# 显式提交一个经过验证的方案
-wb propose /absolute/path/to/candidate.json
-# 材料尚未验证时，只保存草稿
-wb propose /absolute/path/to/candidate.json --draft
-wb contributions
-wb contributions CONTRIBUTION_ID
-```
-
-默认结果是 `pending`（待审核），审核后才共享。同一候选重复执行会去重；修正已有文档请设置 `target_doc_id` 和 `base_version`（来自读取结果的 `knowledge_version`）。新 MCP 工具为 `kb_categories`、`kb_search`、`kb_read`、`kb_rules`、`kb_propose`、`kb_contributions`，传参及返回结构可在 API 文档中查看。`v8_*` MCP 工具已弃用并移除，请更新客户端后使用 `kb_*`；`wb push` 提交仍进入人工审核，不直接发布。
-
-MCP 在 `local` 离线模式下只操作本地库，候选不会发送给团队服务器，也不会自动发布。需要团队共享请使用默认 proxy 模式。
-
-## 失败重试与任务完成 Hook
-
-网络失败、HTTP 429 或 5xx 时，`wb propose` / `wb agent complete` 会将候选保存在 `~/.teamkb/queue`（目录 700、文件 600），不保存 Key。单次最多保存 100 条，按服务地址隔离。重试使用当前环境中的 Key，请保持原来的账号身份。
-
-```bash
-wb queue list
-wb queue retry
-# 修复凭据或材料错误后，手动重置 blocked / exhausted 项再重试
-wb queue retry --reset
-# 无效或过时材料：移除旧队列条目，修改候选文件后重新提交
-wb queue remove QUEUE_ID
-```
-
-重试最多 5 次，指数退避，尊重数值 Retry-After；401/403 等不可重试错误会变为 `blocked`，达到次数上限变为 `exhausted`。`retry` 只处理已到重试时间的条目，调度由你的任务完成脚本或定时任务调用，本工具不会自行常驻。成功后删除队列条目；本地成功状态用于防止同一候选重复提交。长时间离线后请检查候选是否仍有效。
-
-通用完成命令为 `wb agent complete --project PROJECT_ROOT`。任何支持任务完成事件的 Agent 都可在该事件中执行此命令，项目未开启或没有候选文件时会跳过。Skill 只是工作流程指导，不能保证每个 Agent 在每次退出时都运行；需要确定性触发时配置 Hook。
-
-下载的 Skill 包提供 `team-knowledge/scripts/completion_hook.py`：从标准输入读取带 `cwd` 的 JSON，只在这个目录明确启用时运行；不读 transcript、不执行候选中的命令，错误不会阻断主任务。必须用安装了客户端的虚拟环境 Python 运行。
-
-Claude Code 项目 `.claude/settings.json` 的示例（合并到已有配置，不要覆盖其他 Hook）：
-
-```json
-{
-  "hooks": {
-    "Stop": [{"hooks": [{
-      "type": "command",
-      "command": "/absolute/path/to/.teamkb-venv/bin/python /absolute/path/to/installed/team-knowledge/scripts/completion_hook.py",
-      "timeout": 90
-    }]}]
-  }
-}
-```
-
-Hook 用事件 `cwd` 找项目配置，子目录启动时需要在该目录启用，或改用固定项目根目录的完成命令。不要同时通过 MCP 和 Hook 提交同一方案。
-
-管理员可以在「工作台管理」对指定 writer/admin Key 授权自动发布。仅限该 Key 提交的 Agent 材料满足全部完整性条件、没有相似已发布知识时才自动发布，并记录审核事件；普通人工提交和更新建议仍按审核流程处理。相似度仅为标题与内容指纹的启发式检查，不是语义查重。默认所有 Key 都关闭此权限，个人账号不能自行开启。
-
-凭据模式检测只是一层辅助检查，不能识别所有敏感数据；Agent 应在本地先删除密码、Token、客户信息与无关代码。队列只存已经整理的候选，不应包含原始会话。
 
 ## 1. 开通账号与个人 Key
 
@@ -165,263 +173,6 @@ Hook 用事件 `cwd` 找项目配置，子目录启动时需要在该目录启�
 
 浏览器登录与客户端 Key 是两种凭据：密码用于登录网页，Key 用于 MCP、CLI 等客户端。不要把密码填进 `V8WB_KEY`。修改密码会使所有浏览器登录会话退出；如 Key 泄露，还需在个人中心单独吊销。
 
-## 2. 安装 CLI 与公共环境
-
-客户端需要 **Python 3.11+** 和能访问工作台域名的网络。CLI、MCP 共用下面的客户端 wheel；Skill 使用同一域名发布的 ZIP。安装和升级均从本站域名下载，无需克隆源码仓库。
-
-在开发电脑创建独立环境并安装：
-
-```bash
-python3 -m venv ~/.teamkb-venv
-source ~/.teamkb-venv/bin/activate
-python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.6-py3-none-any.whl"
-wb --help
-```
-
-- 客户端 wheel：[下载 CLI / MCP 客户端](https://www.ljc.monster/static/downloads/v8_workbench-0.5.6-py3-none-any.whl)。
-- Skill ZIP：[下载 team-knowledge](https://www.ljc.monster/static/downloads/team-knowledge-0.5.6.zip)。
-- SHA-256 清单：[核对下载文件](https://www.ljc.monster/static/downloads/manifest.json)。下载后应与清单中的哈希一致，不一致时重新下载并停止安装。
-
-后续打开终端时，先执行 `source ~/.teamkb-venv/bin/activate`，或使用 `~/.teamkb-venv/bin/wb` 的绝对路径。Windows PowerShell 用 `py -m venv "$HOME/.teamkb-venv"` 创建环境、`& "$HOME/.teamkb-venv/Scripts/Activate.ps1"` 激活；wb 路径为 `$HOME/.teamkb-venv/Scripts/wb.exe`。随后使用同一域名的 wheel 安装命令。
-
-### 先初始化，再使用 CLI 或 MCP
-
-新版客户端增加 `wb init`，CLI 和 `wb mcp` 共用初始化配置。先执行 `wb init --help`；若提示没有该命令，请更新客户端。下载包仍为 0.5.6 时也需加 `--force-reinstall --no-cache-dir` 重装，以服务器当前 SHA-256 清单为准。
-
-| 范围 | 初始化命令 | 保存位置 | 后续使用 |
-| --- | --- | --- | --- |
-| 全局接入 | `wb init --scope user` | `~/.teamkb/client.json` | 当前用户在任意目录使用，项目配置可覆盖它 |
-| 项目接入 | `wb --project /absolute/path/to/project init --scope project` | `PROJECT_ROOT/.teamkb/client.json` | 在该项目或子目录使用；从别处启动时传 `--project` |
-
-以下先临时提供服务地址，Key 由终端隐藏输入，不放到命令行历史中：
-
-```bash
-export TEAMKB_URL="https://www.ljc.monster"
-# 全局接入（不必给每个项目重复初始化）
-wb init --scope user
-# 或选择项目接入；先把路径换成真实项目根目录
-wb --project /absolute/path/to/project init --scope project
-```
-
-如已通过本机安全方式设置 `TEAMKB_KEY`，初始化会读取它；兼容 `V8WB_URL` / `V8WB_KEY`。不要把 `YOUR_PERSONAL_KEY` 占位符作为真实凭据。Windows PowerShell 使用 `$env:TEAMKB_URL = "https://www.ljc.monster"`，其余 `wb` 初始化参数相同；目录中有空格时给路径加引号。
-
-全局配置存在当前用户目录；项目配置自动追加到项目 `.gitignore`，不提交凭据。POSIX 配置文件权限为 600，Windows 应限制为当前用户可读写。重新执行同范围初始化会更新该连接配置，保留其他字段；不覆盖其他 MCP 或 Skill。
-
-**配置优先级：**命令行 `--url` / `--key` > `TEAMKB_*`（兼容 `V8WB_*`）环境变量 > 当前项目或其祖先目录的 `.teamkb/client.json` > 用户 `~/.teamkb/client.json`。项目配置整体覆盖全局连接，不把全局 Key 自动套到项目的另一个服务地址。显式切换到不同 URL 时，需要为该 URL 提供匹配的 Key。环境变量仍优先生效，旧变量可能覆盖新初始化的配置。
-
-初始化后开一个没有临时连接变量的新进程验证；如果在当前终端测试，先清除本次临时设置（不要删除自己原有持久配置）：
-
-```bash
-unset TEAMKB_URL TEAMKB_KEY V8WB_URL V8WB_KEY
-# 全局接入可在任意目录执行；项目接入先 cd 到项目或使用下方显式路径
-wb health
-wb stats
-wb categories
-wb --json search "开发" -n 3
-# 从项目外部调用
-wb --project /absolute/path/to/project stats
-```
-
-PowerShell 清除本次临时环境变量可用 `Remove-Item Env:TEAMKB_URL,Env:TEAMKB_KEY,Env:V8WB_URL,Env:V8WB_KEY -ErrorAction SilentlyContinue`。
-
-`health` 免鉴权，只验证连通；`stats`、`categories` 和检索成功才表示地址与 Key 可用。初始化不会自动开启贡献或上传：`wb agent init --project PROJECT_ROOT` 仅是经验候选提交开关，不能替代 `wb init`。普通知识检索无需执行 `wb agent init`。
-
-升级客户端：激活原虚拟环境，重新从本站安装。即使版本号未变，也应使用强制重装和禁用缓存，避免继续使用旧客户端：
-
-```bash
-python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.6-py3-none-any.whl"
-wb init --help
-```
-
-升级后重启 Agent / MCP 会话；已有初始化配置不受影响。重新使用一键接入可更新持久化指令中的沉淀策略。
-
-### 已安装却无法接入时
-
-- `wb: command not found`：新安装器会配置终端 PATH，请新开终端；zsh 可执行 `source ~/.zshrc`。旧安装可先执行 `source ~/.teamkb-venv/bin/activate`，或直接使用 `~/.teamkb-venv/bin/wb stats`。
-- 仍连接 `127.0.0.1:8770`：没有可用的接入配置；先执行对应范围的 `wb init`。
-- 终端可用而 MCP 失败：确认 MCP 使用同一虚拟环境的 wb；项目模式加 `--project` 绝对路径。IDE 不一定继承终端环境。
-- 切换项目后失败：当前项目可能覆盖用户配置；检查项目初始化及残留 `TEAMKB_*` / `V8WB_*` 环境变量。
-- 401/403：Key 失效、账号待审核或权限不够，检查个人中心，不用网页登录密码代替 Key。
-- MCP 无工具或 Skill 未出现：确认所选用户 / 项目注册范围，信任项目并重启 Agent 会话，再实际调用工具。
-
-
-## 3. MCP 安装与接入
-
-本项目目前提供 **本地 stdio MCP 代理**：Agent 启动本机的 `wb mcp`，由它调用工作台 HTTPS API。不要把网站地址直接当作远程 MCP URL；本项目没有对外提供 `/mcp` HTTP 服务，也不使用 OAuth 登录。
-
-先完成上一节 CLI 安装与 `wb init` 初始化，并确认在没有临时环境变量的新进程中 `wb stats` 成功。以下路径必须换成你开发电脑上的绝对路径。
-
-### Codex：全局或项目接入
-
-全局接入先执行 `wb init --scope user`，再在当前用户的 `~/.codex/config.toml` 合并：
-
-```toml
-[mcp_servers.teamkb]
-command = "/absolute/path/to/.teamkb-venv/bin/wb"
-args = ["mcp"]
-startup_timeout_sec = 20
-tool_timeout_sec = 90
-```
-
-项目接入先执行 `wb --project /absolute/path/to/project init --scope project`。在受信任项目的 `.codex/config.toml` 中合并：
-
-```toml
-[mcp_servers.teamkb]
-command = "/absolute/path/to/.teamkb-venv/bin/wb"
-args = ["--project", "/absolute/path/to/project", "mcp"]
-startup_timeout_sec = 20
-tool_timeout_sec = 90
-```
-
-配置中不需要放 Key；`wb` 会读取相应范围的私有配置。项目目录必须是绝对路径，不能依赖 Agent 的启动目录。Codex 仅对受信任项目加载项目配置；以本机 `codex --help`、现有设置和官方文档核实当前版本的支持情况。
-
-已有配置如果使用 `env_vars` 转发或 `[mcp_servers.teamkb.env]` 固定 `V8WB_URL` / `V8WB_KEY`，这些变量仍优先于初始化配置。切换到新初始化方式时只移除 TeamKB 条目里失效的变量，不动其他服务。不要同时注册同一连接的 `v8-workbench` 与 `teamkb`。
-
-```bash
-codex mcp list
-```
-
-重新开启会话，通过 `/mcp` 检查 teamkb，再实际调用 `kb_categories` 或 `kb_search`，不能只检查配置文件已写入。
-
-### Claude Code：全局或项目接入
-
-全局接入完成用户初始化后执行：
-
-```bash
-claude mcp add --transport stdio --scope user teamkb -- /absolute/path/to/.teamkb-venv/bin/wb mcp
-```
-
-项目接入先初始化项目，再在**实际开发项目根目录**执行：
-
-```bash
-claude mcp add --transport stdio --scope project teamkb -- /absolute/path/to/.teamkb-venv/bin/wb --project /absolute/path/to/project mcp
-claude mcp list
-```
-
-项目 MCP 注册写入 `.mcp.json`，其中只放命令、路径及参数，不放 Key；个人访问凭据由 `.teamkb/client.json` 提供。项目配置可能需要信任或授权，重新开启 Claude Code，通过 `/mcp` 核实工具列表并实际检索。
-
-### 其他支持 stdio 的 MCP 客户端
-
-先查客户端支持的用户 / 工作区配置范围。下面是项目接入的常见 `mcpServers` 配置；`command` 替换为虚拟环境中的 wb 绝对路径：
-
-```json
-{
-  "mcpServers": {
-    "teamkb": {
-      "command": "/absolute/path/to/.teamkb-venv/bin/wb",
-      "args": ["--project", "/absolute/path/to/project", "mcp"]
-    }
-  }
-}
-```
-
-全局接入则使用用户级配置、先执行用户初始化，并改成 `"args": ["mcp"]`。Windows 使用虚拟环境的 `Scripts\wb.exe`，JSON 中反斜杠需要转义。配置路径和注册格式以当前客户端帮助为准；客户端不支持项目范围时明确说明限制，不静默扩大为全局接入。
-
-### 可用工具与验证任务
-
-| MCP 工具 | 用途 |
-| --- | --- |
-| `kb_stats` | 检查团队知识库规模与连接 |
-| `kb_categories` | 列出全部知识分类和文档数量 |
-| `kb_rules` | 按分类获取团队规范 |
-| `kb_search` | 按关键词、分类与标签检索知识 |
-| `kb_read` | 读取正文与版本；长文按 next_offset 续读 |
-| `kb_graph` | 查看知识引用和关联链 |
-| `kb_ask` | 基于知识库问答，需要管理员配置模型 |
-| `kb_propose` | 提交经过验证的方案，默认待管理员审核 |
-| `kb_contributions` | 查看自己的贡献状态及审核意见 |
-
-验证提示词：“请先用 kb_categories 查看团队知识分类，再用 kb_rules 获取相关规范，检索与当前任务有关的知识，用 kb_read 核对原文并列出实现依据。”
-
-升级后重启本地 Agent / MCP 会话以刷新工具列表。旧配置中对 `v8_*` 的工具白名单、工作流引用需改为上表对应的 `kb_*` 工具；检索 V8 知识时同样使用分类筛选。
-
-`wb mcp` 启动后安静等待输入是正常现象，它不是交互式终端程序。只有需要本机离线知识库时才使用 `wb mcp --local`；该模式不连接线上，也不会自动下载线上文档。
-
-## 4. Skill 安装与使用
-
-Skill 从本站的 [team-knowledge ZIP](https://www.ljc.monster/static/downloads/team-knowledge-0.5.6.zip) 下载，解压后得到 `team-knowledge/` 目录，包含 `SKILL.md`、`references/` 和 `scripts/`。请复制整个目录，不能只复制 `SKILL.md`。Skill 约定工作流程，本身不携带知识库；仍然需要已经可用的 MCP 或 `wb` CLI。
-
-先完成所选范围的 `wb init` 和 CLI 鉴权验证。下载并解压本站 ZIP，以下命令以 macOS / Linux 为例：
-
-```bash
-mkdir -p "$HOME/.teamkb/downloads/skill"
-curl -fL "https://www.ljc.monster/static/downloads/team-knowledge-0.5.6.zip" -o "$HOME/.teamkb/downloads/team-knowledge.zip"
-curl -fL "https://www.ljc.monster/static/downloads/manifest.json" -o "$HOME/.teamkb/downloads/manifest.json"
-# 解压前核对 ZIP 的 SHA-256 与清单一致
-python -c 'import hashlib,json,pathlib; p=pathlib.Path.home()/".teamkb/downloads"; actual=hashlib.sha256((p/"team-knowledge.zip").read_bytes()).hexdigest(); expected=json.loads((p/"manifest.json").read_text())["sha256"]["team-knowledge-0.5.6.zip"]; assert actual==expected,"SHA-256 不匹配，停止安装"'
-python -m zipfile -e "$HOME/.teamkb/downloads/team-knowledge.zip" "$HOME/.teamkb/downloads/skill"
-```
-
-Windows 可用浏览器下载同域名 ZIP 和校验清单，再用 PowerShell `Get-FileHash -Algorithm SHA256` 核对、`Expand-Archive` 解压。全局接入放用户 Skill 目录，项目接入放该开发项目 Skill 目录，不能只装工作流而漏掉初始化。
-
-### Codex：用户级安装
-
-```bash
-mkdir -p "$HOME/.agents/skills"
-cp -R "$HOME/.teamkb/downloads/skill/team-knowledge" "$HOME/.agents/skills/"
-```
-
-也可在你实际开发的项目根目录创建 `.agents/skills/`，把同一目录放进去，作为项目级 Skill。确认目标文件是 `.agents/skills/team-knowledge/SKILL.md`，不要多嵌套一层同名目录。
-
-重新开启 Agent 会话，确认能发现 `team-knowledge`。示例：“请使用 team-knowledge skill，帮我规划一个 V8 SPI 扩展，先查规范与文档再给方案。”
-
-### Claude Code：用户级安装
-
-```bash
-mkdir -p "$HOME/.claude/skills"
-cp -R "$HOME/.teamkb/downloads/skill/team-knowledge" "$HOME/.claude/skills/"
-```
-
-项目级安装则放到实际开发项目的 `.claude/skills/team-knowledge/`。重新开启会话后，可通过 `/team-knowledge` 或明确要求使用这个 Skill 启动工作流程。
-
-### 推荐使用顺序
-
-1. 识别任务所属分类，用 `kb_categories` 与 `kb_rules` 或 `wb categories` 与 `wb standards` 获取分类和规范。
-2. 用 `kb_search` 或 `wb search` 检索，再用 `kb_read` 或 `wb read` 读取相关原文。
-3. 基于文档与项目版本实施代码，完成提交前自查。
-4. 如果发现可复用的新经验，用 `kb_propose` 或 `wb propose` 提交审核。提交前移除客户敏感数据和密钥。
-
-升级 Skill：重新从本站域名下载 ZIP、核对最新 SHA-256，解压到新的临时目录后更新已安装的完整 `team-knowledge/` 文件夹；保留其他 Skill 不变，避免重复嵌套同名目录。重启 Agent 会话加载更新。
-
-## 5. CLI 常用命令
-
-以下命令依赖前面已设置的 `V8WB_URL` 与 `V8WB_KEY`。全局参数如 `--json`、`--timeout` 要放在子命令之前。
-
-```bash
-# 连通性和凭据验证
-wb health
-wb stats
-
-# 查领域与规范
-wb domains
-wb rules spi
-wb rules integration --docs
-
-# 检索，限制返回数量或知识领域
-wb search "组织同步 中间表" -n 5
-wb search "SPI 扩展" -d "扩展能力"
-wb --json search "UDC 页面"
-
-# 用实际搜索结果中的文档 id 读取
-wb read "yuque:实际文档ID"
-wb read "yuque:实际文档ID" --offset 6000 --max-chars 6000
-wb read --title "实际文档标题"
-
-# 沉淀单篇或整个目录，需要 writer/admin
-wb push ./notes/example.md --project "脱敏项目名" --tags "UDC,前端"
-wb push ./notes --project "脱敏项目名" -y
-```
-
-人工贡献正文至少 20 个字符，提交后由管理员审核。`wb push` 默认会展示待上传条目并要求确认，`-y` 用于已审核的脚本场景。重复内容会去重；请先在本地检查文件内容，不要误传整个项目。
-
-个人 Key 的创建与吊销在网页「个人中心」完成。下面的 CLI 管理命令属于全局管理员功能，普通账号的 Key 不能使用：
-
-```bash
-wb key list
-wb key create local-agent --role writer --rpm 60 --daily 5000
-wb key revoke --prefix wr_实际前缀
-wb --timeout 600 sync
-```
 
 ## 6. 管理员操作与迁移
 
@@ -437,34 +188,6 @@ wb --timeout 600 sync
 
 部署升级前备份 SQLite 数据库。新增账号表、会话表、审批记录和 Key 归属字段由启动时自动迁移；升级时使用 `deploy/update.sh`，不要重跑首次安装脚本来更新现有站点。
 
-## 7. 常见问题与排查
-
-| 现象 | 排查方式 |
-| --- | --- |
-| 已注册但看不到知识或不能创建 Key | 登录个人中心查看审批状态；待审批、拒绝和停用状态均不可使用 |
-| 无法创建 writer/admin Key | Key 角色不可高于账号角色；需要更高权限请联系管理员 |
-| 401 / 凭据无效 | 网页重新登录；客户端检查 V8WB_KEY、Key 是否吊销、账号是否被停用 |
-| 403 / 权限不足 | 检查账号审批状态以及 Key 角色；writer 才能提交经验，admin 才能审批或同步 |
-| 429 | 达到调用额度或登录限流，按提示等待；不要让脚本无限重试 |
-| MCP 找不到 wb | 使用虚拟环境内 wb 的绝对路径；Windows 指向 wb.exe |
-| MCP 连上但没有查到内容 | 先调 kb_stats 验证连接，再用更短的平台术语检索 |
-| Agent 看不到环境变量 | 从设置好环境变量的终端启动，或在本机客户端配置中设置 env；重启 Agent |
-| Skill 未出现 | 确认目录下有 SKILL.md，整个目录已复制；检查安装位置与客户端支持，重新打开会话 |
-| CLI health 成功但 stats 失败 | health 不检查凭据；检查个人 Key 和批准状态 |
-| 长文未读完 | 根据 next_offset 继续读取，CLI 使用 --offset |
-| 找不回完整 Key | 无法重新查看；吊销旧 Key 后创建新 Key，再更新各客户端 |
-| 忘记账号密码 | 联系管理员核实身份；当前版本未实现邮件找回，不能靠 Key 直接查询或重置密码 |
-
-先运行 `wb --help` 与 `wb stats`，再排查 MCP／Skill。工作台网站的网页 Cookie 不会自动传给 MCP 或 CLI，客户端始终需要个人 Key。
-
-## 8. 配置参考
-
-客户端配置参照以下官方文档，并与本仓库的 `cli/wb.py`、`server/api/mcp_server.py` 和 `skill/team-knowledge/` 实现核对。不同客户端版本的界面可能不同。
-
-- [OpenAI 官方 MCP 配置说明](https://developers.openai.com/codex/mcp/)
-- [OpenAI 官方 Skills 目录与使用说明](https://developers.openai.com/codex/skills/)
-- [Claude Code MCP 配置说明](https://code.claude.com/docs/en/mcp)
-- [Claude Code Skills 使用说明](https://code.claude.com/docs/en/skills)
 
 ## 9. 个人调用日志
 

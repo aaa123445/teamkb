@@ -213,3 +213,9 @@ sudo systemctl enable --now v8wb
 - [ ] 每日配额已按实际用量设置，防止 key 泄露后被刷
 - [ ] `v8wb-data` volume 有定期备份
 - [ ] 服务器防火墙只开 443（和 22）
+
+## Go 原生客户端构建
+
+服务端暂时继续使用 Python；构建下载包新增要求 Go 1.27.4+（仅构建机需要）。运行 `bash deploy/build-go-client.sh` 可单独生成六个平台原生二进制、Skill 和安装脚本；完整 `build-client.sh` 会同时保留旧 Python 包并生成新包。可用 GO_BIN 指定 Go 路径，CLIENT_PYTHON 指定构建工具 Python。
+
+原生安装入口为 `/install.sh` 和 `/install.ps1`，下载和校验值均来自本站 `static/downloads/go-manifest.json`。版本文件发布后不得改内容同名覆盖，应递增版本。后续服务端迁移步骤见 [Go 迁移说明](go-migration.md)。

@@ -412,7 +412,7 @@ onBeforeUnmount(() => {
             agent === "dsh"
               ? "在 Harness 插件页粘贴包地址，或运行下面的 profile 安装命令。Key 在插件设置中填写；无需 Python、MCP 或项目初始化。"
               : commandMode
-                ? "在本机交互终端执行下方命令。Shell 会先检测系统、Python、venv、Agent 命令和网络；可在命令末尾追加 --check-only 仅检测。Windows 使用 Python 安装入口。CLI 直接合并 Agent 指令；MCP 仅注册工具，不修改系统提示词。"
+                ? "在本机交互终端执行下方命令。安装器会检测系统、CPU、Agent 命令和网络，下载并校验 Go 原生客户端；不需要 Python 或 Node。macOS/Linux 追加 --check-only 仅检测；Windows 使用 -CheckOnly。CLI 直接合并 Agent 指令；MCP 仅注册工具，不修改系统提示词。"
                 : "复制提示词交给本地 Agent，它会识别系统与客户端、保留已有配置并验证连接。"
           }}
         </p>
