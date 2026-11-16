@@ -46,7 +46,7 @@ INSTRUCTIONS = """团队知识库：开始任务时用 kb_categories / kb_rules 
 mcp = MCPServer(
     "team-knowledge",
     instructions=INSTRUCTIONS,
-    version="0.5.5",
+    version="0.5.6",
 )
 
 
@@ -61,10 +61,9 @@ def _remote(path: str, payload: dict | None = None, *, method: str = "POST") -> 
         headers["Authorization"] = f"Bearer {API_KEY}"
     url = f"{BASE_URL}{path}"
     try:
-        with httpx.Client(
-            timeout=90.0 if path == "/api/v1/assistant/ask" else 60.0
-        ) as client:
-            r = client.request(method, url, json=payload, headers=headers)
+        from cli.transport import request
+        r = request(method, url, payload=payload, headers=headers,
+                    timeout=90.0 if path == "/api/v1/assistant/ask" else 60.0)
     except httpx.ConnectError as e:
         raise RuntimeError(
             f"连不上工作台 {BASE_URL}。请确认服务器已启动，或检查 TEAMKB_URL 初始化配置。详情：{e}"

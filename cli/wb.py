@@ -58,12 +58,10 @@ class Client:
 
     def call(self, method: str, path: str, payload: Any = None) -> Any:
         try:
-            with httpx.Client(timeout=self.timeout) as c:
-                r = c.request(
-                    method, f"{self.url}{path}", json=payload, headers=self._headers()
-                )
+            from cli.transport import request
+            r = request(method, f"{self.url}{path}", payload=payload, headers=self._headers(), timeout=self.timeout)
         except httpx.ConnectError:
-            _die(f"连不上工作台 {self.url}。用 --url 指定地址，或确认服务已启动。")
+            _die(f"连接 {self.url} 失败，已自动重试；请检查本机代理、TLS 证书或网络，服务地址未必有误。")
         except httpx.TimeoutException:
             _die(f"请求超时（{self.timeout}s）：{path}")
         if r.status_code == 401:

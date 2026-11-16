@@ -135,3 +135,38 @@ def test_zsh_path_setup_handles_spaces_and_is_idempotent(tmp_path, monkeypatch):
     assert text.count('# TEAMKB_PATH_BEGIN') == 1
     assert shlex.quote(str(wb.parent)) in text
     assert len(list(tmp_path.glob('.zshrc.teamkb-backup-*'))) == 1
+
+
+def test_tls_handshake_failure_retries_and_falls_back_without_leaking_partial_data(monkeypatch):
+    monkeypatch.setenv('TEAMKB_DOWNLOAD_TRANSPORT', 'curl')
+    calls, delays = [], []
+    results = iter([
+        SimpleNamespace(returncode=35, stdout=b'partial-download'),
+        SimpleNamespace(returncode=35, stdout=b'another-partial'),
+        SimpleNamespace(returncode=0, stdout=b'{"ok": true}\n200'),
+    ])
+    def run(args, **kwargs):
+        calls.append((args, kwargs))
+        return next(results)
+    monkeypatch.setattr(installer.subprocess, 'run', run)
+    monkeypatch.setattr(installer.time, 'sleep', delays.append)
+    assert json.loads(installer.request_bytes('https://team.example', 'secret')) == {'ok': True}
+    assert delays == [1, 2]
+    assert '--http1.1' not in calls[0][0]
+    assert '--http1.1' in calls[1][0]
+    assert all(call[1]['input'] == b'Authorization: Bearer secret\n' for call in calls)
+    assert all('secret' not in json.dumps(call[0]) for call in calls)
+
+
+@pytest.mark.parametrize('code, expected_attempts', [(35, 4), (60, 1)])
+def test_network_retry_is_bounded_and_certificate_errors_are_fatal(monkeypatch, code, expected_attempts):
+    monkeypatch.setenv('TEAMKB_DOWNLOAD_TRANSPORT', 'curl')
+    calls = []
+    def run(*args, **kwargs):
+        calls.append(1)
+        return SimpleNamespace(returncode=code, stdout=b'')
+    monkeypatch.setattr(installer.subprocess, 'run', run)
+    monkeypatch.setattr(installer.time, 'sleep', lambda _: None)
+    with pytest.raises(installer.InstallError, match=f'已尝试 {expected_attempts} 次'):
+        installer.request_bytes('https://team.example')
+    assert len(calls) == expected_attempts

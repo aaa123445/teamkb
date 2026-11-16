@@ -49,19 +49,43 @@ fi
 [[ "$origin" == https://* || "$origin" == http://* ]] || { echo '服务地址需为 HTTP(S) URL。' >&2; exit 1; }
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
+# Retry only read-only downloads; keep certificate errors fatal.
+curl_download() {
+  local url="$1" output="$2" attempt=1 rc=0 delay=1
+  local protocol=()
+  while ((attempt <= 4)); do
+    if curl --fail --silent --show-error --location --connect-timeout 15 --max-time 60 "${protocol[@]}" "$url" -o "$output"; then
+      return 0
+    else
+      rc=$?
+    fi
+    case "$rc" in
+      35|92) protocol=(--http1.1) ;;
+      5|6|7|18|22|28|52|55|56) ;;
+      *) echo "下载失败（curl $rc）；请检查系统证书或代理配置，TLS 校验未关闭。" >&2; return "$rc" ;;
+    esac
+    if ((attempt == 4)); then
+      echo "下载失败，已尝试 4 次（curl $rc）。请稍后重试。" >&2
+      return "$rc"
+    fi
+    printf '网络暂时失败（curl %s），%s 秒后重试（%s/4）…\n' "$rc" "$delay" "$((attempt + 1))" >&2
+    sleep "$delay"
+    delay=$((delay * 2)); attempt=$((attempt + 1))
+  done
+}
 printf '[环境检测] 正在检查站点连通性与下载服务…\n'
-curl --fail --silent --show-error --location --max-time 60 "$origin/static/downloads/manifest.json?installer=0.5.5" -o "$tmpdir/manifest.json"
+curl_download "$origin/static/downloads/manifest.json?installer=0.5.6" "$tmpdir/manifest.json"
 # Use the same working curl transport for every network operation.
 "$python_cmd" - "$tmpdir" <<'PYCODE'
 import json,pathlib,re,sys
 p=pathlib.Path(sys.argv[1]);m=json.loads((p/'manifest.json').read_text())
-sha=m.get('sha256',{}).get('install-teamkb-0.5.5.py','')
+sha=m.get('sha256',{}).get('install-teamkb-0.5.6.py','')
 if not re.fullmatch('[a-f0-9]{64}',sha):
     raise SystemExit('安装器 SHA-256 清单无效，请刷新接入页。')
 (p/'expected.sha256').write_text(sha)
 PYCODE
 installer_hash=$(cat "$tmpdir/expected.sha256")
-curl --fail --silent --show-error --location --max-time 60 "$origin/static/downloads/install-teamkb-0.5.5.py?sha256=$installer_hash" -o "$tmpdir/install.py"
+curl_download "$origin/static/downloads/install-teamkb-0.5.6.py?sha256=$installer_hash" "$tmpdir/install.py"
 "$python_cmd" - "$tmpdir" <<'PYCODE'
 import hashlib,pathlib,sys
 p=pathlib.Path(sys.argv[1])

@@ -14,12 +14,13 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 import venv
 import zipfile
 
-VERSION = "0.5.5"
+VERSION = "0.5.6"
 WHEEL = f"v8_workbench-{VERSION}-py3-none-any.whl"
 SKILL = f"team-knowledge-{VERSION}.zip"
 class InstallError(Exception):
@@ -33,20 +34,38 @@ def request_bytes(url, key=""):
     if os.environ.get("TEAMKB_DOWNLOAD_TRANSPORT") == "curl":
         # Feed credential headers through stdin, never argv or temporary files.
         headers = ("Authorization: Bearer " + key + "\n") if key else ""
-        result = subprocess.run(
-            ["curl", "--silent", "--show-error", "--max-time", "60",
-             "--user-agent", "TeamKB-Installer/" + VERSION,
-             "--header", "@-", "--write-out", "\n%{http_code}", url],
-            input=headers.encode(), capture_output=True,
-        )
-        if result.returncode:
-            raise InstallError(f"curl 网络连接失败（退出码 {result.returncode}）；请检查系统代理与证书。未关闭 TLS 校验")
-        body, _, raw_status = result.stdout.rpartition(b"\n")
-        status = int(raw_status)
-        if not 200 <= status < 300:
-            from urllib.error import HTTPError
-            raise HTTPError(url, status, "Request failed", {}, None)
-        return body
+        # Read-only GETs only: bounded retries cannot duplicate knowledge submissions.
+        transient = {5, 6, 7, 18, 28, 35, 52, 55, 56, 92}
+        http1 = False
+        for attempt in range(4):
+            command = ["curl", "--silent", "--show-error", "--connect-timeout", "15", "--max-time", "60",
+                       "--user-agent", "TeamKB-Installer/" + VERSION,
+                       "--header", "@-", "--write-out", "\n%{http_code}"]
+            if http1:
+                command.append("--http1.1")
+            result = subprocess.run(command + [url], input=headers.encode(), capture_output=True)
+            status, body = 0, b""
+            if result.returncode == 0:
+                body, _, raw_status = result.stdout.rpartition(b"\n")
+                status = int(raw_status)
+                if 200 <= status < 300:
+                    return body
+                retry = status in {408, 429, 500, 502, 503, 504}
+            else:
+                retry = result.returncode in transient
+                if result.returncode in {35, 92}:
+                    http1 = True
+            if not retry or attempt == 3:
+                if result.returncode:
+                    hint = "证书校验失败，请修复系统证书或代理配置" if result.returncode == 60 else "请检查网络或代理后重试"
+                    raise InstallError(f"curl 网络连接失败（退出码 {result.returncode}，已尝试 {attempt + 1} 次）；{hint}。未关闭 TLS 校验")
+                from urllib.error import HTTPError
+                raise HTTPError(url, status, "Request failed", {}, None)
+            delay = 2 ** attempt
+            detail = f"curl {result.returncode}" if result.returncode else f"HTTP {status}"
+            print(f"网络暂时失败（{detail}），{delay} 秒后重试（{attempt + 2}/4）" + ("，使用 HTTP/1.1" if http1 else ""), flush=True)
+            time.sleep(delay)
+
     headers = {"User-Agent": "TeamKB-Installer/" + VERSION}
     if key:
         headers["Authorization"] = "Bearer " + key
