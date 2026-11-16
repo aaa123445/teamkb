@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""V8 客开工作台 CLI。
+"""TeamKB 团队知识共享平台 CLI。
 
 面向三类使用者：
   1. 人（运维/开发）：wb search / wb read / wb rules

@@ -151,8 +151,7 @@ async function remove(r) {
         </article>
       </div>
       <div v-if="!data?.standards?.length" class="panel async-state">
-        尚未配置团队规范，管理员可以在这里添加。原有致远 V8 规范仍可通过
-        v8_rules 工具获取。
+        尚未配置团队规范，管理员可以按知识分类添加。Agent 可通过 kb_rules 获取团队规范，通过 kb_search 检索已有规范文档。
       </div></AsyncState
     >
   </section>

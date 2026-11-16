@@ -3,7 +3,11 @@ import { computed, ref, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { BookOpen, Download, ArrowRight, PlugZap } from "lucide-vue-next";
 import MarkdownContent from "../components/MarkdownContent.vue";
-import guide from "../../../docs/usage.md?raw";
+import sourceGuide from "../../../docs/usage.md?raw";
+const guide = sourceGuide.replaceAll(
+  "https://www.ljc.monster",
+  window.location.origin,
+);
 const route = useRoute(),
   router = useRouter();
 const sections = guide

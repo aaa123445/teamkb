@@ -6,7 +6,7 @@
 - **知识工作台**：分类目录、全文检索、文档阅读、团队规范、版本历史与回滚。
 - **协作与审核**：草稿、我的贡献、管理员审核、更新建议与版本冲突检查。
 - **账号与凭据**：注册后审批入网、个人 API Key、角色权限、调用配额及个人调用日志。
-- **Agent 接入**：一键生成 MCP / Skill / CLI 安装提示词，支持创建专用个人 Key、本机安装与连接验证。
+- **Agent 接入**：一键生成 MCP / Skill / CLI 安装提示词，支持全局／项目接入、连接初始化、专用个人 Key 与实际调用验证。
 - **经验沉淀**：按项目启用、结构化验证材料、默认审核；网络失败保存在本地队列并限次退避重试。
 - **现有知识源**：语雀增量同步、V5 文档导入，V8 / V5 分类隔离；可增加其他团队知识分类。
 
@@ -18,6 +18,29 @@
 - [使用说明](docs/usage.md)：账号审批、个人 Key、MCP / Skill / CLI、任务完成 Hook 与审核。
 
 在「一键接入」选择接入方式，复制提示词发给本地 Agent。默认推荐 MCP + Skill，也可只安装 CLI。可以在本机填写 Key，或明确选择随提示词复制个人 Key；不要将含 Key 的提示词提交到仓库或共享聊天。安装与连接状态以本地 Agent 实际验证结果为准。
+
+## 客户端安装与初始化
+
+CLI、MCP 客户端和 Skill 安装包均从工作台域名下载，使用者无需克隆源码仓库。需要 Python 3.11+；以下为 macOS / Linux 示例，Windows 和各 Agent 的注册配置见[完整接入指南](docs/usage.md)。自行部署时替换为自己的站点域名。
+
+```bash
+python3 -m venv ~/.teamkb-venv
+source ~/.teamkb-venv/bin/activate
+python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.0-py3-none-any.whl"
+export TEAMKB_URL="https://www.ljc.monster"
+# 初始化时按提示隐藏输入个人 Key
+wb init --scope user
+wb stats
+wb categories
+```
+
+全局接入保存当前用户的连接配置；项目接入则使用 `wb --project /absolute/path/to/project init --scope project`，之后在该项目中执行 CLI，或显式传入 `--project`。安装包本身不会完成初始化，`wb agent init` 仅开启项目经验候选提交，不能替代 `wb init`。
+
+- [CLI / MCP 客户端包](https://www.ljc.monster/static/downloads/v8_workbench-0.5.0-py3-none-any.whl)
+- [team-knowledge Skill 包](https://www.ljc.monster/static/downloads/team-knowledge-0.5.0.zip)
+- [SHA-256 校验清单](https://www.ljc.monster/static/downloads/manifest.json)
+
+升级时从同一域名重新安装客户端，校验包与清单一致，随后重启 Agent / MCP 会话。当前已移除 `v8_*` MCP 工具和旧 V8 Skill，统一使用 `kb_*` 与 `team-knowledge`；旧工具白名单或自定义提示词也需同步更新。V8、V5 及其他知识继续通过分类筛选检索。
 
 ## 架构
 
@@ -85,6 +108,7 @@ E2E_BASE_URL=http://127.0.0.1:8770 npm run test:e2e
 
 | 任务 | MCP | CLI |
 | --- | --- | --- |
+| 连接与规模 | `kb_stats` | `wb stats` |
 | 分类与规范 | `kb_categories` / `kb_rules` | `wb categories` / `wb standards` |
 | 检索与阅读 | `kb_search` / `kb_read` | `wb search` / `wb read` |
 | 关联与问答 | `kb_graph` / `kb_ask` | 网页知识链与云端智能体 |
@@ -107,7 +131,6 @@ server/api/              HTTP / MCP / 调用日志 / 同步调度
 cli/                     CLI、项目候选提交与失败队列
 web/src/                 Vue 工作台、官网与一键接入
 skill/team-knowledge/    Agent 工作流、候选模板与任务完成脚本
-skill/v8-workbench/      兼容原 V8 工作流
 ingest/                  知识导入与 CMP 内容抓取
 deploy/                  安装、升级、客户端与前端构建、容器
 docs/                   使用与部署文档
@@ -117,7 +140,7 @@ web/tests/               桌面与手机浏览器测试
 
 ## 兼容性与边界
 
-仓库改名为 `teamkb`；`wb` 命令、Python 分发名称 `v8-workbench`、既有下载文件名、`v8wb` 服务名、环境变量 `V8WB_*`、原文 ID 和旧 `v8_*` MCP 工具保持兼容。客户端也支持 `TEAMKB_URL` / `TEAMKB_KEY`。
+仓库改名为 `teamkb`；`wb` 命令、Python 分发名称 `v8-workbench`、既有下载文件名、`v8wb` 服务名和环境变量 `V8WB_*` 保持兼容。MCP 仅提供通用 `kb_*` 工具，原有 V8 知识按分类继续检索。客户端也支持 `TEAMKB_URL` / `TEAMKB_KEY`。
 
 平台保存和检索文档，不会执行知识内容中的代码，也不替代本地测试或编译检查。当前采用单机 SQLite；大规模并发写入需进一步扩展存储。经验提交前应在本地删除密钥、客户敏感信息和无关代码。
 

@@ -61,7 +61,7 @@ export function connectionPrompt({
 
 1. 检查当前操作系统、Python 3.11+、Agent 客户端及其现有配置。使用用户目录内独立虚拟环境（建议 ~/.teamkb-venv，Windows 使用对应用户目录），不需要管理员权限。保留已有其他 MCP、Skill 和项目设置，修改配置前备份；重复执行应更新 TeamKB 相关项而非重复追加。不部署服务器，不运行 deploy/install.sh。
 
-2. 下载与本站匹配的客户端，逐项核对 SHA-256，校验不一致就停止并报告：
+2. 所有 TeamKB 安装包和更新包只从下列本站域名地址下载，不从 GitHub、源码仓库或镜像拉取；无需 git clone 或 git pull。下载与本站匹配的客户端，逐项核对 SHA-256，校验不一致就停止并报告：
 ${files.map((file) => `- ${origin}/static/downloads/${file}\n  SHA-256: ${manifest.sha256[file]}`).join("\n")}
 用虚拟环境中的 Python 执行 pip install --upgrade --force-reinstall --no-cache-dir 安装下载后的 wheel，避免同版本旧包被跳过。wb 的绝对路径在 macOS/Linux 为 <虚拟环境>/bin/wb，在 Windows 为 <虚拟环境>\\Scripts\\wb.exe。
 
