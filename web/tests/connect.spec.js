@@ -195,6 +195,7 @@ test("Codex and Claude Code offer credential-free commands with mode and scope",
   await expect(preview).toContainText("/install.sh -o teamkb-install.sh");
   await expect(preview).toContainText("codex recommended user");
   await expect(preview).toContainText("--retry-all-errors");
+  await expect(preview).toContainText('&& source "$HOME/.teamkb-venv/bin/activate"');
   await expect(page.getByLabel("已有个人 Key", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
   await expect(preview).toContainText("codex cli user");

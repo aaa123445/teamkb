@@ -19,12 +19,14 @@ Shell 入口会先检查操作系统与架构、curl、Python 3.11+、venv / ens
 
 ```bash
 # Codex：CLI 安装并写入指令
-curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex cli user
+curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex cli user && source "$HOME/.teamkb-venv/bin/activate"
 # Claude Code：把 codex 改成 claudecode
 # MCP：把 cli 改成 mcp；不修改系统提示词
 # 项目范围：把 user 改成 project；安装时询问项目路径
-# 仅环境检测：在命令末尾加 --check-only
+# 仅环境检测：在 bash 的参数后加 --check-only，并去掉末尾 source
 ```
+
+安装命令会在成功后通过 `source "$HOME/.teamkb-venv/bin/activate"` 刷新当前终端，随后可直接执行 `wb stats`。必须在当前终端执行这个外层 `source`；单独运行 Bash 子进程无法修改父级 zsh 的环境。
 
 所有下载均走本站域名，完整安装命令请从接入页按 Agent、接入方式、范围和系统复制。项目范围只用于连接隔离；提交知识不要求项目候选初始化。个人中心可以创建并吊销 Key，writer 才能提交知识；默认贡献仍待管理员审核。使用独立 Key，避免提交到仓库或共享聊天。
 

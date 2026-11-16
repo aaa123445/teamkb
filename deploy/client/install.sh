@@ -93,3 +93,6 @@ if hashlib.sha256((p/'install.py').read_bytes()).hexdigest()!=(p/'expected.sha25
 print('[环境检测] curl 网络访问与安装器校验：正常')
 PYCODE
 TEAMKB_DOWNLOAD_TRANSPORT=curl "$python_cmd" "$tmpdir/install.py" "${args[@]}"
+if [[ "$check_only" != true ]]; then
+  printf '\n安装已完成。接入页命令会自动刷新当前终端；单独执行脚本时请运行：\nsource "$HOME/.teamkb-venv/bin/activate"\n'
+fi
