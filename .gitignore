@@ -56,3 +56,6 @@ web/.preview/
 
 # Browser test output when invoked from repository root
 /test-results/
+
+# Ignore dependency directories and local dependency symlinks
+**/node_modules
