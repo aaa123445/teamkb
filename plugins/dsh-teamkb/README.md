@@ -7,14 +7,14 @@
 在 Harness 的 **Plugins / 插件 → 添加插件** 中输入域名下载地址：
 
 ```text
-https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
 ```
 
 也可通过 CLI 安装到实际使用的 profile：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
-dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
 ```
 
 只安装到正在使用的 profile，无需两条都运行。界面显示 `restart-required` 时重启对应 Web 服务或 Desktop；新建会话后测试。安装包包含可直接加载的 JavaScript，无 prepare/build 脚本，用户不需要下载 GitHub 源码。不要修改 profile 中其他 bundle。
@@ -55,3 +55,7 @@ npm pack --ignore-scripts
 补齐中英文显示名称、图标和详情文档；插件详情页直接显示配置表单，同时保留行配置入口。使用上方新版包地址安装到原 profile，重启对应应用。已安装本地 `0.1.0-local.1` 的用户也可用上述地址替换依赖，不需要先卸载；不要手工删除 profile 或凭据。
 
 0.1.2 新增侧栏「TeamKB 知识库」，提供连接测试、统计、分类筛选、关键词检索、正文续读、当前 Key 的调用日志及结果详情；连接配置也可在侧栏打开。不存在的文档 ID 会明确提示先用 kb_search 获取有效 ID。请求通过 Harness owner-only RPC 在宿主执行，不把 API Key 交给浏览器。
+
+## 0.1.3 界面更新
+
+统一自适应工作台宽度；可搜索的独立分类目录替代标签堆叠，日志改为紧凑列表，配置改为分组表单。跟随 Harness 深浅主题，支持窄窗口布局、键盘焦点和减少动画偏好。

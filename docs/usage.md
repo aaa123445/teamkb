@@ -35,14 +35,14 @@ curl --http1.1 --retry 3 --retry-all-errors --connect-timeout 15 -fsSL https://w
 官方预览版 Harness 可直接安装 `dsh-teamkb` bundle，无需本地 Python / wb / MCP。进入 Harness「Plugins → Add plugin」粘贴本站下载地址：
 
 ```text
-https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
 ```
 
 CLI 对应命令（只安装自己使用的 profile）：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
-dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.2.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
 ```
 
 需要 Node.js 24.9+ 与 Harness 0.2.2 rc 系列；界面安装使用宿主自带包管理器，独立 CLI 若提示缺少 pnpm 则按其提示安装。插件打包了可直接运行的 JS，不运行安装构建脚本。
