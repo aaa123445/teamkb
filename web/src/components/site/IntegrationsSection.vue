@@ -29,7 +29,7 @@ const integrations = [
     description:
       "把查规范、读文档、实施、自查和沉淀组成一套可复用流程。配合已经接通的 MCP 或 CLI，让 Agent 知道何时使用知识。",
     file: "从本站域名下载 Skill 包",
-    code: `curl -fL "${window.location.origin}/static/downloads/team-knowledge-0.5.1.zip" -o team-knowledge.zip
+    code: `curl -fL "${window.location.origin}/static/downloads/team-knowledge-0.5.2.zip" -o team-knowledge.zip
 # 按接入指南核对 SHA-256 后解压到临时目录
 python -m zipfile -e team-knowledge.zip ./teamkb-skill
 mkdir -p "$HOME/.agents/skills"
@@ -44,7 +44,7 @@ cp -R ./teamkb-skill/team-knowledge "$HOME/.agents/skills/"
     description:
       "用命令行完成检索、规范查阅和批量知识提交。结构化 JSON 输出，适合脚本、开发流程和自研 Agent。",
     file: "终端 · 已安装 wb 客户端",
-    code: `python -m pip install --upgrade --force-reinstall --no-cache-dir "${window.location.origin}/static/downloads/v8_workbench-0.5.1-py3-none-any.whl"
+    code: `python -m pip install --upgrade --force-reinstall --no-cache-dir "${window.location.origin}/static/downloads/v8_workbench-0.5.2-py3-none-any.whl"
 wb init --scope user
 # 按提示输入个人 Key 后验证连接
 wb stats

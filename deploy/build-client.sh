@@ -15,10 +15,12 @@ import sys
 import zipfile
 from pathlib import Path
 root=Path(sys.argv[1]);target=root/'web/public/downloads'
-with zipfile.ZipFile(target/'team-knowledge-0.5.1.zip','w',zipfile.ZIP_DEFLATED) as archive:
+with zipfile.ZipFile(target/'team-knowledge-0.5.2.zip','w',zipfile.ZIP_DEFLATED) as archive:
     for path in sorted((root/'skill/team-knowledge').rglob('*')):
         if path.is_file() and '__pycache__' not in path.parts:
             archive.write(path,path.relative_to(root/'skill'))
-files={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in target.iterdir() if p.suffix in {'.whl','.zip'}}
-(target/'manifest.json').write_text(json.dumps({'version':'0.5.1','sha256':files},indent=2)+'\n')
+(target/'install-teamkb-0.5.2.py').write_bytes((root/'deploy/client/install.py').read_bytes())
+(target/'agent-instructions-0.5.2.md').write_bytes((root/'skill/team-knowledge/references/agent-instructions.md').read_bytes())
+files={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in target.iterdir() if p.suffix in {'.whl','.zip','.py','.md'}}
+(target/'manifest.json').write_text(json.dumps({'version':'0.5.2','sha256':files},indent=2)+'\n')
 PY

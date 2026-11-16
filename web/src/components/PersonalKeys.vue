@@ -14,7 +14,7 @@ const router = useRouter();
 function connect() {
   handoffConnectionKey(newKey.value);
   newKey.value = "";
-  router.push("/connect");
+  router.push("/connect?agent=other");
 }
 const { data, loading, error, reload } = useResource(() =>
   api("/account/keys", { key: "" }),

@@ -36,18 +36,16 @@ test.beforeEach(async ({ page }) => {
 test("generates installation modes and explicit task-end contribution policy", async ({
   page,
 }) => {
-  await page.goto("/#/connect");
+  await page.goto("/#/connect?agent=other");
   const preview = page.getByLabel("安装提示词预览");
   await expect(preview).toContainText("SHA-256:");
-  await expect(preview).toContainText("team-knowledge-0.5.1.zip");
+  await expect(preview).toContainText("team-knowledge-0.5.2.zip");
   await expect(preview).toContainText("YOUR_PERSONAL_KEY");
-  await expect(preview).toContainText("已授权任务完成后按需提交");
-  await expect(preview).toContainText("不要求 .teamkb/config.json");
+  await expect(preview).toContainText("MCP 模式不写入");
+  await expect(preview).not.toContainText("TEAMKB:BEGIN");
+  await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
   await expect(preview).toContainText("TEAMKB:BEGIN");
-  await expect(preview).toContainText("~/.codex/AGENTS.md");
-  await expect(preview).toContainText("~/.claude/CLAUDE.md");
   await expect(preview).toContainText("dsh --help");
-  await expect(preview).toContainText("其他智能体");
   await page.getByLabel("任务完成后按需提交知识").uncheck();
   await expect(preview).toContainText("已关闭：只检索");
   await expect(preview).toContainText("不启用任务后自主提交");
@@ -58,14 +56,15 @@ test("generates installation modes and explicit task-end contribution policy", a
     "/static/downloads/v8_workbench",
   );
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
-  await expect(preview).not.toContainText("team-knowledge-0.5.1.zip");
+  await expect(preview).not.toContainText("team-knowledge-0.5.2.zip");
   await expect(preview).not.toContainText('args=["mcp"]');
   await page.getByRole("button", { name: "仅 Skill", exact: false }).click();
-  await expect(preview).toContainText("team-knowledge-0.5.1.zip");
+  await expect(preview).toContainText("team-knowledge-0.5.2.zip");
   await expect(preview).not.toContainText('args=["mcp"]');
   await page.getByRole("button", { name: "仅 MCP", exact: false }).click();
   await expect(preview).toContainText('args=["mcp"]');
-  await expect(preview).not.toContainText("team-knowledge-0.5.1.zip");
+  await expect(preview).not.toContainText("team-knowledge-0.5.2.zip");
+  await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
   await page.getByLabel("任务完成后按需提交知识").check();
   await expect(preview).toContainText("已授权任务完成后按需提交");
   await expect(preview).not.toContainText("wb agent init --project");
@@ -79,7 +78,7 @@ test("generates installation modes and explicit task-end contribution policy", a
 test("personal key is explicit, masked, copied and cleared on leaving", async ({
   page,
 }) => {
-  await page.goto("/#/connect");
+  await page.goto("/#/connect?agent=other");
   const input = page.getByLabel("已有个人 Key", { exact: true });
   await input.fill(secret);
   await page
@@ -101,7 +100,7 @@ test("personal key is explicit, masked, copied and cleared on leaving", async ({
   await expect(
     page.getByRole("heading", { name: "使用说明", exact: true }),
   ).toBeVisible();
-  await page.goto("/#/connect");
+  await page.goto("/#/connect?agent=other");
   await expect(input).toHaveValue("");
   await page.getByText("创建接入专用 Key", { exact: true }).click();
   await page.getByRole("button", { name: "创建并用于提示词" }).click();
@@ -115,7 +114,7 @@ test("invalid download manifest blocks prompt generation and can retry", async (
   await page.route("**/static/downloads/manifest.json", (route) =>
     route.fulfill({ json: { sha256: {} } }),
   );
-  await page.goto("/#/connect");
+  await page.goto("/#/connect?agent=other");
   await expect(page.getByRole("alert")).toContainText("校验信息尚未就绪");
   await expect(
     page.getByRole("button", { name: "复制安装提示词", exact: true }),
@@ -150,7 +149,7 @@ test("new personal key can be handed to the installer without URL or storage", a
 test("scope selection generates matching initialization, MCP and Skill setup", async ({
   page,
 }) => {
-  await page.goto("/#/connect");
+  await page.goto("/#/connect?agent=other");
   const preview = page.getByLabel("安装提示词预览");
   await expect(preview).toContainText("wb init --scope user");
   await expect(preview).toContainText("~/.teamkb/client.json");
@@ -183,4 +182,36 @@ test("scope selection generates matching initialization, MCP and Skill setup", a
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+});
+
+test("Codex and Claude Code offer credential-free commands with mode and scope", async ({
+  page,
+}) => {
+  await page.goto("/#/connect");
+  const preview = page.getByLabel("安装提示词预览");
+  await expect(
+    page.getByRole("heading", { name: "一键安装命令" }),
+  ).toBeVisible();
+  await expect(preview).toContainText("install-teamkb-0.5.2.py?sha256=");
+  await expect(preview).toContainText('"codex"');
+  await expect(preview).toContainText("hashlib.sha256");
+  await expect(page.getByLabel("已有个人 Key", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
+  await expect(preview).toContainText('"cli"');
+  await page.getByLabel("任务完成后按需提交知识").uncheck();
+  await expect(preview).toContainText("--no-contribute");
+  await page.getByRole("button", { name: "项目接入", exact: false }).click();
+  await expect(preview).toContainText('"project"');
+  await page.getByRole("combobox", { name: "本地智能体" }).click();
+  await page
+    .getByRole("option", { name: "Claude Code · 一键安装命令", exact: true })
+    .click();
+  await expect(preview).toContainText('"claudecode"');
+  await page.getByRole("combobox", { name: "终端系统" }).click();
+  await page
+    .getByRole("option", { name: "Windows PowerShell", exact: true })
+    .click();
+  await expect(preview).toContainText("py -3 -c");
+  await page.getByRole("button", { name: "复制安装命令", exact: true }).click();
+  expect(await page.evaluate(() => window.copiedPrompt)).not.toContain(secret);
 });
