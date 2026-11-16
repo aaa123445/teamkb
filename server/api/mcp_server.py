@@ -46,7 +46,7 @@ INSTRUCTIONS = """团队知识库：开始任务时用 kb_categories / kb_rules 
 mcp = MCPServer(
     "team-knowledge",
     instructions=INSTRUCTIONS,
-    version="0.5.4",
+    version="0.5.5",
 )
 
 

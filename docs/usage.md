@@ -151,19 +151,19 @@ Hook 用事件 `cwd` 找项目配置，子目录启动时需要在该目录启�
 ```bash
 python3 -m venv ~/.teamkb-venv
 source ~/.teamkb-venv/bin/activate
-python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.4-py3-none-any.whl"
+python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.5-py3-none-any.whl"
 wb --help
 ```
 
-- 客户端 wheel：[下载 CLI / MCP 客户端](https://www.ljc.monster/static/downloads/v8_workbench-0.5.4-py3-none-any.whl)。
-- Skill ZIP：[下载 team-knowledge](https://www.ljc.monster/static/downloads/team-knowledge-0.5.4.zip)。
+- 客户端 wheel：[下载 CLI / MCP 客户端](https://www.ljc.monster/static/downloads/v8_workbench-0.5.5-py3-none-any.whl)。
+- Skill ZIP：[下载 team-knowledge](https://www.ljc.monster/static/downloads/team-knowledge-0.5.5.zip)。
 - SHA-256 清单：[核对下载文件](https://www.ljc.monster/static/downloads/manifest.json)。下载后应与清单中的哈希一致，不一致时重新下载并停止安装。
 
 后续打开终端时，先执行 `source ~/.teamkb-venv/bin/activate`，或使用 `~/.teamkb-venv/bin/wb` 的绝对路径。Windows PowerShell 用 `py -m venv "$HOME/.teamkb-venv"` 创建环境、`& "$HOME/.teamkb-venv/Scripts/Activate.ps1"` 激活；wb 路径为 `$HOME/.teamkb-venv/Scripts/wb.exe`。随后使用同一域名的 wheel 安装命令。
 
 ### 先初始化，再使用 CLI 或 MCP
 
-新版客户端增加 `wb init`，CLI 和 `wb mcp` 共用初始化配置。先执行 `wb init --help`；若提示没有该命令，请更新客户端。下载包仍为 0.5.4 时也需加 `--force-reinstall --no-cache-dir` 重装，以服务器当前 SHA-256 清单为准。
+新版客户端增加 `wb init`，CLI 和 `wb mcp` 共用初始化配置。先执行 `wb init --help`；若提示没有该命令，请更新客户端。下载包仍为 0.5.5 时也需加 `--force-reinstall --no-cache-dir` 重装，以服务器当前 SHA-256 清单为准。
 
 | 范围 | 初始化命令 | 保存位置 | 后续使用 |
 | --- | --- | --- | --- |
@@ -206,7 +206,7 @@ PowerShell 清除本次临时环境变量可用 `Remove-Item Env:TEAMKB_URL,Env:
 升级客户端：激活原虚拟环境，重新从本站安装。即使版本号未变，也应使用强制重装和禁用缓存，避免继续使用旧客户端：
 
 ```bash
-python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.4-py3-none-any.whl"
+python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.5-py3-none-any.whl"
 wb init --help
 ```
 
@@ -214,7 +214,7 @@ wb init --help
 
 ### 已安装却无法接入时
 
-- `wb: command not found`：激活虚拟环境或使用 wb 的绝对路径。
+- `wb: command not found`：新安装器会配置终端 PATH，请新开终端；zsh 可执行 `source ~/.zshrc`。旧安装可先执行 `source ~/.teamkb-venv/bin/activate`，或直接使用 `~/.teamkb-venv/bin/wb stats`。
 - 仍连接 `127.0.0.1:8770`：没有可用的接入配置；先执行对应范围的 `wb init`。
 - 终端可用而 MCP 失败：确认 MCP 使用同一虚拟环境的 wb；项目模式加 `--project` 绝对路径。IDE 不一定继承终端环境。
 - 切换项目后失败：当前项目可能覆盖用户配置；检查项目初始化及残留 `TEAMKB_*` / `V8WB_*` 环境变量。
@@ -316,16 +316,16 @@ claude mcp list
 
 ## 4. Skill 安装与使用
 
-Skill 从本站的 [team-knowledge ZIP](https://www.ljc.monster/static/downloads/team-knowledge-0.5.4.zip) 下载，解压后得到 `team-knowledge/` 目录，包含 `SKILL.md`、`references/` 和 `scripts/`。请复制整个目录，不能只复制 `SKILL.md`。Skill 约定工作流程，本身不携带知识库；仍然需要已经可用的 MCP 或 `wb` CLI。
+Skill 从本站的 [team-knowledge ZIP](https://www.ljc.monster/static/downloads/team-knowledge-0.5.5.zip) 下载，解压后得到 `team-knowledge/` 目录，包含 `SKILL.md`、`references/` 和 `scripts/`。请复制整个目录，不能只复制 `SKILL.md`。Skill 约定工作流程，本身不携带知识库；仍然需要已经可用的 MCP 或 `wb` CLI。
 
 先完成所选范围的 `wb init` 和 CLI 鉴权验证。下载并解压本站 ZIP，以下命令以 macOS / Linux 为例：
 
 ```bash
 mkdir -p "$HOME/.teamkb/downloads/skill"
-curl -fL "https://www.ljc.monster/static/downloads/team-knowledge-0.5.4.zip" -o "$HOME/.teamkb/downloads/team-knowledge.zip"
+curl -fL "https://www.ljc.monster/static/downloads/team-knowledge-0.5.5.zip" -o "$HOME/.teamkb/downloads/team-knowledge.zip"
 curl -fL "https://www.ljc.monster/static/downloads/manifest.json" -o "$HOME/.teamkb/downloads/manifest.json"
 # 解压前核对 ZIP 的 SHA-256 与清单一致
-python -c 'import hashlib,json,pathlib; p=pathlib.Path.home()/".teamkb/downloads"; actual=hashlib.sha256((p/"team-knowledge.zip").read_bytes()).hexdigest(); expected=json.loads((p/"manifest.json").read_text())["sha256"]["team-knowledge-0.5.4.zip"]; assert actual==expected,"SHA-256 不匹配，停止安装"'
+python -c 'import hashlib,json,pathlib; p=pathlib.Path.home()/".teamkb/downloads"; actual=hashlib.sha256((p/"team-knowledge.zip").read_bytes()).hexdigest(); expected=json.loads((p/"manifest.json").read_text())["sha256"]["team-knowledge-0.5.5.zip"]; assert actual==expected,"SHA-256 不匹配，停止安装"'
 python -m zipfile -e "$HOME/.teamkb/downloads/team-knowledge.zip" "$HOME/.teamkb/downloads/skill"
 ```
 

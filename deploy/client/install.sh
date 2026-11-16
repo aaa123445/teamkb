@@ -50,18 +50,18 @@ fi
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 printf '[环境检测] 正在检查站点连通性与下载服务…\n'
-curl --fail --silent --show-error --location --max-time 60 "$origin/static/downloads/manifest.json?installer=0.5.4" -o "$tmpdir/manifest.json"
+curl --fail --silent --show-error --location --max-time 60 "$origin/static/downloads/manifest.json?installer=0.5.5" -o "$tmpdir/manifest.json"
 # Use the same working curl transport for every network operation.
 "$python_cmd" - "$tmpdir" <<'PYCODE'
 import json,pathlib,re,sys
 p=pathlib.Path(sys.argv[1]);m=json.loads((p/'manifest.json').read_text())
-sha=m.get('sha256',{}).get('install-teamkb-0.5.4.py','')
+sha=m.get('sha256',{}).get('install-teamkb-0.5.5.py','')
 if not re.fullmatch('[a-f0-9]{64}',sha):
     raise SystemExit('安装器 SHA-256 清单无效，请刷新接入页。')
 (p/'expected.sha256').write_text(sha)
 PYCODE
 installer_hash=$(cat "$tmpdir/expected.sha256")
-curl --fail --silent --show-error --location --max-time 60 "$origin/static/downloads/install-teamkb-0.5.4.py?sha256=$installer_hash" -o "$tmpdir/install.py"
+curl --fail --silent --show-error --location --max-time 60 "$origin/static/downloads/install-teamkb-0.5.5.py?sha256=$installer_hash" -o "$tmpdir/install.py"
 "$python_cmd" - "$tmpdir" <<'PYCODE'
 import hashlib,pathlib,sys
 p=pathlib.Path(sys.argv[1])

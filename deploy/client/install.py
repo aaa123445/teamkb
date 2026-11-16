@@ -19,7 +19,7 @@ from urllib.request import Request, urlopen
 import venv
 import zipfile
 
-VERSION = "0.5.4"
+VERSION = "0.5.5"
 WHEEL = f"v8_workbench-{VERSION}-py3-none-any.whl"
 SKILL = f"team-knowledge-{VERSION}.zip"
 class InstallError(Exception):
@@ -100,6 +100,44 @@ def merge_instructions(path, block):
     else:
         content = old.rstrip() + ("\n\n" if old.strip() else "") + block.strip() + "\n"
     save_with_backup(path, content)
+
+
+def configure_shell_path(wb):
+    """Expose CLI in future interactive shells without activating its environment."""
+    if os.name == "nt":
+        import winreg
+        directory = str(wb.parent)
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, "Environment") as reg:
+            try:
+                existing, kind = winreg.QueryValueEx(reg, "Path")
+            except FileNotFoundError:
+                existing, kind = "", winreg.REG_EXPAND_SZ
+            entries = existing.split(";")
+            if directory.casefold() not in {entry.casefold() for entry in entries}:
+                winreg.SetValueEx(reg, "Path", 0, kind, directory + (";" + existing if existing else ""))
+        print("已加入用户 PATH；请重新打开终端后使用 wb stats。")
+        return
+    import shlex
+    shell = Path(os.environ.get("SHELL", "/bin/zsh" if sys.platform == "darwin" else "/bin/bash")).name
+    if shell not in {"bash", "zsh"}:
+        print(f"当前 Shell 为 {shell}，请把 {wb.parent} 加入 PATH，或使用绝对路径。")
+        return
+    directory = Path(os.environ.get("ZDOTDIR", str(Path.home()))) if shell == "zsh" else Path.home()
+    path = directory / (".zshrc" if shell == "zsh" else ".bashrc")
+    begin, end = "# TEAMKB_PATH_BEGIN", "# TEAMKB_PATH_END"
+    old = path.read_text(encoding="utf-8") if path.exists() else ""
+    if old.count(begin) != old.count(end) or old.count(begin) > 1:
+        raise InstallError(f"PATH 管理区块损坏，请检查 {path}")
+    block = begin + '\nexport PATH=' + shlex.quote(str(wb.parent)) + ':"$PATH"\n' + end
+    if begin in old:
+        start, stop = old.index(begin), old.index(end) + len(end)
+        if stop < start:
+            raise InstallError(f"PATH 管理区块顺序错误，请检查 {path}")
+        text = old[:start] + block + old[stop:]
+    else:
+        text = old.rstrip() + ("\n\n" if old.strip() else "") + block + "\n"
+    save_with_backup(path, text)
+    print(f"已配置终端 PATH：{path}；当前终端执行 source {shlex.quote(str(path))} 后可运行 wb stats。")
 
 
 def register_mcp(agent, scope, project, wb):
@@ -255,6 +293,8 @@ def main():
                 path = target / member.filename
                 save_with_backup(path, archive.read(member).decode("utf-8"))
         print(f"Skill 已安装：{target / 'team-knowledge'}")
+    configure_shell_path(wb)
+    print(f"立即验证可执行：{wb} stats")
     print("安装完成；地址与 Key 已验证，凭据未写入 Agent 指令。")
 
 

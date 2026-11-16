@@ -118,3 +118,20 @@ def test_curl_transport_reports_http_failure_without_response_body(monkeypatch, 
     assert 'HTTP 403' in error
     assert 'sensitive-server-body' not in error
     assert 'private-key' not in error
+
+
+def test_zsh_path_setup_handles_spaces_and_is_idempotent(tmp_path, monkeypatch):
+    import shlex
+    monkeypatch.setattr(installer.Path, 'home', lambda: tmp_path)
+    monkeypatch.setenv('SHELL', '/bin/zsh')
+    monkeypatch.delenv('ZDOTDIR', raising=False)
+    rc = tmp_path / '.zshrc'
+    rc.write_text('export EXISTING=value\n')
+    wb = tmp_path / 'directory with spaces/bin/wb'
+    installer.configure_shell_path(wb)
+    installer.configure_shell_path(wb)
+    text = rc.read_text()
+    assert text.startswith('export EXISTING=value')
+    assert text.count('# TEAMKB_PATH_BEGIN') == 1
+    assert shlex.quote(str(wb.parent)) in text
+    assert len(list(tmp_path.glob('.zshrc.teamkb-backup-*'))) == 1
