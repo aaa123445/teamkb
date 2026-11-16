@@ -17,7 +17,7 @@
 - [一键接入本地 Agent](https://www.ljc.monster/#/connect)
 - [使用说明](docs/usage.md)：账号审批、个人 Key、MCP / Skill / CLI、任务完成 Hook 与审核。
 
-在「一键接入」选择接入方式，复制提示词发给本地 Agent。默认推荐 MCP + Skill，也可只安装 CLI。可以在本机填写 Key，或明确选择随提示词复制个人 Key；不要将含 Key 的提示词提交到仓库或共享聊天。安装与连接状态以本地 Agent 实际验证结果为准。Codex / Claude Code 提供交互式 Python 一键安装命令，运行时隐藏输入 Key；CLI 模式自动合并持久化指令，MCP 模式只注册工具、不修改系统提示词。其他 Agent（含 dsh）保留提示词安装。默认允许任务结束后按需提交已验证、可复用且脱敏的知识，可在接入页关闭。
+在「一键接入」选择接入方式，复制提示词发给本地 Agent。默认推荐 MCP + Skill，也可只安装 CLI。可以在本机填写 Key，或明确选择随提示词复制个人 Key；不要将含 Key 的提示词提交到仓库或共享聊天。安装与连接状态以本地 Agent 实际验证结果为准。Codex / Claude Code 提供交互式一键安装命令（macOS / Linux 使用 Shell，Windows 使用 Python），安装前检测 Python、venv、Agent CLI 和网络，支持 `--check-only`；运行时隐藏输入 Key；CLI 模式自动合并持久化指令，MCP 模式只注册工具、不修改系统提示词。其他 Agent（含 dsh）保留提示词安装。默认允许任务结束后按需提交已验证、可复用且脱敏的知识，可在接入页关闭。
 
 ## 客户端安装与初始化
 
@@ -26,7 +26,7 @@ CLI、MCP 客户端和 Skill 安装包均从工作台域名下载，使用者无
 ```bash
 python3 -m venv ~/.teamkb-venv
 source ~/.teamkb-venv/bin/activate
-python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.2-py3-none-any.whl"
+python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.3-py3-none-any.whl"
 export TEAMKB_URL="https://www.ljc.monster"
 # 初始化时按提示隐藏输入个人 Key
 wb init --scope user
@@ -36,8 +36,8 @@ wb categories
 
 知识提交可直接使用 `kb_propose` 或 `wb propose FILE.json`，无需项目路径、`wb agent init` 或项目候选开关。全局接入保存当前用户的连接配置；项目接入则使用 `wb --project /absolute/path/to/project init --scope project`，之后在该项目中执行 CLI，或显式传入 `--project`。安装包本身不会完成初始化，`wb agent init` 仅开启项目经验候选提交，不能替代 `wb init`。
 
-- [CLI / MCP 客户端包](https://www.ljc.monster/static/downloads/v8_workbench-0.5.2-py3-none-any.whl)
-- [team-knowledge Skill 包](https://www.ljc.monster/static/downloads/team-knowledge-0.5.2.zip)
+- [CLI / MCP 客户端包](https://www.ljc.monster/static/downloads/v8_workbench-0.5.3-py3-none-any.whl)
+- [team-knowledge Skill 包](https://www.ljc.monster/static/downloads/team-knowledge-0.5.3.zip)
 - [SHA-256 校验清单](https://www.ljc.monster/static/downloads/manifest.json)
 
 升级时从同一域名重新安装客户端，校验包与清单一致，随后重启 Agent / MCP 会话。当前已移除 `v8_*` MCP 工具和旧 V8 Skill，统一使用 `kb_*` 与 `team-knowledge`；旧工具白名单或自定义提示词也需同步更新。V8、V5 及其他知识继续通过分类筛选检索。

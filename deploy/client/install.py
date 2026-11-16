@@ -19,9 +19,13 @@ from urllib.request import Request, urlopen
 import venv
 import zipfile
 
-VERSION = "0.5.2"
+VERSION = "0.5.3"
 WHEEL = f"v8_workbench-{VERSION}-py3-none-any.whl"
 SKILL = f"team-knowledge-{VERSION}.zip"
+class InstallError(Exception):
+    """Safe, actionable installer-authored message; never a server response."""
+
+
 BEGIN, END = "<!-- TEAMKB:BEGIN -->", "<!-- TEAMKB:END -->"
 
 
@@ -33,10 +37,10 @@ def download(url):
 def verified_download(origin, name, manifest):
     digest = manifest.get("sha256", {}).get(name, "")
     if not re.fullmatch(r"[a-f0-9]{64}", digest):
-        raise ValueError(f"缺少有效校验值：{name}")
+        raise InstallError(f"缺少有效校验值：{name}")
     data = download(f"{origin}/static/downloads/{name}?sha256={digest}")
     if hashlib.sha256(data).hexdigest() != digest:
-        raise ValueError(f"SHA-256 不匹配，停止安装：{name}")
+        raise InstallError(f"SHA-256 不匹配，停止安装：{name}")
     return data
 
 
@@ -63,11 +67,11 @@ def merge_instructions(path, block):
     path = Path(path)
     old = path.read_text(encoding="utf-8") if path.exists() else ""
     if old.count(BEGIN) != old.count(END) or old.count(BEGIN) > 1:
-        raise ValueError(f"指令管理区块损坏，请检查 {path}")
+        raise InstallError(f"指令管理区块损坏，请检查 {path}")
     if BEGIN in old:
         start, end = old.index(BEGIN), old.index(END) + len(END)
         if end < start:
-            raise ValueError("指令区块顺序错误")
+            raise InstallError("指令区块顺序错误")
         content = old[:start] + block.strip() + old[end:]
     else:
         content = old.rstrip() + ("\n\n" if old.strip() else "") + block.strip() + "\n"
@@ -99,7 +103,7 @@ def register_mcp(agent, scope, project, wb):
                 pieces.append(old[cursor:match.start()])
                 cursor = matches[i + 1].start() if i + 1 < len(matches) else len(old)
         if "teamkb" in config.get("mcp_servers", {}) and not pieces:
-            raise ValueError("TeamKB 使用特殊 TOML 格式，请手动合并，未覆盖现有配置")
+            raise InstallError("TeamKB 使用特殊 TOML 格式，请手动合并，未覆盖现有配置")
         content = "".join(pieces) + old[cursor:]
         content = content.rstrip() + '\n\n[mcp_servers.teamkb]\ncommand = ' + json.dumps(str(wb)) + '\nargs = ' + json.dumps(args) + '\n'
         tomllib.loads(content)
@@ -113,29 +117,64 @@ def main():
     parser.add_argument("--scope", choices=["user", "project"], default="user")
     parser.add_argument("--url", default="")
     parser.add_argument("--no-contribute", action="store_true")
+    parser.add_argument("--check-only", action="store_true", help="仅检测环境，不询问 Key 或修改配置")
     args = parser.parse_args()
     if sys.version_info < (3, 11):
-        raise ValueError("需要 Python 3.11+")
+        raise InstallError(f"当前 Python 为 {sys.version.split()[0]}，需要 Python 3.11+；请用 python3.11 或更新版本重新执行安装命令")
     origin = (args.url or input("TeamKB 服务地址: ")).strip().rstrip("/")
     parsed = urlsplit(origin)
     if parsed.scheme not in {"https", "http"} or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
-        raise ValueError("服务地址必须是不含凭据的 HTTP(S) URL")
+        raise InstallError("服务地址必须是不含凭据的 HTTP(S) URL")
+    print(f"[环境检测] Python {sys.version.split()[0]}；系统 {sys.platform}", flush=True)
+    try:
+        import ensurepip
+        import ssl
+    except ImportError:
+        raise InstallError("缺少 venv/ensurepip/TLS 支持，请安装对应 Python venv 组件")
+    if args.check_only:
+        uses_mcp = args.mode in {"mcp", "recommended"}
+        binary = "codex" if args.agent == "codex" else "claude"
+        if uses_mcp and not shutil.which(binary):
+            raise InstallError(f"未在 PATH 找到 {binary}；MCP 接入需要先安装 Agent CLI")
+        if shutil.which(binary):
+            subprocess.run([binary, "--version"], check=True)
+        manifest = json.loads(download(origin + "/static/downloads/manifest.json?installer=" + VERSION))
+        if not all(manifest.get("sha256", {}).get(name) for name in (WHEEL, SKILL)):
+            raise InstallError("下载服务缺少当前版本客户端，请刷新接入页面")
+        print("环境检测通过；未读取凭据，未安装客户端，未修改 Agent 配置。")
+        return
     project = None
     if args.scope == "project":
         project = Path(input(f"项目绝对路径 [{Path.cwd()}]: ").strip() or Path.cwd()).expanduser().resolve()
         if not project.is_dir():
-            raise ValueError("项目目录不存在")
+            raise InstallError("项目目录不存在")
     uses_mcp = args.mode in {"mcp", "recommended"}
     if uses_mcp and not shutil.which("codex" if args.agent == "codex" else "claude"):
-        raise ValueError("未找到所选 Agent 的 CLI，请先安装并确认其在 PATH 中")
-    if not sys.stdin.isatty():
-        raise ValueError("请在交互终端运行安装命令，以隐藏输入个人 API Key")
-    key = getpass.getpass("个人 API Key（输入隐藏，需已审批账号的 Key）: ").strip()
+        raise InstallError(f"未在 PATH 中找到 {'codex' if args.agent == 'codex' else 'claude'} 命令；请在能运行该命令的终端重新安装，或先安装对应 Agent CLI")
+    key = os.environ.get("TEAMKB_KEY", "").strip()
+    if not key:
+        # getpass can use /dev/tty even when stdin is redirected (IDE/Agent shells).
+        if not sys.stdin.isatty():
+            try:
+                with open("/dev/tty", "r+"):
+                    pass
+            except OSError:
+                raise InstallError("当前进程没有可交互终端；请把安装命令粘贴到本机终端运行并隐藏输入 Key，或通过本机安全环境变量 TEAMKB_KEY 提供凭据")
+        print("请输入个人 API Key（输入隐藏）；可在工作台个人中心创建。", flush=True)
+        import warnings
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", getpass.GetPassWarning)
+                key = getpass.getpass("个人 API Key: ").strip()
+        except (getpass.GetPassWarning, EOFError):
+            raise InstallError("无法隐藏读取 Key；请在本机交互终端重新运行，或使用本机安全环境变量 TEAMKB_KEY")
     if not key or key == "YOUR_PERSONAL_KEY" or any(c in key for c in "\r\n"):
-        raise ValueError("请提供有效的个人 API Key")
+        raise InstallError("请提供有效的个人 API Key")
+    print("[1/4] 验证服务地址与个人 Key…", flush=True)
     # Verify access before changing client, instructions or MCP configuration.
-    with urlopen(Request(origin + "/api/v1/stats", headers={"Authorization": "Bearer " + key}), timeout=30) as response:
+    with urlopen(Request(origin + "/api/v1/stats", headers={"Authorization": "Bearer " + key, "User-Agent": "TeamKB-Installer/" + VERSION}), timeout=30) as response:
         json.load(response)
+    print("[2/4] 下载并校验客户端文件…", flush=True)
     manifest = json.loads(download(origin + "/static/downloads/manifest.json?installer=" + VERSION))
     wheel = verified_download(origin, WHEEL, manifest)
     skill_data = verified_download(origin, SKILL, manifest) if args.mode in {"recommended", "skill"} else None
@@ -143,6 +182,7 @@ def main():
     if args.mode in {"cli", "skill"}:
         template_data = verified_download(origin, "agent-instructions-" + VERSION + ".md", manifest)
         template = template_data.decode("utf-8")
+    print("[3/4] 安装独立 Python 环境并初始化连接…", flush=True)
     envdir = Path.home() / ".teamkb-venv"
     venv.EnvBuilder(with_pip=True).create(envdir)
     python = envdir / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
@@ -156,6 +196,7 @@ def main():
     command = [str(wb)] + (["--project", str(project)] if project else [])
     subprocess.run([*command, "init", "--scope", args.scope], env=env, check=True)
     subprocess.run([*command, "stats"], env=env, check=True)
+    print("[4/4] 配置所选 Agent…", flush=True)
     if uses_mcp:
         register_mcp(args.agent, args.scope, project, wb)
         print("MCP 已注册；没有修改 Agent 系统提示词。请重启 Agent 并验证 kb_categories 工具调用。")
@@ -184,7 +225,7 @@ def main():
             for member in archive.infolist():
                 dest = (target / member.filename).resolve()
                 if not dest.is_relative_to(target.resolve()) or not member.filename.startswith("team-knowledge/"):
-                    raise ValueError("Skill ZIP 包含非法路径")
+                    raise InstallError("Skill ZIP 包含非法路径")
             for member in archive.infolist():
                 if member.is_dir():
                     continue
@@ -194,10 +235,27 @@ def main():
     print("安装完成；地址与 Key 已验证，凭据未写入 Agent 指令。")
 
 
-if __name__ == "__main__":
+def entrypoint():
+    from urllib.error import HTTPError, URLError
     try:
         main()
-    except (Exception, KeyboardInterrupt) as exc:
-        # Never echo HTTP bodies, credential-bearing requests or subprocess environment.
-        print(f"安装未完成：{type(exc).__name__}；请检查网络、个人 Key 和本机配置。", file=sys.stderr)
-        sys.exit(1)
+        return 0
+    except InstallError as exc:
+        print(f"安装未完成：{exc}", file=sys.stderr)
+    except HTTPError as exc:
+        hint = {401: "个人 Key 无效或已吊销", 403: "访问被拒绝，请检查账号审批、Key 权限或站点访问限制", 404: "下载文件或接口不存在，请刷新一键接入页获取新命令"}.get(exc.code, "请检查服务状态后重试")
+        print(f"安装未完成：HTTP {exc.code}；{hint}。", file=sys.stderr)
+    except (URLError, TimeoutError):
+        print("安装未完成：连接失败或超时；请检查本机网络和工作台域名访问。", file=sys.stderr)
+    except subprocess.CalledProcessError as exc:
+        print(f"安装未完成：子命令退出码 {exc.returncode}；请查看上方 pip、wb 或 Agent CLI 输出。", file=sys.stderr)
+    except KeyboardInterrupt:
+        print("安装已由用户取消。", file=sys.stderr)
+    except Exception as exc:
+        # Never echo arbitrary HTTP bodies, credential-bearing requests or environment.
+        print(f"安装未完成：{type(exc).__name__}；请记录上方最后一个步骤，检查本机文件权限和配置格式。", file=sys.stderr)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(entrypoint())

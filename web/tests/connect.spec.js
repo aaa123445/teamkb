@@ -39,7 +39,7 @@ test("generates installation modes and explicit task-end contribution policy", a
   await page.goto("/#/connect?agent=other");
   const preview = page.getByLabel("安装提示词预览");
   await expect(preview).toContainText("SHA-256:");
-  await expect(preview).toContainText("team-knowledge-0.5.2.zip");
+  await expect(preview).toContainText("team-knowledge-0.5.3.zip");
   await expect(preview).toContainText("YOUR_PERSONAL_KEY");
   await expect(preview).toContainText("MCP 模式不写入");
   await expect(preview).not.toContainText("TEAMKB:BEGIN");
@@ -56,14 +56,14 @@ test("generates installation modes and explicit task-end contribution policy", a
     "/static/downloads/v8_workbench",
   );
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
-  await expect(preview).not.toContainText("team-knowledge-0.5.2.zip");
+  await expect(preview).not.toContainText("team-knowledge-0.5.3.zip");
   await expect(preview).not.toContainText('args=["mcp"]');
   await page.getByRole("button", { name: "仅 Skill", exact: false }).click();
-  await expect(preview).toContainText("team-knowledge-0.5.2.zip");
+  await expect(preview).toContainText("team-knowledge-0.5.3.zip");
   await expect(preview).not.toContainText('args=["mcp"]');
   await page.getByRole("button", { name: "仅 MCP", exact: false }).click();
   await expect(preview).toContainText('args=["mcp"]');
-  await expect(preview).not.toContainText("team-knowledge-0.5.2.zip");
+  await expect(preview).not.toContainText("team-knowledge-0.5.3.zip");
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
   await page.getByLabel("任务完成后按需提交知识").check();
   await expect(preview).toContainText("已授权任务完成后按需提交");
@@ -192,21 +192,21 @@ test("Codex and Claude Code offer credential-free commands with mode and scope",
   await expect(
     page.getByRole("heading", { name: "一键安装命令" }),
   ).toBeVisible();
-  await expect(preview).toContainText("install-teamkb-0.5.2.py?sha256=");
-  await expect(preview).toContainText('"codex"');
-  await expect(preview).toContainText("hashlib.sha256");
+  await expect(preview).toContainText("install-teamkb-0.5.3.sh?sha256=");
+  await expect(preview).toContainText("'codex'");
+  await expect(preview).toContainText("curl -fsSL");
   await expect(page.getByLabel("已有个人 Key", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
-  await expect(preview).toContainText('"cli"');
+  await expect(preview).toContainText("'cli'");
   await page.getByLabel("任务完成后按需提交知识").uncheck();
   await expect(preview).toContainText("--no-contribute");
   await page.getByRole("button", { name: "项目接入", exact: false }).click();
-  await expect(preview).toContainText('"project"');
+  await expect(preview).toContainText("'project'");
   await page.getByRole("combobox", { name: "本地智能体" }).click();
   await page
     .getByRole("option", { name: "Claude Code · 一键安装命令", exact: true })
     .click();
-  await expect(preview).toContainText('"claudecode"');
+  await expect(preview).toContainText("'claudecode'");
   await page.getByRole("combobox", { name: "终端系统" }).click();
   await page
     .getByRole("option", { name: "Windows PowerShell", exact: true })

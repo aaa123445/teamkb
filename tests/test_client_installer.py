@@ -49,3 +49,48 @@ def test_installer_interactive_credentials_and_mode_isolation(tmp_path, monkeypa
     assert any('init' in cmd and '--scope' in cmd for cmd, _ in commands)
     assert any(cmd[:3] == [('codex' if agent == 'codex' else 'claude'), 'mcp', 'add'] for cmd, _ in commands) == (mode == 'mcp')
     assert all('private-test-key' not in json.dumps(cmd) for cmd, _ in commands)
+
+@pytest.mark.parametrize('reason', ['python', 'agent'])
+def test_preflight_explains_failure_without_touching_config(tmp_path, monkeypatch, capsys, reason):
+    monkeypatch.setattr(installer.sys, 'argv', ['install.py', '--agent', 'codex', '--mode', 'mcp', '--url', 'https://team.example'])
+    monkeypatch.setattr(installer.Path, 'home', lambda: tmp_path)
+    if reason == 'python':
+        monkeypatch.setattr(installer.sys, 'version_info', (3, 10))
+    else:
+        monkeypatch.setattr(installer.shutil, 'which', lambda _: None)
+    assert installer.entrypoint() == 1
+    error = capsys.readouterr().err
+    assert ('Python' if reason == 'python' else 'PATH') in error
+    assert 'ValueError' not in error
+    assert not list(tmp_path.iterdir())
+
+
+def test_environment_key_works_without_interactive_stdin(tmp_path, monkeypatch):
+    monkeypatch.setenv('TEAMKB_KEY', 'private-key-from-environment')
+    monkeypatch.setattr(installer.sys, 'argv', ['install.py', '--agent', 'codex', '--mode', 'cli', '--url', 'https://team.example'])
+    monkeypatch.setattr(installer.sys, 'stdin', SimpleNamespace(isatty=lambda: False))
+    monkeypatch.setattr(installer.Path, 'home', lambda: tmp_path)
+    class Response:
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def read(self): return b'{"documents": 1}'
+    monkeypatch.setattr(installer, 'urlopen', lambda *a, **kw: Response())
+    monkeypatch.setattr(installer, 'download', lambda _: b'{}')
+    block = (installer.BEGIN + '\n{{TEAMKB_CONTRIBUTION_POLICY}}\n' + installer.END).encode()
+    monkeypatch.setattr(installer, 'verified_download', lambda o, n, m: block if n.endswith('.md') else b'wheel')
+    monkeypatch.setattr(installer.venv.EnvBuilder, 'create', lambda *a: None)
+    monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **kw: None)
+    monkeypatch.setattr(installer.getpass, 'getpass', lambda _: pytest.fail('must not prompt when key is already supplied'))
+    installer.main()
+    assert 'private-key-from-environment' not in (tmp_path / '.codex/AGENTS.md').read_text()
+
+
+def test_check_only_never_reads_key_or_writes_config(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(installer.sys, 'argv', ['install.py', '--agent', 'codex', '--mode', 'cli', '--url', 'https://team.example', '--check-only'])
+    monkeypatch.setattr(installer.Path, 'home', lambda: tmp_path)
+    monkeypatch.setattr(installer.shutil, 'which', lambda _: None)
+    monkeypatch.setattr(installer.getpass, 'getpass', lambda _: pytest.fail('check-only cannot request credentials'))
+    monkeypatch.setattr(installer, 'download', lambda _: json.dumps({'sha256': {installer.WHEEL: 'a'*64, installer.SKILL: 'b'*64}}).encode())
+    assert installer.entrypoint() == 0
+    assert '环境检测通过' in capsys.readouterr().out
+    assert not list(tmp_path.iterdir())

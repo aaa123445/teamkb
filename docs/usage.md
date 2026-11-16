@@ -6,9 +6,9 @@ TeamKB 统一提供分类知识管理、团队规范、贡献审核和 Agent 经
 
 ## 一键接入本地 Agent
 
-在工作台左侧选择「一键接入」，先选择 **Codex**、**Claude Code** 或 **其他智能体（含 dsh）**。Codex 和 Claude Code 各自生成可直接在本机终端执行的一键 Python 安装命令，选择 macOS / Linux 或 Windows PowerShell；其他智能体继续复制安装提示词交给本地 Agent。
+在工作台左侧选择「一键接入」，先选择 **Codex**、**Claude Code** 或 **其他智能体（含 dsh）**。Codex 和 Claude Code 各自生成可直接在本机终端执行的一键安装命令（macOS / Linux 为 Shell，Windows 为 Python），选择 macOS / Linux 或 Windows PowerShell；其他智能体继续复制安装提示词交给本地 Agent。
 
-命令安装需要 Python 3.11+，先从本站下载并校验安装器，再创建独立虚拟环境，校验并安装客户端。安装期间在终端隐藏输入个人 API Key；项目接入还会询问已有项目路径。Key 不出现在安装命令或 shell 历史中。安装器会验证凭据、完成用户／项目连接初始化，不需要再让 Agent 执行安装提示词。
+Shell 入口会先检查操作系统与架构、curl、Python 3.11+、venv / ensurepip / TLS、Agent 命令和域名下载服务；缺失时明确指出解决方式。检查通过后才请求个人 Key、创建独立虚拟环境并安装客户端。可追加 `--check-only` 仅检测环境，不读取凭据或改写配置。CLI 模式不强制要求 Agent 命令存在，MCP 则要求所选 Agent CLI 已安装。安装期间在终端隐藏输入个人 API Key；项目接入还会询问已有项目路径。Key 不出现在安装命令或 shell 历史中。安装器会验证凭据、完成用户／项目连接初始化，不需要再让 Agent 执行安装提示词。
 
 - **CLI 模式**：安装器自动备份并合并 Codex `AGENTS.md`（已有 override 时使用生效文件）或 Claude Code `CLAUDE.md`，只替换 TeamKB 管理区块。默认写入任务完成后按需提交已验证知识的规则，可关闭沉淀。
 - **MCP 模式（包括 MCP + Skill）**：注册所选范围的 MCP，不写入、不修改系统提示词或指令文件。MCP + Skill 额外安装 Skill。重复安装更新同名配置，保留其他服务；安装后重启 Agent，并验证实际工具调用。
@@ -19,9 +19,10 @@ TeamKB 统一提供分类知识管理、团队规范、贡献审核和 Agent 经
 
 ```bash
 # Codex：CLI 安装并写入指令
-curl -fL "https://www.ljc.monster/static/downloads/install-teamkb-0.5.2.py" -o /tmp/install-teamkb.py && python3 /tmp/install-teamkb.py --agent codex --mode cli --scope user --url https://www.ljc.monster
+curl -fL "https://www.ljc.monster/static/downloads/install-teamkb-0.5.3.sh" -o /tmp/install-teamkb.sh && bash /tmp/install-teamkb.sh --agent codex --mode cli --scope user --url https://www.ljc.monster
 # Claude Code：将 --agent 改为 claudecode
 # MCP：将 --mode 改为 mcp；不会修改系统提示词
+# 仅环境检测：在 bash 安装命令末尾加 --check-only
 ```
 
 所有下载均走本站域名，完整安装命令请从接入页按 Agent、接入方式、范围和系统复制。项目范围只用于连接隔离；提交知识不要求项目候选初始化。个人中心可以创建并吊销 Key，writer 才能提交知识；默认贡献仍待管理员审核。使用独立 Key，避免提交到仓库或共享聊天。
@@ -149,19 +150,19 @@ Hook 用事件 `cwd` 找项目配置，子目录启动时需要在该目录启�
 ```bash
 python3 -m venv ~/.teamkb-venv
 source ~/.teamkb-venv/bin/activate
-python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.2-py3-none-any.whl"
+python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.3-py3-none-any.whl"
 wb --help
 ```
 
-- 客户端 wheel：[下载 CLI / MCP 客户端](https://www.ljc.monster/static/downloads/v8_workbench-0.5.2-py3-none-any.whl)。
-- Skill ZIP：[下载 team-knowledge](https://www.ljc.monster/static/downloads/team-knowledge-0.5.2.zip)。
+- 客户端 wheel：[下载 CLI / MCP 客户端](https://www.ljc.monster/static/downloads/v8_workbench-0.5.3-py3-none-any.whl)。
+- Skill ZIP：[下载 team-knowledge](https://www.ljc.monster/static/downloads/team-knowledge-0.5.3.zip)。
 - SHA-256 清单：[核对下载文件](https://www.ljc.monster/static/downloads/manifest.json)。下载后应与清单中的哈希一致，不一致时重新下载并停止安装。
 
 后续打开终端时，先执行 `source ~/.teamkb-venv/bin/activate`，或使用 `~/.teamkb-venv/bin/wb` 的绝对路径。Windows PowerShell 用 `py -m venv "$HOME/.teamkb-venv"` 创建环境、`& "$HOME/.teamkb-venv/Scripts/Activate.ps1"` 激活；wb 路径为 `$HOME/.teamkb-venv/Scripts/wb.exe`。随后使用同一域名的 wheel 安装命令。
 
 ### 先初始化，再使用 CLI 或 MCP
 
-新版客户端增加 `wb init`，CLI 和 `wb mcp` 共用初始化配置。先执行 `wb init --help`；若提示没有该命令，请更新客户端。下载包仍为 0.5.2 时也需加 `--force-reinstall --no-cache-dir` 重装，以服务器当前 SHA-256 清单为准。
+新版客户端增加 `wb init`，CLI 和 `wb mcp` 共用初始化配置。先执行 `wb init --help`；若提示没有该命令，请更新客户端。下载包仍为 0.5.3 时也需加 `--force-reinstall --no-cache-dir` 重装，以服务器当前 SHA-256 清单为准。
 
 | 范围 | 初始化命令 | 保存位置 | 后续使用 |
 | --- | --- | --- | --- |
@@ -204,7 +205,7 @@ PowerShell 清除本次临时环境变量可用 `Remove-Item Env:TEAMKB_URL,Env:
 升级客户端：激活原虚拟环境，重新从本站安装。即使版本号未变，也应使用强制重装和禁用缓存，避免继续使用旧客户端：
 
 ```bash
-python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.2-py3-none-any.whl"
+python -m pip install --upgrade --force-reinstall --no-cache-dir "https://www.ljc.monster/static/downloads/v8_workbench-0.5.3-py3-none-any.whl"
 wb init --help
 ```
 
@@ -314,16 +315,16 @@ claude mcp list
 
 ## 4. Skill 安装与使用
 
-Skill 从本站的 [team-knowledge ZIP](https://www.ljc.monster/static/downloads/team-knowledge-0.5.2.zip) 下载，解压后得到 `team-knowledge/` 目录，包含 `SKILL.md`、`references/` 和 `scripts/`。请复制整个目录，不能只复制 `SKILL.md`。Skill 约定工作流程，本身不携带知识库；仍然需要已经可用的 MCP 或 `wb` CLI。
+Skill 从本站的 [team-knowledge ZIP](https://www.ljc.monster/static/downloads/team-knowledge-0.5.3.zip) 下载，解压后得到 `team-knowledge/` 目录，包含 `SKILL.md`、`references/` 和 `scripts/`。请复制整个目录，不能只复制 `SKILL.md`。Skill 约定工作流程，本身不携带知识库；仍然需要已经可用的 MCP 或 `wb` CLI。
 
 先完成所选范围的 `wb init` 和 CLI 鉴权验证。下载并解压本站 ZIP，以下命令以 macOS / Linux 为例：
 
 ```bash
 mkdir -p "$HOME/.teamkb/downloads/skill"
-curl -fL "https://www.ljc.monster/static/downloads/team-knowledge-0.5.2.zip" -o "$HOME/.teamkb/downloads/team-knowledge.zip"
+curl -fL "https://www.ljc.monster/static/downloads/team-knowledge-0.5.3.zip" -o "$HOME/.teamkb/downloads/team-knowledge.zip"
 curl -fL "https://www.ljc.monster/static/downloads/manifest.json" -o "$HOME/.teamkb/downloads/manifest.json"
 # 解压前核对 ZIP 的 SHA-256 与清单一致
-python -c 'import hashlib,json,pathlib; p=pathlib.Path.home()/".teamkb/downloads"; actual=hashlib.sha256((p/"team-knowledge.zip").read_bytes()).hexdigest(); expected=json.loads((p/"manifest.json").read_text())["sha256"]["team-knowledge-0.5.2.zip"]; assert actual==expected,"SHA-256 不匹配，停止安装"'
+python -c 'import hashlib,json,pathlib; p=pathlib.Path.home()/".teamkb/downloads"; actual=hashlib.sha256((p/"team-knowledge.zip").read_bytes()).hexdigest(); expected=json.loads((p/"manifest.json").read_text())["sha256"]["team-knowledge-0.5.3.zip"]; assert actual==expected,"SHA-256 不匹配，停止安装"'
 python -m zipfile -e "$HOME/.teamkb/downloads/team-knowledge.zip" "$HOME/.teamkb/downloads/skill"
 ```
 

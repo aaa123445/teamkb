@@ -38,7 +38,9 @@ const mode = ref(
 const agent = ref(route.query.agent === "other" ? "other" : "codex");
 const platform = ref("posix");
 const commandMode = computed(() => agent.value !== "other");
-const instructionMode = computed(() => !["mcp", "recommended"].includes(mode.value));
+const instructionMode = computed(
+  () => !["mcp", "recommended"].includes(mode.value),
+);
 const scope = ref(route.query.scope === "project" ? "project" : "user");
 const key = ref(takeConnectionKey()),
   includeKey = ref(!!key.value),
@@ -367,7 +369,7 @@ onBeforeUnmount(() => {
         <p class="connect-help">
           {{
             commandMode
-              ? "在本机交互终端执行下方命令（需要 Python 3.11+）。CLI 直接合并 Agent 指令；MCP 仅注册工具，不修改系统提示词。"
+              ? "在本机交互终端执行下方命令。Shell 会先检测系统、Python、venv、Agent 命令和网络；可在命令末尾追加 --check-only 仅检测。Windows 使用 Python 安装入口。CLI 直接合并 Agent 指令；MCP 仅注册工具，不修改系统提示词。"
               : "复制提示词交给本地 Agent，它会识别系统与客户端、保留已有配置并验证连接。"
           }}
         </p>

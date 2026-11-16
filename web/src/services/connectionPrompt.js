@@ -1,8 +1,8 @@
 import instructionTemplate from "../../../skill/team-knowledge/references/agent-instructions.md?raw";
 
-export const clientFile = "v8_workbench-0.5.2-py3-none-any.whl";
-export const skillFile = "team-knowledge-0.5.2.zip";
-export const installerFile = "install-teamkb-0.5.2.py";
+export const clientFile = "v8_workbench-0.5.3-py3-none-any.whl";
+export const skillFile = "team-knowledge-0.5.3.zip";
+export const installerFile = "install-teamkb-0.5.3.py";
 export const modes = [
   {
     id: "recommended",
@@ -130,7 +130,10 @@ export function installationCommand({
   manifest,
   platform = "posix",
 }) {
-  const file = "install-teamkb-0.5.2.py";
+  const file =
+    platform === "windows"
+      ? "install-teamkb-0.5.3.py"
+      : "install-teamkb-0.5.3.sh";
   const hash = manifest?.sha256?.[file];
   if (!/^[a-f0-9]{64}$/i.test(hash || ""))
     throw new Error("安装器校验信息尚未就绪，请重试加载。");
@@ -149,6 +152,11 @@ export function installationCommand({
     origin,
   ];
   if (!autoSubmit) args.push("--no-contribute");
-  const program = `import urllib.request,hashlib,tempfile,pathlib,runpy,sys; d=urllib.request.urlopen(urllib.request.Request(${JSON.stringify(url)},headers={"User-Agent":"TeamKB-Installer/0.5.2"}),timeout=60).read(); assert hashlib.sha256(d).hexdigest()==${JSON.stringify(hash)},"Installer SHA-256 mismatch"; t=tempfile.TemporaryDirectory(); p=pathlib.Path(t.name)/"install.py"; p.write_bytes(d); sys.argv=${JSON.stringify(args)}; runpy.run_path(str(p),run_name="__main__")`;
+  if (platform !== "windows") {
+    const quote = (value) => "'" + value.replaceAll("'", "'\"'\"'") + "'";
+    const commandArgs = args.slice(1).map(quote).join(" ");
+    return `(teamkb_installer=$(mktemp) && trap 'rm -f "$teamkb_installer"' EXIT && curl -fsSL ${quote(url)} -o "$teamkb_installer" && bash "$teamkb_installer" ${commandArgs})`;
+  }
+  const program = `import urllib.request,hashlib,tempfile,pathlib,runpy,sys; d=urllib.request.urlopen(urllib.request.Request(${JSON.stringify(url)},headers={"User-Agent":"TeamKB-Installer/0.5.3"}),timeout=60).read(); assert hashlib.sha256(d).hexdigest()==${JSON.stringify(hash)},"Installer SHA-256 mismatch"; t=tempfile.TemporaryDirectory(); p=pathlib.Path(t.name)/"install.py"; p.write_bytes(d); sys.argv=${JSON.stringify(args)}; runpy.run_path(str(p),run_name="__main__")`;
   return `${platform === "windows" ? "py -3" : "python3"} -c '${program.replaceAll("'", platform === "windows" ? "''" : "'\"'\"'")}'`;
 }
