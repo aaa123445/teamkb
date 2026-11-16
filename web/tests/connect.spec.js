@@ -39,7 +39,7 @@ test("generates installation modes and explicit task-end contribution policy", a
   await page.goto("/#/connect");
   const preview = page.getByLabel("安装提示词预览");
   await expect(preview).toContainText("SHA-256:");
-  await expect(preview).toContainText("team-knowledge-0.5.0.zip");
+  await expect(preview).toContainText("team-knowledge-0.5.1.zip");
   await expect(preview).toContainText("YOUR_PERSONAL_KEY");
   await expect(preview).toContainText("已授权任务完成后按需提交");
   await expect(preview).toContainText("不要求 .teamkb/config.json");
@@ -58,14 +58,14 @@ test("generates installation modes and explicit task-end contribution policy", a
     "/static/downloads/v8_workbench",
   );
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
-  await expect(preview).not.toContainText("team-knowledge-0.5.0.zip");
+  await expect(preview).not.toContainText("team-knowledge-0.5.1.zip");
   await expect(preview).not.toContainText('args=["mcp"]');
   await page.getByRole("button", { name: "仅 Skill", exact: false }).click();
-  await expect(preview).toContainText("team-knowledge-0.5.0.zip");
+  await expect(preview).toContainText("team-knowledge-0.5.1.zip");
   await expect(preview).not.toContainText('args=["mcp"]');
   await page.getByRole("button", { name: "仅 MCP", exact: false }).click();
   await expect(preview).toContainText('args=["mcp"]');
-  await expect(preview).not.toContainText("team-knowledge-0.5.0.zip");
+  await expect(preview).not.toContainText("team-knowledge-0.5.1.zip");
   await page.getByLabel("任务完成后按需提交知识").check();
   await expect(preview).toContainText("已授权任务完成后按需提交");
   await expect(preview).not.toContainText("wb agent init --project");

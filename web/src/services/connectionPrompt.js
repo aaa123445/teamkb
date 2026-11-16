@@ -1,7 +1,7 @@
 import instructionTemplate from "../../../skill/team-knowledge/references/agent-instructions.md?raw";
 
-export const clientFile = "v8_workbench-0.5.0-py3-none-any.whl";
-export const skillFile = "team-knowledge-0.5.0.zip";
+export const clientFile = "v8_workbench-0.5.1-py3-none-any.whl";
+export const skillFile = "team-knowledge-0.5.1.zip";
 export const modes = [
   {
     id: "recommended",
@@ -76,7 +76,7 @@ export function connectionPrompt({
 1. 检查当前操作系统、Python 3.11+、Agent 客户端及其现有配置。使用用户目录内独立虚拟环境（建议 ~/.teamkb-venv，Windows 使用对应用户目录），不需要管理员权限。保留已有其他 MCP、Skill 和项目设置，修改配置前备份；重复执行应更新 TeamKB 相关项而非重复追加。不部署服务器，不运行 deploy/install.sh。
 
 2. 所有 TeamKB 安装包和更新包只从下列本站域名地址下载，不从 GitHub、源码仓库或镜像拉取；无需 git clone 或 git pull。下载与本站匹配的客户端，逐项核对 SHA-256，校验不一致就停止并报告：
-${files.map((file) => `- ${origin}/static/downloads/${file}\n  SHA-256: ${manifest.sha256[file]}`).join("\n")}
+${files.map((file) => `- ${origin}/static/downloads/${file}?sha256=${manifest.sha256[file]}\n  SHA-256: ${manifest.sha256[file]}`).join("\n")}
 用虚拟环境中的 Python 执行 pip install --upgrade --force-reinstall --no-cache-dir 安装下载后的 wheel，避免同版本旧包被跳过。wb 的绝对路径在 macOS/Linux 为 <虚拟环境>/bin/wb，在 Windows 为 <虚拟环境>\\Scripts\\wb.exe。
 
 3. 必须完成接入初始化，不能仅 pip 安装后就声称可用。先执行 wb init --help 确认客户端支持新版初始化。${project ? "先识别并确认当前开发项目的绝对根路径 PROJECT_ROOT，无法确定时向我询问；不要在下载目录或 TeamKB 源码目录误初始化。" : "初始化当前用户的全局配置，不要求每个项目重复配置。"}
