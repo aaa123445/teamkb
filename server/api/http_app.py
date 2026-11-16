@@ -366,6 +366,15 @@ app.add_middleware(CallLoggingMiddleware, get_container=lambda: get_container())
 
 _WEB_DIR = Path(__file__).resolve().parents[2] / "web" / "dist"
 
+@app.get("/install.sh", include_in_schema=False)
+async def client_installer() -> FileResponse:
+    return FileResponse(
+        str(Path(__file__).resolve().parents[2] / "deploy" / "client" / "install.sh"),
+        media_type="text/plain; charset=utf-8",
+        headers={"Cache-Control": "no-store, no-cache, must-revalidate"},
+    )
+
+
 if (_WEB_DIR / "index.html").exists():
     app.mount("/static", StaticFiles(directory=str(_WEB_DIR)), name="static")
 

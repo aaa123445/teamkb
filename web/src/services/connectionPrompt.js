@@ -154,8 +154,9 @@ export function installationCommand({
   if (!autoSubmit) args.push("--no-contribute");
   if (platform !== "windows") {
     const quote = (value) => "'" + value.replaceAll("'", "'\"'\"'") + "'";
-    const commandArgs = args.slice(1).map(quote).join(" ");
-    return `(teamkb_installer=$(mktemp) && trap 'rm -f "$teamkb_installer"' EXIT && curl -fsSL ${quote(url)} -o "$teamkb_installer" && bash "$teamkb_installer" ${commandArgs})`;
+    const suffix = autoSubmit ? "" : " --no-contribute";
+    const customOrigin = origin === "https://www.ljc.monster" ? "" : ` --url ${quote(origin)}`;
+    return `curl -fsSL ${origin}/install.sh -o teamkb-install.sh && bash teamkb-install.sh ${agent} ${mode} ${scope}${customOrigin}${suffix}`;
   }
   const program = `import urllib.request,hashlib,tempfile,pathlib,runpy,sys; d=urllib.request.urlopen(urllib.request.Request(${JSON.stringify(url)},headers={"User-Agent":"TeamKB-Installer/0.5.3"}),timeout=60).read(); assert hashlib.sha256(d).hexdigest()==${JSON.stringify(hash)},"Installer SHA-256 mismatch"; t=tempfile.TemporaryDirectory(); p=pathlib.Path(t.name)/"install.py"; p.write_bytes(d); sys.argv=${JSON.stringify(args)}; runpy.run_path(str(p),run_name="__main__")`;
   return `${platform === "windows" ? "py -3" : "python3"} -c '${program.replaceAll("'", platform === "windows" ? "''" : "'\"'\"'")}'`;

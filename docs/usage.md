@@ -19,10 +19,11 @@ Shell 入口会先检查操作系统与架构、curl、Python 3.11+、venv / ens
 
 ```bash
 # Codex：CLI 安装并写入指令
-curl -fL "https://www.ljc.monster/static/downloads/install-teamkb-0.5.3.sh" -o /tmp/install-teamkb.sh && bash /tmp/install-teamkb.sh --agent codex --mode cli --scope user --url https://www.ljc.monster
-# Claude Code：将 --agent 改为 claudecode
-# MCP：将 --mode 改为 mcp；不会修改系统提示词
-# 仅环境检测：在 bash 安装命令末尾加 --check-only
+curl -fsSL https://www.ljc.monster/install.sh -o teamkb-install.sh && bash teamkb-install.sh codex cli user
+# Claude Code：把 codex 改成 claudecode
+# MCP：把 cli 改成 mcp；不修改系统提示词
+# 项目范围：把 user 改成 project；安装时询问项目路径
+# 仅环境检测：在命令末尾加 --check-only
 ```
 
 所有下载均走本站域名，完整安装命令请从接入页按 Agent、接入方式、范围和系统复制。项目范围只用于连接隔离；提交知识不要求项目候选初始化。个人中心可以创建并吊销 Key，writer 才能提交知识；默认贡献仍待管理员审核。使用独立 Key，避免提交到仓库或共享聊天。

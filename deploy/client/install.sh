@@ -4,6 +4,15 @@ set -euo pipefail
 origin='https://www.ljc.monster'
 agent=''
 check_only=false
+# Short form: bash install.sh codex cli user [--check-only]
+if [[ "${1:-}" == codex || "${1:-}" == claudecode ]]; then
+  selected_agent="$1"; shift
+  selected_mode="${1:-cli}"
+  if (($#)); then shift; fi
+  selected_scope="${1:-user}"
+  if (($#)) && [[ "$1" != --* ]]; then shift; else selected_scope=user; fi
+  set -- --agent "$selected_agent" --mode "$selected_mode" --scope "$selected_scope" "$@"
+fi
 args=("$@")
 while (($#)); do
   case "$1" in
@@ -13,6 +22,7 @@ while (($#)); do
     *) shift ;;
   esac
 done
+args+=(--url "$origin")
 printf '[环境检测] 操作系统：%s；架构：%s\n' "$(uname -s)" "$(uname -m)"
 command -v curl >/dev/null || { echo '缺少 curl，请先安装 curl。' >&2; exit 1; }
 python_cmd=''

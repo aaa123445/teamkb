@@ -192,21 +192,21 @@ test("Codex and Claude Code offer credential-free commands with mode and scope",
   await expect(
     page.getByRole("heading", { name: "一键安装命令" }),
   ).toBeVisible();
-  await expect(preview).toContainText("install-teamkb-0.5.3.sh?sha256=");
-  await expect(preview).toContainText("'codex'");
+  await expect(preview).toContainText("/install.sh -o teamkb-install.sh");
+  await expect(preview).toContainText("codex recommended user");
   await expect(preview).toContainText("curl -fsSL");
   await expect(page.getByLabel("已有个人 Key", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "仅 CLI", exact: false }).click();
-  await expect(preview).toContainText("'cli'");
+  await expect(preview).toContainText("codex cli user");
   await page.getByLabel("任务完成后按需提交知识").uncheck();
   await expect(preview).toContainText("--no-contribute");
   await page.getByRole("button", { name: "项目接入", exact: false }).click();
-  await expect(preview).toContainText("'project'");
+  await expect(preview).toContainText("codex cli project");
   await page.getByRole("combobox", { name: "本地智能体" }).click();
   await page
     .getByRole("option", { name: "Claude Code · 一键安装命令", exact: true })
     .click();
-  await expect(preview).toContainText("'claudecode'");
+  await expect(preview).toContainText("claudecode cli project");
   await page.getByRole("combobox", { name: "终端系统" }).click();
   await page
     .getByRole("option", { name: "Windows PowerShell", exact: true })
