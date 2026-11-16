@@ -33,7 +33,7 @@ const mode = ref(
 const scope = ref(route.query.scope === "project" ? "project" : "user");
 const key = ref(takeConnectionKey()),
   includeKey = ref(!!key.value),
-  autoSubmit = ref(false);
+  autoSubmit = ref(true);
 const manifest = ref(null),
   loading = ref(false),
   error = ref(""),
@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
               scope === "user"
                 ? "先运行 wb init --scope user 初始化用户配置，再注册全局 MCP / Skill。"
                 : "先在项目根目录运行 wb init --scope project，再注册项目级 MCP / Skill。"
-            }}接入初始化与经验上传开关独立，默认只启用知识访问。
+            }}连接范围与知识沉淀独立，提交知识无需开启项目候选或 Hook。
           </p>
           <div class="connect-server">
             <span>当前团队服务</span><code>{{ origin }}</code>
@@ -285,9 +285,9 @@ onBeforeUnmount(() => {
           <h2>经验沉淀</h2>
           <label class="connect-check"
             ><input v-model="autoSubmit" type="checkbox" /><span
-              >在当前开发项目启用经验候选提交<small
-                >需要 writer
-                权限。仅提交经过验证、脱敏的方案，默认由管理员审核后共享。</small
+              >任务完成后按需提交知识<small
+                >需要 writer 权限。写入 Agent
+                持久化指令，无需项目初始化；仅提交验证、脱敏后的可复用知识，默认待审核。</small
               ></span
             ></label
           >

@@ -7,7 +7,7 @@
 - **协作与审核**：草稿、我的贡献、管理员审核、更新建议与版本冲突检查。
 - **账号与凭据**：注册后审批入网、个人 API Key、角色权限、调用配额及个人调用日志。
 - **Agent 接入**：一键生成 MCP / Skill / CLI 安装提示词，支持全局／项目接入、连接初始化、专用个人 Key 与实际调用验证。
-- **经验沉淀**：按项目启用、结构化验证材料、默认审核；网络失败保存在本地队列并限次退避重试。
+- **经验沉淀**：任务结束按需直接提交，无需项目初始化；结构化验证材料、默认审核；网络失败保存在本地队列并限次退避重试。
 - **现有知识源**：语雀增量同步、V5 文档导入，V8 / V5 分类隔离；可增加其他团队知识分类。
 
 ## 访问入口
@@ -17,7 +17,7 @@
 - [一键接入本地 Agent](https://www.ljc.monster/#/connect)
 - [使用说明](docs/usage.md)：账号审批、个人 Key、MCP / Skill / CLI、任务完成 Hook 与审核。
 
-在「一键接入」选择接入方式，复制提示词发给本地 Agent。默认推荐 MCP + Skill，也可只安装 CLI。可以在本机填写 Key，或明确选择随提示词复制个人 Key；不要将含 Key 的提示词提交到仓库或共享聊天。安装与连接状态以本地 Agent 实际验证结果为准。
+在「一键接入」选择接入方式，复制提示词发给本地 Agent。默认推荐 MCP + Skill，也可只安装 CLI。可以在本机填写 Key，或明确选择随提示词复制个人 Key；不要将含 Key 的提示词提交到仓库或共享聊天。安装与连接状态以本地 Agent 实际验证结果为准。安装时将工作流合并到 Codex / Claude Code 的持久化指令；dsh 核实本机入口后写入，其他 Agent 可使用通用提示词接入。默认允许任务结束后按需提交已验证、可复用且脱敏的知识，可在接入页关闭。
 
 ## 客户端安装与初始化
 
@@ -34,7 +34,7 @@ wb stats
 wb categories
 ```
 
-全局接入保存当前用户的连接配置；项目接入则使用 `wb --project /absolute/path/to/project init --scope project`，之后在该项目中执行 CLI，或显式传入 `--project`。安装包本身不会完成初始化，`wb agent init` 仅开启项目经验候选提交，不能替代 `wb init`。
+知识提交可直接使用 `kb_propose` 或 `wb propose FILE.json`，无需项目路径、`wb agent init` 或项目候选开关。全局接入保存当前用户的连接配置；项目接入则使用 `wb --project /absolute/path/to/project init --scope project`，之后在该项目中执行 CLI，或显式传入 `--project`。安装包本身不会完成初始化，`wb agent init` 仅开启项目经验候选提交，不能替代 `wb init`。
 
 - [CLI / MCP 客户端包](https://www.ljc.monster/static/downloads/v8_workbench-0.5.0-py3-none-any.whl)
 - [team-knowledge Skill 包](https://www.ljc.monster/static/downloads/team-knowledge-0.5.0.zip)

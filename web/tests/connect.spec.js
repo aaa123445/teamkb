@@ -33,7 +33,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("generates installation modes and keeps uploads opt-in", async ({
+test("generates installation modes and explicit task-end contribution policy", async ({
   page,
 }) => {
   await page.goto("/#/connect");
@@ -41,7 +41,16 @@ test("generates installation modes and keeps uploads opt-in", async ({
   await expect(preview).toContainText("SHA-256:");
   await expect(preview).toContainText("team-knowledge-0.5.0.zip");
   await expect(preview).toContainText("YOUR_PERSONAL_KEY");
-  await expect(preview).toContainText("不启用项目自动上传");
+  await expect(preview).toContainText("已授权任务完成后按需提交");
+  await expect(preview).toContainText("不要求 .teamkb/config.json");
+  await expect(preview).toContainText("TEAMKB:BEGIN");
+  await expect(preview).toContainText("~/.codex/AGENTS.md");
+  await expect(preview).toContainText("~/.claude/CLAUDE.md");
+  await expect(preview).toContainText("dsh --help");
+  await expect(preview).toContainText("其他智能体");
+  await page.getByLabel("任务完成后按需提交知识").uncheck();
+  await expect(preview).toContainText("已关闭：只检索");
+  await expect(preview).toContainText("不启用任务后自主提交");
   await page
     .getByRole("button", { name: "复制安装提示词", exact: true })
     .click();
@@ -57,8 +66,9 @@ test("generates installation modes and keeps uploads opt-in", async ({
   await page.getByRole("button", { name: "仅 MCP", exact: false }).click();
   await expect(preview).toContainText('args=["mcp"]');
   await expect(preview).not.toContainText("team-knowledge-0.5.0.zip");
-  await page.getByLabel("在当前开发项目启用经验候选提交").check();
-  await expect(preview).toContainText("wb agent init --project");
+  await page.getByLabel("任务完成后按需提交知识").check();
+  await expect(preview).toContainText("已授权任务完成后按需提交");
+  await expect(preview).not.toContainText("wb agent init --project");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

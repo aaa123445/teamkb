@@ -226,6 +226,30 @@ def test_standards_and_review_changes(env):
     assert len(a["events"]) == 3
 
 
+def test_direct_cli_submission_without_project_initialization(env, tmp_path, monkeypatch, capsys):
+    from argparse import Namespace
+    from cli import knowledge as q
+    from cli.wb import Client
+    import httpx
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("TEAMKB_QUEUE_DIR", str(tmp_path / "queue"))
+    candidate = tmp_path / "private-candidate.json"
+    q.write_json(candidate, payload())
+    api = env[2]("writer")
+
+    def send(c, data):
+        response = api.post("/api/v1/contributions", json=data)
+        return httpx.Response(response.status_code, json=response.json())
+
+    monkeypatch.setattr(q, "send", send)
+    q.cmd(Client("https://team.example", "not-stored"), Namespace(
+        cmd="propose", file=str(candidate), draft=False, json=True,
+    ))
+    assert json.loads(capsys.readouterr().out)["status"] == "pending"
+    assert not (tmp_path / ".teamkb").exists()
+
+
 def test_queue_retry_blocking_and_project_opt_in(env, tmp_path, monkeypatch, capsys):
     import httpx
 
