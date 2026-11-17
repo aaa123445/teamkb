@@ -25,8 +25,14 @@ export function registerTools(ctx, defineTool, api, getConfig) {
   tool('kb_graph', 'TeamKB · 知识链', '查看文档的确认引用和推荐关联。推荐关系不代表确认依据，应继续读原文。', {
     doc_id: str('中心文档 ID', true), category_id: str('分类 ID'), depth: num('关系深度 1 或 2'),
   }, (a, signal) => api('/api/v1/graph?' + new URLSearchParams({doc_id: a.doc_id, category_id: a.category_id ?? '', depth: String(a.depth ?? 1)}), {signal}));
-  tool('kb_contributions', 'TeamKB · 我的贡献', '查看本账号的贡献及审核意见；提交结果不确定时先用本工具检查，避免重复提交。', {contribution_id: str('贡献 ID，可留空')}, (a, signal) => api('/api/v1/contributions' + (a.contribution_id ? '/' + encodeURIComponent(a.contribution_id) : ''), {signal}));
-  tool('kb_propose', 'TeamKB · 提交知识', '任务完成后，有值得复用、已验证且脱敏的新解法时可提交。先检索去重并选择分类；无需项目初始化，默认待管理员审核。禁止上传凭据、完整会话或仓库。插件须开启贡献且 Key 有 writer 权限。', {
+  tool('kb_contributions', 'TeamKB · 我的贡献', '实时查询贡献当前状态与审核意见。再次汇报历史贡献前必须传 contribution_id 重新查询，不得沿用提交时的 pending。rejected/changes_requested/published 均不在待审核队列；只有 pending 是待审核。查询失败或无权访问时说明无法确认，不推断仍挂起。', {contribution_id: str('贡献 ID，可留空；核实某条状态时必须填写')}, async (a, signal) => {
+    const value = await api('/api/v1/contributions' + (a.contribution_id ? '/' + encodeURIComponent(a.contribution_id) : ''), {signal});
+    const labels = {pending:'待审核', rejected:'已拒绝', published:'已发布', changes_requested:'退回修改', draft:'草稿'};
+    const annotate = item => ({...item, status_label: labels[item.status] || item.status, in_review_queue: item.status === 'pending'});
+    const result = Array.isArray(value.items) ? {...value, items:value.items.map(annotate)} : annotate(value);
+    return {...result, checked_at:new Date().toISOString(), status_guidance:'以本次 status 和审核事件为准；rejected 已结束审核，不需要再次驳回。历史提交结果不是当前状态。'};
+  });
+  tool('kb_propose', 'TeamKB · 提交知识', '任务完成后，有值得复用、已验证且脱敏的新解法时可提交。先检索去重并选择分类；无需项目初始化，默认待管理员审核。禁止上传凭据、完整会话或仓库。插件须开启贡献且 Key 有 writer 权限。不要为插件自检、开关测试、连通性或权限测试创建真实知识贡献。', {
     title: str('标题', true), content: str('完整 Markdown，至少 80 字符', true), category_id: str('真实分类 ID', true),
     problem: str('实际问题，至少 10 字符', true), solution: str('实际解决方法，至少 20 字符', true),
     verification: str('真实验证证据，至少 10 字符', true), limitations: str('适用限制，至少 5 字符', true),

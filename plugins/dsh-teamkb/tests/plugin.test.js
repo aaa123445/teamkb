@@ -68,3 +68,17 @@ test('400 document-not-found explains ID correction without retry or exposing bo
   assert.equal(count,1);
   await assert.rejects(request(config,'/api/v1/search',{fetcher:async()=>new Response('{}',{status:400})}),/请求参数无效/);
 });
+
+test('contribution status is fetched each time and rejected entries leave the review queue', async () => {
+  const tools=new Map();let status='pending',calls=0;
+  registerTools({tools:{register:t=>tools.set(t.name,t)}},defineTool,async(path)=>{
+    calls++;assert.equal(path,'/api/v1/contributions/con_test');return {id:'con_test',status,review_note:status==='rejected'?'测试用':'',events:[{action:status==='rejected'?'reject':'submit'}]};
+  },()=>config);
+  const lookup=async()=>JSON.parse(await tools.get('kb_contributions').execute({contribution_id:'con_test'},{}));
+  const first=await lookup();assert.equal(first.in_review_queue,true);
+  status='rejected';const next=await lookup();assert.equal(calls,2);assert.equal(next.status,'rejected');assert.equal(next.status_label,'已拒绝');assert.equal(next.in_review_queue,false);assert.equal(next.review_note,'测试用');assert.equal(next.events[0].action,'reject');assert.ok(next.checked_at);
+});
+test('contribution list distinguishes pending from final states',async()=>{
+ const tools=new Map();registerTools({tools:{register:t=>tools.set(t.name,t)}},defineTool,async()=>({total:3,items:[{status:'pending'},{status:'rejected'},{status:'published'}]}),()=>config);
+ const out=JSON.parse(await tools.get('kb_contributions').execute({},{}));assert.deepEqual(out.items.map(v=>v.in_review_queue),[true,false,false]);assert.equal(out.total,3);
+});

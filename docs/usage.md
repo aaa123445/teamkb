@@ -121,14 +121,14 @@ Key 从已初始化的私有连接文件读取，不内联到共享 MCP 配置�
 Desktop / Web 插件独立于 CLI/MCP，仍无需 Python。Harness「Plugins → Add plugin」粘贴：
 
 ```text
-https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.5.tgz
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
 ```
 
 或：
 
 ```bash
-dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.5.tgz
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.5.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
 ```
 
 选择实际使用的 profile，打开 TeamKB 插件设置填写服务地址和个人 Key。包含侧栏工作台、分类、规范、检索、阅读、知识链、调用日志与提交。支持官方预览版 0.2.2 rc 系列；重装后重启宿主。配置入口、凭据及兼容范围见仓库 plugins/dsh-teamkb/README.md。

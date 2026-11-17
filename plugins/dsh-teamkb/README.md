@@ -7,14 +7,14 @@
 在 Harness 的 **Plugins / 插件 → 添加插件** 中输入域名下载地址：
 
 ```text
-https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.5.tgz
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
 ```
 
 也可通过 CLI 安装到实际使用的 profile：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.5.tgz
-dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.5.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
 ```
 
 只安装到正在使用的 profile，无需两条都运行。界面显示 `restart-required` 时重启对应 Web 服务或 Desktop；新建会话后测试。安装包包含可直接加载的 JavaScript，无 prepare/build 脚本，用户不需要下载 GitHub 源码。不要修改 profile 中其他 bundle。
@@ -77,3 +77,8 @@ npm pack --ignore-scripts
 ## 0.1.5 调用详情弹窗
 
 调用日志详情改为居中模态窗口，长结果在弹窗内滚动，不再追加到列表底部。支持关闭按钮、Esc 和点击遮罩关闭，并恢复原日志焦点与列表位置。已在真实 Harness Web 的桌面和 600px 窗口验证。升级后重启宿主。
+
+
+## 0.1.6 贡献状态复核
+
+再次汇报旧贡献前按 ID 实时查询 kb_contributions；返回 checked_at、status_label、in_review_queue，并保留审核意见与事件。rejected 表示已拒绝且不在待审核队列，不能继续沿用最初提交的 pending。禁止为插件自检、开关或权限测试创建真实贡献。更新并重启后，新会话加载新工作流；旧会话中的旧结论应重新查询纠正。
