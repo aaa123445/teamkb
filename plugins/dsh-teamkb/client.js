@@ -39,99 +39,52 @@ module.exports = __toCommonJS(client_source_exports);
 // plugins/dsh-teamkb/ui-style.js
 var import_react = __toESM(require("react"), 1);
 var css = `
-.teamkb-ui{font-size:14px;line-height:1.5;width:100%;min-width:0;box-sizing:border-box}
-.teamkb-ui *,.teamkb-ui *:before,.teamkb-ui *:after{box-sizing:border-box}
-.teamkb-ui h1,.teamkb-ui h2,.teamkb-ui h3,.teamkb-ui p{max-width:none}
-.teamkb-ui button,.teamkb-ui input{font-family:inherit;line-height:1.4;min-width:0}
-.teamkb-ui button{flex-shrink:0;white-space:nowrap;transition:background .15s,border-color .15s,box-shadow .15s}
-.teamkb-ui button:hover:not(:disabled){filter:brightness(.95);box-shadow:0 0 0 1px var(--dsw-alias-border-l3,#80808033)}
-.teamkb-ui button:disabled{opacity:.45;cursor:not-allowed}
-.teamkb-ui button:focus-visible,.teamkb-ui input:focus-visible{outline:2px solid #60a5fa;outline-offset:3px}
-.teamkb-ui input:focus{border-color:#60a5fa!important}
-.teamkb-ui .tkb-directory-list button{text-overflow:ellipsis;overflow:hidden;text-align:left;width:100%;display:block}
-.teamkb-ui .tkb-directory input{width:100%}
-.teamkb-ui .tkb-directory{min-width:0}
-.teamkb-ui .tkb-entry{min-width:0;overflow-wrap:anywhere}
-.teamkb-ui .tkb-log-summary{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-width:0}
-.teamkb-ui .tkb-log-row:hover{background:var(--dsw-alias-bg-layer-2,#8080800b)!important}
-.teamkb-ui .tkb-tab:hover{background:var(--dsw-alias-bg-layer-2,#8080800b)!important}
-.teamkb-ui .tkb-pill{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:3px 7px;font-size:11px;background:#22c55e15;color:light-dark(#16733c,#73db9b);border:1px solid #22c55e30}
-.teamkb-ui .tkb-pill[data-failed=true]{background:#ef444415;color:light-dark(#b42332,#f89696);border-color:#ef444430}
-@container teamkb (max-width:720px){.teamkb-ui .tkb-search-layout{grid-template-columns:minmax(0,1fr)!important}.teamkb-ui .tkb-directory{position:static!important}.teamkb-ui .tkb-directory-list{max-height:170px!important}.teamkb-ui .tkb-log-row{grid-template-columns:minmax(0,1fr) auto!important}.teamkb-ui .tkb-log-summary{grid-column:1/-1;grid-row:2}}
+.teamkb-ui{--tkb-fg:var(--dsw-alias-label-primary,#202532);--tkb-muted:var(--dsw-alias-label-secondary,#737b8a);--tkb-line:var(--dsw-alias-border-l3,#dfe3e9);--tkb-bg:var(--dsw-alias-bg-base,#fff);--tkb-card:var(--dsw-alias-card-fill,var(--dsw-alias-bg-layer-1,#f7f8fa));--tkb-hover:var(--dsw-alias-interactive-bg-hover,#eef1f6);--tkb-accent:var(--dsw-static-deepseek-500,#4176e6);font-family:var(--dsw-font-family,system-ui,sans-serif);font-size:13px;line-height:1.5;color:var(--tkb-fg);min-width:0;box-sizing:border-box;text-align:start}
+.teamkb-ui *,.teamkb-ui *::before,.teamkb-ui *::after{box-sizing:border-box;min-width:0}
+.teamkb-ui :is(h1,h2,h3,p,pre){margin:0;max-width:none}.teamkb-ui h2{font-size:14px;font-weight:600}.teamkb-ui :is(button,input){font:inherit;color:inherit}.teamkb-ui button{cursor:pointer;line-height:1.4;transition:background .15s,color .15s,border-color .15s}.teamkb-ui button:disabled{cursor:not-allowed;opacity:.45}.teamkb-ui :is(button,input):focus-visible{outline:2px solid var(--tkb-accent);outline-offset:3px}.teamkb-ui input:not([type=checkbox]){width:100%;height:38px;padding:0 12px;border:1px solid var(--tkb-line);border-radius:8px;background:var(--tkb-bg);color:var(--tkb-fg);box-shadow:none}.teamkb-ui input::placeholder{color:var(--tkb-muted)}
+.teamkb-ui.tkb-workbench{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;background:var(--tkb-bg);container:teamkb / inline-size}.teamkb-ui .tkb-header{flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px clamp(16px,3vw,40px) 18px}.teamkb-ui .tkb-brand{display:flex;gap:12px;align-items:center}.teamkb-ui .tkb-brand-icon{display:grid;place-items:center;width:38px;height:38px;background:color-mix(in srgb,var(--tkb-accent) 10%,transparent);border-radius:11px;color:var(--tkb-accent);flex:none}.teamkb-ui .tkb-header h1{font-size:20px;font-weight:600;line-height:1.4;letter-spacing:-.4px}.teamkb-ui .tkb-header p{font-size:12px;color:var(--tkb-muted);margin-top:2px}.teamkb-ui .tkb-header-actions{display:flex;align-items:center;gap:14px}.teamkb-ui .tkb-stat{color:var(--tkb-muted);white-space:nowrap;font-size:12px}.teamkb-ui .tkb-stat strong{font-size:16px;color:var(--tkb-fg);font-variant-numeric:tabular-nums}
+.teamkb-ui .tkb-button{display:inline-flex;align-items:center;justify-content:center;flex:none;min-height:34px;white-space:nowrap;padding:6px 13px;border:1px solid var(--tkb-line);background:var(--tkb-bg);border-radius:8px;font-size:12px;font-weight:500}.teamkb-ui .tkb-primary{background:var(--tkb-accent);border-color:var(--tkb-accent);color:#fff}.teamkb-ui .tkb-text-button{border:0;background:transparent;color:var(--tkb-muted);font-size:12px;padding:4px;border-radius:5px;white-space:nowrap}
+.teamkb-ui .tkb-tabs{flex:none;display:flex;gap:24px;padding:0 clamp(16px,3vw,40px);border-bottom:1px solid var(--tkb-line)}.teamkb-ui .tkb-tabs button{padding:10px 0;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--tkb-muted);font-weight:500;white-space:nowrap}.teamkb-ui .tkb-tabs button[aria-pressed=true]{color:var(--tkb-fg);border-bottom-color:var(--tkb-accent)}.teamkb-ui .tkb-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable}.teamkb-ui .tkb-body{width:100%;max-width:1200px;margin:0 auto;padding:24px clamp(16px,3vw,40px) 40px}.teamkb-ui .tkb-search-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px;align-items:start}.teamkb-ui .tkb-directory{position:sticky;top:0;display:grid;gap:12px}.teamkb-ui .tkb-section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.teamkb-ui .tkb-directory .tkb-section-head{margin-bottom:0}.teamkb-ui .tkb-muted{color:var(--tkb-muted);font-size:12px}.teamkb-ui .tkb-directory-list{display:flex;flex-direction:column;gap:3px;max-height:min(58vh,520px);overflow-y:auto;overscroll-behavior:contain;padding-right:4px}.teamkb-ui .tkb-directory-list button{display:flex;justify-content:space-between;align-items:center;gap:8px;flex:none;width:100%;padding:8px 12px;text-align:left;border:0;border-radius:7px;background:transparent;font-size:12px;line-height:20px}.teamkb-ui .tkb-directory-list button>span:last-child:not(:first-child){color:var(--tkb-muted);font-variant-numeric:tabular-nums}.teamkb-ui .tkb-category-name{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.teamkb-ui .tkb-directory-list button[aria-pressed=true]{background:color-mix(in srgb,var(--tkb-accent) 10%,var(--tkb-bg));color:var(--tkb-accent);font-weight:600}
+.teamkb-ui .tkb-entry{display:grid;gap:20px}.teamkb-ui .tkb-search-card{padding:18px;border:1px solid var(--tkb-line);border-radius:12px;background:var(--tkb-card)}.teamkb-ui .tkb-search-form{display:flex;gap:8px}.teamkb-ui .tkb-search-form input{flex:1;width:0;height:40px}.teamkb-ui .tkb-search-form .tkb-button{min-width:66px}.teamkb-ui .tkb-empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:66px 20px;color:var(--tkb-muted)}.teamkb-ui .tkb-empty-icon{display:grid;place-items:center;width:48px;height:48px;background:var(--tkb-card);border:1px solid var(--tkb-line);border-radius:14px;margin-bottom:18px}.teamkb-ui .tkb-empty h2{font-size:15px;color:var(--tkb-fg);margin-bottom:8px}.teamkb-ui .tkb-empty p{font-size:12px;line-height:1.8}.teamkb-ui .tkb-results-heading{color:var(--tkb-muted);font-size:12px;margin-bottom:8px}.teamkb-ui .tkb-results{border:1px solid var(--tkb-line);border-radius:12px;overflow:hidden}.teamkb-ui .tkb-result{display:flex;flex-direction:column;gap:8px;text-align:left;width:100%;padding:18px;background:transparent;border:0;border-bottom:1px solid var(--tkb-line)}.teamkb-ui .tkb-result:last-child{border-bottom:0}.teamkb-ui .tkb-result-title{display:flex;justify-content:space-between;gap:12px;width:100%;font-size:14px;font-weight:600;overflow-wrap:anywhere}.teamkb-ui .tkb-result-title>span{color:var(--tkb-muted)}.teamkb-ui .tkb-result-summary{color:var(--tkb-muted);font-size:12px;overflow-wrap:anywhere}.teamkb-ui .tkb-result-id{color:var(--tkb-muted);font-size:11px;overflow-wrap:anywhere}.teamkb-ui .tkb-document{padding:20px;border:1px solid var(--tkb-line);border-radius:12px}.teamkb-ui .tkb-document>h2{font-size:20px;margin-bottom:8px}.teamkb-ui pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 var(--ds-font-family-code,monospace);margin:20px 0}.teamkb-ui .tkb-settings{max-width:720px;margin:0 auto}.teamkb-ui .tkb-settings>.teamkb-ui{width:100%}
+.teamkb-ui .tkb-logs{max-width:960px;margin:auto}.teamkb-ui .tkb-logs>.tkb-section-head p{margin-top:4px}.teamkb-ui .tkb-log-list{border:1px solid var(--tkb-line);border-radius:12px;overflow:hidden}.teamkb-ui .tkb-log-row{display:grid;grid-template-columns:minmax(110px,.35fr) minmax(0,1fr) auto;align-items:center;gap:16px;padding:16px;width:100%;background:transparent;border:0;border-bottom:1px solid var(--tkb-line);text-align:left}.teamkb-ui .tkb-log-row:last-child{border-bottom:0}.teamkb-ui .tkb-log-operation{display:grid;justify-items:start;gap:6px;font-size:12px;font-weight:600}.teamkb-ui .tkb-log-summary{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;color:var(--tkb-muted);font-size:12px}.teamkb-ui .tkb-log-time{color:var(--tkb-muted);font-size:11px;text-align:right}.teamkb-ui .tkb-pill{font-size:10px;font-weight:500;border-radius:5px;padding:2px 6px;background:color-mix(in srgb,var(--tkb-accent) 10%,transparent);color:var(--tkb-accent)}.teamkb-ui .tkb-pill[data-failed=true]{color:var(--dsw-static-red-500,#dc4545);background:#ef444415}.teamkb-ui .tkb-pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:12px}.teamkb-ui .tkb-pagination>div{display:flex;gap:6px}.teamkb-ui .tkb-detail{margin-top:20px;padding:18px;border:1px solid var(--tkb-line);border-radius:12px}.teamkb-ui .tkb-alert{border:1px solid #ef444440;background:#ef44440c;border-radius:8px;padding:12px 14px;margin-bottom:16px;color:var(--dsw-static-red-500,#dc4545);overflow-wrap:anywhere}.teamkb-ui .tkb-loading{display:flex;align-items:center;gap:8px;margin-bottom:12px;color:var(--tkb-muted);font-size:12px}.teamkb-ui .tkb-loading>span{width:6px;height:6px;border-radius:50%;background:var(--tkb-accent)}
+@media(hover:hover){.teamkb-ui :is(.tkb-button:not(.tkb-primary),.tkb-text-button,.tkb-result,.tkb-log-row,.tkb-directory-list button):hover:not(:disabled){background:var(--tkb-hover)}.teamkb-ui .tkb-primary:hover:not(:disabled){filter:brightness(.94)}}
+@container teamkb (max-width:700px){.teamkb-ui .tkb-search-layout{grid-template-columns:minmax(0,1fr);gap:20px}.teamkb-ui .tkb-directory{position:static}.teamkb-ui .tkb-directory-list{max-height:150px}.teamkb-ui .tkb-header{padding-top:18px}.teamkb-ui .tkb-header h1{font-size:18px}.teamkb-ui .tkb-stat{display:none}.teamkb-ui .tkb-log-row{grid-template-columns:minmax(0,1fr) auto}.teamkb-ui .tkb-log-summary{grid-row:2;grid-column:1/-1}.teamkb-ui .tkb-empty{padding:40px 12px}}
+@media(pointer:coarse){.teamkb-ui input:not([type=checkbox]){font-size:16px}}
 @media(prefers-reduced-motion:reduce){.teamkb-ui *{transition:none!important}}
 `;
 function UIStyle() {
   return import_react.default.createElement("style", null, css);
 }
 
-// plugins/dsh-teamkb/workbench-client.js
+// plugins/dsh-teamkb/workbench-client.jsx
 var import_react2 = __toESM(require("react"), 1);
-var h = import_react2.default.createElement;
-var css2 = {
-  shell: {
-    height: "100%",
-    overflowY: "auto",
-    boxSizing: "border-box",
-    fontFamily: "var(--dsw-font-family,inherit)",
-    color: "var(--dsw-alias-label-primary,inherit)",
-    background: "var(--dsw-alias-bg-canvas,transparent)"
-  },
-  content: {
-    width: "min(1180px,100%)",
-    margin: "0 auto",
-    padding: "30px clamp(20px,4vw,56px) 56px",
-    boxSizing: "border-box"
-  },
-  button: {
-    minHeight: 36,
-    padding: "0 14px",
-    border: "1px solid var(--dsw-alias-border-l3,#80808044)",
-    borderRadius: 8,
-    background: "var(--dsw-alias-bg-layer-1,transparent)",
-    color: "inherit",
-    cursor: "pointer",
-    font: "inherit",
-    transition: "background .15s,border-color .15s"
-  },
-  panel: {
-    border: "1px solid var(--dsw-alias-border-l4,#80808033)",
-    borderRadius: 14,
-    background: "var(--dsw-alias-bg-layer-1,transparent)",
-    padding: 20
-  },
-  input: {
-    minHeight: 42,
-    padding: "0 13px",
-    border: "1px solid var(--dsw-alias-border-l3,#80808055)",
-    borderRadius: 8,
-    background: "var(--dsw-alias-bg-layer-2,transparent)",
-    color: "inherit",
-    font: "inherit",
-    boxSizing: "border-box"
-  },
-  muted: { color: "var(--dsw-alias-label-secondary,#929292)" }
-};
-var action = (label, onClick, disabled = false, active = false) => h(
+function WorkbenchIcon() {
+  return /* @__PURE__ */ import_react2.default.createElement(
+    "svg",
+    {
+      viewBox: "0 0 24 24",
+      width: "20",
+      height: "20",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "1.7",
+      "aria-hidden": "true"
+    },
+    /* @__PURE__ */ import_react2.default.createElement("path", { d: "M3 5c3-1 6-1 9 1 3-2 6-2 9-1v15c-3-1-6-1-9 1-3-2-6-2-9-1V5Zm9 1v15" })
+  );
+}
+var Button = ({ children, primary = false, ...props }) => /* @__PURE__ */ import_react2.default.createElement(
   "button",
   {
     type: "button",
-    onClick,
-    disabled,
-    style: {
-      ...css2.button,
-      ...active ? {
-        background: "var(--dsw-static-blue-500,#3b82f6)",
-        borderColor: "var(--dsw-static-blue-500,#3b82f6)",
-        color: "#fff"
-      } : {}
-    }
+    className: `tkb-button${primary ? " tkb-primary" : ""}`,
+    ...props
   },
-  label
+  children
 );
 function Workbench({ query, Settings }) {
-  const [tab, setTab] = (0, import_react2.useState)("search"), [categories, setCategories] = (0, import_react2.useState)([]), [category, setCategory] = (0, import_react2.useState)(""), [categoryFilter, setCategoryFilter] = (0, import_react2.useState)(""), [text, setText] = (0, import_react2.useState)(""), [stats, setStats] = (0, import_react2.useState)(null), [results, setResults] = (0, import_react2.useState)(null), [document, setDocument] = (0, import_react2.useState)(null), [logs, setLogs] = (0, import_react2.useState)(null), [detail, setDetail] = (0, import_react2.useState)(null), [page, setPage] = (0, import_react2.useState)(1), [error, setError] = (0, import_react2.useState)(""), [busy, setBusy] = (0, import_react2.useState)(false);
+  const [tab, setTab] = (0, import_react2.useState)("search"), [categories, setCategories] = (0, import_react2.useState)([]), [category, setCategory] = (0, import_react2.useState)(""), [filter, setFilter] = (0, import_react2.useState)(""), [text, setText] = (0, import_react2.useState)(""), [stats, setStats] = (0, import_react2.useState)(null), [results, setResults] = (0, import_react2.useState)(null), [doc, setDoc] = (0, import_react2.useState)(null), [logs, setLogs] = (0, import_react2.useState)(null), [detail, setDetail] = (0, import_react2.useState)(null), [page, setPage] = (0, import_react2.useState)(1), [error, setError] = (0, import_react2.useState)(""), [busy, setBusy] = (0, import_react2.useState)(false);
   const controller = (0, import_react2.useRef)(null);
-  (0, import_react2.useEffect)(() => () => controller.current?.abort(), []);
   async function run(input, accept) {
     controller.current?.abort();
     const abort = new AbortController();
@@ -147,601 +100,222 @@ function Workbench({ query, Settings }) {
       if (!abort.signal.aborted) setBusy(false);
     }
   }
+  (0, import_react2.useEffect)(() => {
+    run({ action: "categories" }, (v) => setCategories(v.categories || []));
+    return () => controller.current?.abort();
+  }, []);
   const loadLogs = (n) => run({ action: "calls", page: n }, (v) => {
     setLogs(v);
     setPage(n);
     setDetail(null);
   });
-  const switchTab = (id) => {
+  function switchTab(id) {
     controller.current?.abort();
     setBusy(false);
     setError("");
     setTab(id);
-    if (id === "logs") loadLogs(1);
-  };
-  const selectedCategory = categories.find((x) => x.id === category);
-  const visibleCategories = categories.filter(
-    (x) => (x.path || x.name || "").toLowerCase().includes(categoryFilter.toLowerCase())
+    if (id === "logs" && !logs) loadLogs(1);
+  }
+  const selected = categories.find((x) => x.id === category), visible = categories.filter(
+    (x) => (x.path || x.name || "").toLowerCase().includes(filter.toLowerCase())
   );
-  return h(
-    "section",
+  return /* @__PURE__ */ import_react2.default.createElement("section", { className: "teamkb-ui tkb-workbench", "aria-label": "TeamKB \u5DE5\u4F5C\u53F0" }, /* @__PURE__ */ import_react2.default.createElement(UIStyle, null), /* @__PURE__ */ import_react2.default.createElement("header", { className: "tkb-header" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-brand" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-brand-icon" }, /* @__PURE__ */ import_react2.default.createElement(WorkbenchIcon, null)), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h1", null, "TeamKB \u5DE5\u4F5C\u53F0"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u56E2\u961F\u77E5\u8BC6\uFF0C\u968F\u624B\u53EF\u5F97"))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-header-actions" }, stats && /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-stat" }, /* @__PURE__ */ import_react2.default.createElement("strong", null, stats.documents ?? "\u2014"), " \u7BC7\u6587\u6863"), /* @__PURE__ */ import_react2.default.createElement(
+    Button,
     {
-      className: "teamkb-ui",
-      style: {
-        ...css2.shell,
-        containerType: "inline-size",
-        containerName: "teamkb"
+      onClick: () => run({ action: "stats" }, setStats),
+      disabled: busy
+    },
+    "\u8FDE\u63A5\u6D4B\u8BD5"
+  ))), /* @__PURE__ */ import_react2.default.createElement("nav", { className: "tkb-tabs", "aria-label": "TeamKB \u529F\u80FD" }, [
+    ["search", "\u77E5\u8BC6\u67E5\u8BE2"],
+    ["logs", "\u8C03\u7528\u65E5\u5FD7"],
+    ["settings", "\u8FDE\u63A5\u914D\u7F6E"]
+  ].map(([id, label]) => /* @__PURE__ */ import_react2.default.createElement(
+    "button",
+    {
+      key: id,
+      type: "button",
+      "aria-pressed": tab === id,
+      onClick: () => switchTab(id)
+    },
+    label
+  ))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-scroll" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-body" }, error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-alert", role: "alert" }, error), busy && /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-loading", role: "status" }, /* @__PURE__ */ import_react2.default.createElement("span", null), "\u6B63\u5728\u67E5\u8BE2\u2026"), tab === "settings" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-settings" }, /* @__PURE__ */ import_react2.default.createElement(Settings, null)), tab === "search" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-search-layout" }, /* @__PURE__ */ import_react2.default.createElement("aside", { className: "tkb-directory" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-section-head" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, "\u77E5\u8BC6\u5206\u7C7B"), /* @__PURE__ */ import_react2.default.createElement(
+    "button",
+    {
+      className: "tkb-text-button",
+      type: "button",
+      disabled: busy,
+      onClick: () => run(
+        { action: "categories" },
+        (v) => setCategories(v.categories || [])
+      )
+    },
+    "\u5237\u65B0"
+  )), /* @__PURE__ */ import_react2.default.createElement(
+    "input",
+    {
+      "aria-label": "\u7B5B\u9009\u5206\u7C7B",
+      placeholder: "\u67E5\u627E\u5206\u7C7B\u2026",
+      value: filter,
+      onChange: (e) => setFilter(e.target.value)
+    }
+  ), /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-directory-list" }, /* @__PURE__ */ import_react2.default.createElement(
+    "button",
+    {
+      type: "button",
+      "aria-pressed": !category,
+      onClick: () => {
+        setCategory("");
+        setDoc(null);
+        setResults(null);
       }
     },
-    h(UIStyle),
-    h(
-      "div",
-      { style: css2.content },
-      h(
-        "header",
-        {
-          style: {
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 20,
-            alignItems: "flex-start",
-            marginBottom: 24,
-            flexWrap: "wrap"
-          }
-        },
-        h(
-          "div",
-          null,
-          h(
-            "div",
-            {
-              style: {
-                ...css2.muted,
-                fontSize: 12,
-                letterSpacing: ".08em",
-                textTransform: "uppercase"
-              }
-            },
-            "Team knowledge workspace"
-          ),
-          h(
-            "h1",
-            {
-              style: {
-                fontSize: "clamp(24px,3vw,32px)",
-                lineHeight: 1.15,
-                margin: "7px 0 8px",
-                fontWeight: 700
-              }
-            },
-            "TeamKB \u5DE5\u4F5C\u53F0"
-          ),
-          h(
-            "p",
-            { style: { ...css2.muted, margin: 0, fontSize: 15 } },
-            "\u68C0\u7D22\u56E2\u961F\u77E5\u8BC6\uFF0C\u6838\u5BF9\u539F\u6587\uFF0C\u8FFD\u8E2A\u4E2A\u4EBA\u8C03\u7528\u3002"
-          )
-        ),
-        stats ? h(
-          "div",
-          { style: { ...css2.panel, padding: "12px 16px", minWidth: 180 } },
-          h("div", { style: { ...css2.muted, fontSize: 12 } }, "\u77E5\u8BC6\u5E93\u89C4\u6A21"),
-          h(
-            "strong",
-            { style: { fontSize: 21 } },
-            `${stats.documents ?? "\u2014"} \u7BC7`
-          ),
-          h(
-            "div",
-            { style: { ...css2.muted, fontSize: 12 } },
-            `${stats.terms ?? "\u2014"} \u4E2A\u8BCD\u6761`
-          )
-        ) : null
-      ),
-      h(
-        "nav",
-        {
-          "aria-label": "TeamKB \u529F\u80FD",
-          style: {
-            display: "flex",
-            gap: 6,
-            borderBottom: "1px solid var(--dsw-alias-border-l4,#80808033)",
-            marginBottom: 20
-          }
-        },
-        ...[
-          ["search", "\u77E5\u8BC6\u67E5\u8BE2"],
-          ["logs", "\u8C03\u7528\u65E5\u5FD7"],
-          ["settings", "\u8FDE\u63A5\u914D\u7F6E"]
-        ].map(
-          ([id, label]) => h(
-            "button",
-            {
-              type: "button",
-              onClick: () => switchTab(id),
-              "aria-pressed": tab === id,
-              className: "tkb-tab",
-              key: id,
-              style: {
-                ...css2.button,
-                border: "0",
-                borderRadius: "8px 8px 0 0",
-                background: "transparent",
-                minHeight: 42,
-                color: tab === id ? "var(--dsw-static-blue-400,#60a5fa)" : "inherit",
-                borderBottom: tab === id ? "2px solid var(--dsw-static-blue-400,#60a5fa)" : "2px solid transparent"
-              }
-            },
-            label
-          )
-        )
-      ),
-      error ? h(
-        "div",
-        {
-          role: "alert",
-          style: {
-            ...css2.panel,
-            color: "var(--dsw-static-red-400,#f87171)",
-            marginBottom: 16
-          }
-        },
-        error
-      ) : null,
-      busy ? h(
-        "div",
-        { role: "status", style: { ...css2.muted, marginBottom: 12 } },
-        "\u6B63\u5728\u901A\u8FC7\u5BBF\u4E3B\u67E5\u8BE2\u2026"
-      ) : null,
-      tab === "settings" ? h(Settings) : null,
-      tab === "search" ? h(
-        "div",
-        {
-          className: "tkb-search-layout",
-          style: {
-            display: "grid",
-            gridTemplateColumns: "minmax(190px,230px) minmax(0,1fr)",
-            gap: 16,
-            alignItems: "start"
-          }
-        },
-        h(
-          "aside",
-          {
-            className: "tkb-directory",
-            style: {
-              ...css2.panel,
-              display: "grid",
-              gap: 12,
-              position: "sticky",
-              top: 0
-            }
-          },
-          h(
-            "div",
-            {
-              style: {
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
-              }
-            },
-            h("strong", { style: { whiteSpace: "nowrap" } }, "\u77E5\u8BC6\u5206\u7C7B"),
-            action(
-              "\u5237\u65B0",
-              () => run(
-                { action: "categories" },
-                (v) => setCategories(v.categories || [])
-              )
-            )
-          ),
-          h("input", {
-            style: css2.input,
-            "aria-label": "\u7B5B\u9009\u5206\u7C7B",
-            placeholder: "\u7B5B\u9009\u5206\u7C7B",
-            value: categoryFilter,
-            onChange: (e) => setCategoryFilter(e.target.value)
-          }),
-          h(
-            "div",
-            {
-              className: "tkb-directory-list",
-              style: {
-                display: "grid",
-                gap: 4,
-                maxHeight: 440,
-                overflowY: "auto"
-              }
-            },
-            action("\u5168\u90E8\u77E5\u8BC6", () => setCategory(""), false, !category),
-            ...visibleCategories.map(
-              (item) => h(
-                "button",
-                {
-                  type: "button",
-                  key: item.id,
-                  title: item.path || item.name,
-                  "aria-pressed": category === item.id,
-                  onClick: () => setCategory(item.id),
-                  style: {
-                    ...css2.button,
-                    textAlign: "left",
-                    paddingLeft: 10 + Math.min(
-                      4,
-                      (item.path || "").split(" / ").length - 1
-                    ) * 10,
-                    minHeight: 34,
-                    padding: "0 10px",
-                    fontSize: 13,
-                    background: category === item.id ? "var(--dsw-static-blue-500,#3b82f6)" : "transparent",
-                    color: category === item.id ? "#fff" : "inherit"
-                  }
-                },
-                item.name || item.path
-              )
-            )
-          )
-        ),
-        h(
-          "div",
-          { className: "tkb-entry", style: { display: "grid", gap: 16 } },
-          h(
-            "div",
-            { style: css2.panel },
-            h(
-              "div",
-              {
-                style: {
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 10,
-                  alignItems: "center",
-                  marginBottom: 12,
-                  flexWrap: "wrap"
-                }
-              },
-              h(
-                "strong",
-                null,
-                selectedCategory ? `\u641C\u7D22 \xB7 ${selectedCategory.name || selectedCategory.path}` : "\u641C\u7D22\u77E5\u8BC6"
-              ),
-              action("\u8FDE\u63A5\u6D4B\u8BD5", () => run({ action: "stats" }, setStats))
-            ),
-            h(
-              "form",
-              {
-                onSubmit: (e) => {
-                  e.preventDefault();
-                  setDocument(null);
-                  run(
-                    {
-                      action: "search",
-                      query: text,
-                      category_id: category
-                    },
-                    setResults
-                  );
-                },
-                style: {
-                  display: "grid",
-                  gridTemplateColumns: "minmax(0,1fr) auto",
-                  gap: 8
-                }
-              },
-              h("input", {
-                style: css2.input,
-                "aria-label": "\u77E5\u8BC6\u5173\u952E\u8BCD",
-                placeholder: "\u8F93\u5165\u5173\u952E\u8BCD\uFF0C\u4F8B\u5982\uFF1A\u63A5\u53E3\u8D85\u65F6\u3001\u90E8\u7F72\u89C4\u8303",
-                value: text,
-                onChange: (e) => setText(e.target.value),
-                required: true,
-                maxLength: 500
-              }),
-              h(
-                "button",
-                {
-                  type: "submit",
-                  style: {
-                    ...css2.button,
-                    background: "var(--dsw-static-blue-500,#3b82f6)",
-                    borderColor: "var(--dsw-static-blue-500,#3b82f6)",
-                    color: "#fff"
-                  },
-                  disabled: busy
-                },
-                "\u641C\u7D22"
-              )
-            )
-          ),
-          !results && !document ? h(
-            "div",
-            {
-              style: {
-                ...css2.panel,
-                padding: "48px 24px",
-                textAlign: "center",
-                borderStyle: "dashed"
-              }
-            },
-            h(
-              "div",
-              {
-                style: {
-                  width: 46,
-                  height: 46,
-                  margin: "0 auto 14px",
-                  borderRadius: 12,
-                  background: "var(--dsw-alias-bg-layer-2,#80808015)",
-                  display: "grid",
-                  placeItems: "center"
-                }
-              },
-              h(WorkbenchIcon)
-            ),
-            h(
-              "h2",
-              { style: { fontSize: 17, margin: "0 0 7px" } },
-              "\u4ECE\u4E00\u4E2A\u95EE\u9898\u5F00\u59CB"
-            ),
-            h(
-              "p",
-              { style: { ...css2.muted, fontSize: 13, margin: 0 } },
-              "\u641C\u7D22\u89E3\u51B3\u65B9\u6848\u3001\u5F00\u53D1\u89C4\u8303\u6216\u6280\u672F\u6587\u6863\u3002\u9009\u62E9\u5206\u7C7B\u53EF\u4EE5\u7F29\u5C0F\u8303\u56F4\u3002"
-            )
-          ) : null,
-          results ? h(
-            "div",
-            { style: { display: "grid", gap: 8 } },
-            h(
-              "div",
-              { style: { ...css2.muted, fontSize: 13 } },
-              `\u627E\u5230 ${results.count ?? results.results?.length ?? 0} \u6761\u7ED3\u679C`
-            ),
-            ...(results.results || []).map(
-              (item) => h(
-                "article",
-                { key: item.id, style: { ...css2.panel, padding: 16 } },
-                h(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => run({ action: "read", id: item.id }, setDocument),
-                    style: {
-                      border: 0,
-                      padding: 0,
-                      background: "transparent",
-                      color: "var(--dsw-static-blue-400,#60a5fa)",
-                      font: "inherit",
-                      fontWeight: 650,
-                      cursor: "pointer",
-                      textAlign: "left"
-                    }
-                  },
-                  item.title || item.id
-                ),
-                h(
-                  "div",
-                  {
-                    style: { ...css2.muted, fontSize: 12, marginTop: 6 }
-                  },
-                  item.id
-                ),
-                h(
-                  "p",
-                  { style: { margin: "9px 0 0", fontSize: 13 } },
-                  item.snippet || item.summary || item.path || ""
-                )
-              )
-            )
-          ) : null,
-          document ? h(
-            "article",
-            { style: css2.panel, "aria-label": "\u77E5\u8BC6\u6B63\u6587" },
-            h(
-              "div",
-              {
-                style: {
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 10,
-                  alignItems: "start"
-                }
-              },
-              h(
-                "div",
-                null,
-                h(
-                  "h2",
-                  { style: { margin: "0 0 6px", fontSize: 20 } },
-                  document.title
-                ),
-                h(
-                  "small",
-                  { style: css2.muted },
-                  `${document.id} \xB7 \u7248\u672C ${document.knowledge_version ?? "\u2014"}`
-                )
-              ),
-              document.truncated ? action(
-                "\u7EE7\u7EED\u9605\u8BFB",
-                () => run(
-                  {
-                    action: "read",
-                    id: document.id,
-                    offset: document.next_offset
-                  },
-                  (v) => setDocument({
-                    ...v,
-                    content: document.content + v.content
-                  })
-                )
-              ) : null
-            ),
-            h(
-              "pre",
-              {
-                style: {
-                  whiteSpace: "pre-wrap",
-                  overflowWrap: "anywhere",
-                  fontFamily: "var(--ds-font-family-code,monospace)",
-                  lineHeight: 1.7,
-                  fontSize: 13,
-                  margin: "18px 0 0"
-                }
-              },
-              document.content
-            )
-          ) : null
-        )
-      ) : null,
-      tab === "logs" ? h(
-        "div",
-        { style: { display: "grid", gap: 12 } },
-        h(
-          "div",
-          {
-            style: {
-              ...css2.panel,
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              flexWrap: "wrap"
-            }
-          },
-          h("strong", null, "\u4E2A\u4EBA\u8C03\u7528\u65E5\u5FD7"),
-          h(
-            "span",
-            { style: css2.muted },
-            `\u7B2C ${page} \u9875 \xB7 \u5171 ${logs?.total ?? 0} \u6761`
-          ),
-          action("\u5237\u65B0", () => loadLogs(page)),
-          action("\u4E0A\u4E00\u9875", () => loadLogs(page - 1), page <= 1),
-          action(
-            "\u4E0B\u4E00\u9875",
-            () => loadLogs(page + 1),
-            !logs || page * 10 >= logs.total
-          )
-        ),
-        h(
-          "p",
-          { style: { ...css2.muted, fontSize: 13, margin: "-2px 0 0" } },
-          "\u4EC5\u663E\u793A\u5F53\u524D\u4E2A\u4EBA Key \u6709\u6743\u67E5\u770B\u7684\u8BB0\u5F55\u3002"
-        ),
-        logs?.logs?.length === 0 ? h("div", { style: css2.panel }, "\u6682\u65E0\u8C03\u7528\u8BB0\u5F55\u3002") : null,
-        ...(logs?.logs || []).map(
-          (log) => h(
-            "button",
-            {
-              type: "button",
-              className: "tkb-log-row",
-              key: log.id,
-              onClick: () => run({ action: "call", id: log.id }, setDetail),
-              style: {
-                ...css2.panel,
-                color: "inherit",
-                font: "inherit",
-                textAlign: "left",
-                display: "grid",
-                gridTemplateColumns: "minmax(150px,.35fr) minmax(0,1fr) auto",
-                gap: 12,
-                alignItems: "center",
-                cursor: "pointer",
-                padding: "13px 16px"
-              }
-            },
-            h(
-              "div",
-              null,
-              h("strong", { style: { fontSize: 13 } }, log.operation),
-              h(
-                "div",
-                null,
-                h(
-                  "span",
-                  {
-                    className: "tkb-pill",
-                    "data-failed": log.status_code >= 400
-                  },
-                  `HTTP ${log.status_code}`
-                )
-              )
-            ),
-            h(
-              "span",
-              {
-                className: "tkb-log-summary",
-                style: { ...css2.muted, fontSize: 13 }
-              },
-              log.result_summary || log.request_summary || "\u77E5\u8BC6\u8C03\u7528"
-            ),
-            h(
-              "small",
-              { style: { ...css2.muted, textAlign: "right", fontSize: 11 } },
-              new Date(log.ts * 1e3).toLocaleString(),
-              h("br"),
-              `${Math.round(log.duration_ms)} ms \u2192`
-            )
-          )
-        ),
-        detail ? h(
-          "aside",
-          { style: css2.panel, "aria-label": "\u8C03\u7528\u8BE6\u60C5" },
-          h(
-            "div",
-            {
-              style: {
-                display: "flex",
-                justifyContent: "space-between"
-              }
-            },
-            h("strong", null, "\u8C03\u7528\u8BE6\u60C5"),
-            action("\u5173\u95ED", () => setDetail(null))
-          ),
-          h(
-            "pre",
-            {
-              style: {
-                whiteSpace: "pre-wrap",
-                overflowWrap: "anywhere",
-                fontFamily: "var(--ds-font-family-code,monospace)",
-                fontSize: 12
-              }
-            },
-            JSON.stringify(detail, null, 2)
-          )
-        ) : null
-      ) : null
-    )
-  );
-}
-function WorkbenchIcon() {
-  return h(
-    "svg",
+    "\u5168\u90E8\u77E5\u8BC6",
+    /* @__PURE__ */ import_react2.default.createElement("span", null, categories.length)
+  ), visible.map((item) => /* @__PURE__ */ import_react2.default.createElement(
+    "button",
     {
-      viewBox: "0 0 24 24",
-      width: 20,
-      height: 20,
-      fill: "none",
-      stroke: "currentColor",
-      strokeWidth: 1.7,
-      "aria-hidden": true
+      type: "button",
+      key: item.id,
+      title: item.path || item.name,
+      "aria-pressed": category === item.id,
+      style: {
+        paddingInlineStart: 12 + Math.min(
+          3,
+          Math.max(
+            0,
+            (item.path || "").split(" / ").length - 1
+          )
+        ) * 10
+      },
+      onClick: () => {
+        setCategory(item.id);
+        setDoc(null);
+        setResults(null);
+      }
     },
-    h("path", {
-      d: "M3 5c3-1 6-1 9 1 3-2 6-2 9-1v15c-3-1-6-1-9 1-3-2-6-2-9-1V5Zm9 1v15"
-    })
-  );
+    /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-category-name" }, item.name || item.path),
+    item.doc_count != null && /* @__PURE__ */ import_react2.default.createElement("span", null, item.doc_count)
+  )), filter && !visible.length && /* @__PURE__ */ import_react2.default.createElement("p", { className: "tkb-muted" }, "\u6CA1\u6709\u5339\u914D\u7684\u5206\u7C7B"))), /* @__PURE__ */ import_react2.default.createElement("main", { className: "tkb-entry" }, /* @__PURE__ */ import_react2.default.createElement("section", { className: "tkb-search-card" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-section-head" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, selected ? selected.name || selected.path : "\u641C\u7D22\u56E2\u961F\u77E5\u8BC6"), /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-muted" }, "\u5173\u952E\u8BCD\u68C0\u7D22")), /* @__PURE__ */ import_react2.default.createElement(
+    "form",
+    {
+      className: "tkb-search-form",
+      onSubmit: (e) => {
+        e.preventDefault();
+        setDoc(null);
+        run(
+          {
+            action: "search",
+            query: text,
+            category_id: category
+          },
+          setResults
+        );
+      }
+    },
+    /* @__PURE__ */ import_react2.default.createElement(
+      "input",
+      {
+        "aria-label": "\u77E5\u8BC6\u5173\u952E\u8BCD",
+        placeholder: "\u641C\u7D22\u89E3\u51B3\u65B9\u6848\u3001\u5F00\u53D1\u89C4\u8303\u3001\u6280\u672F\u6587\u6863\u2026",
+        value: text,
+        onChange: (e) => setText(e.target.value),
+        required: true,
+        maxLength: 500
+      }
+    ),
+    /* @__PURE__ */ import_react2.default.createElement(
+      "button",
+      {
+        type: "submit",
+        className: "tkb-button tkb-primary",
+        disabled: busy
+      },
+      "\u641C\u7D22"
+    )
+  )), !results && !doc && /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-empty" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-empty-icon" }, /* @__PURE__ */ import_react2.default.createElement(WorkbenchIcon, null)), /* @__PURE__ */ import_react2.default.createElement("h2", null, "\u8BA9\u7ECF\u9A8C\u6210\u4E3A\u4E0B\u4E00\u6B21\u7684\u7B54\u6848"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u8F93\u5165\u5173\u952E\u8BCD\uFF0C\u4ECE\u56E2\u961F\u5DF2\u7ECF\u9A8C\u8BC1\u7684\u77E5\u8BC6\u5F00\u59CB\u3002", /* @__PURE__ */ import_react2.default.createElement("br", null), "\u5DE6\u4FA7\u5206\u7C7B\u5E2E\u52A9\u4F60\u7F29\u5C0F\u641C\u7D22\u8303\u56F4\u3002")), results && !doc && /* @__PURE__ */ import_react2.default.createElement("section", { "aria-label": "\u641C\u7D22\u7ED3\u679C" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-results-heading" }, "\u627E\u5230 ", results.count ?? results.results?.length ?? 0, " ", "\u6761\u7ED3\u679C"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-results" }, (results.results || []).map((item) => /* @__PURE__ */ import_react2.default.createElement(
+    "button",
+    {
+      type: "button",
+      key: item.id,
+      className: "tkb-result",
+      onClick: () => run({ action: "read", id: item.id }, setDoc)
+    },
+    /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-result-title" }, item.title || item.id, /* @__PURE__ */ import_react2.default.createElement("span", { "aria-hidden": "true" }, "\u2197")),
+    /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-result-summary" }, item.snippet || item.summary || item.path || "\u67E5\u770B\u6587\u6863\u539F\u6587"),
+    /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-result-id" }, item.id)
+  ))), !results.results?.length && /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-empty" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, "\u6CA1\u6709\u627E\u5230\u76F8\u5173\u77E5\u8BC6"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6362\u4E00\u7EC4\u5173\u952E\u8BCD\uFF0C\u6216\u9009\u62E9\u5176\u4ED6\u5206\u7C7B\u518D\u8BD5\u3002"))), doc && /* @__PURE__ */ import_react2.default.createElement("article", { className: "tkb-document", "aria-label": "\u77E5\u8BC6\u6B63\u6587" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-section-head" }, /* @__PURE__ */ import_react2.default.createElement(
+    "button",
+    {
+      type: "button",
+      className: "tkb-text-button",
+      onClick: () => setDoc(null)
+    },
+    "\u2190 \u8FD4\u56DE\u7ED3\u679C"
+  ), /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-muted" }, "\u7248\u672C ", doc.knowledge_version ?? "\u2014")), /* @__PURE__ */ import_react2.default.createElement("h2", null, doc.title), /* @__PURE__ */ import_react2.default.createElement("p", { className: "tkb-result-id" }, doc.id), /* @__PURE__ */ import_react2.default.createElement("pre", null, doc.content), doc.truncated && /* @__PURE__ */ import_react2.default.createElement(
+    Button,
+    {
+      onClick: () => run(
+        {
+          action: "read",
+          id: doc.id,
+          offset: doc.next_offset
+        },
+        (v) => setDoc({
+          ...v,
+          content: doc.content + v.content
+        })
+      ),
+      disabled: busy
+    },
+    "\u7EE7\u7EED\u9605\u8BFB"
+  )))), tab === "logs" && /* @__PURE__ */ import_react2.default.createElement("section", { className: "tkb-logs" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-section-head" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h2", null, "\u4E2A\u4EBA\u8C03\u7528\u8BB0\u5F55"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "tkb-muted" }, "\u4EC5\u663E\u793A\u5F53\u524D\u4E2A\u4EBA Key \u6709\u6743\u67E5\u770B\u7684\u8BB0\u5F55")), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => loadLogs(page), disabled: busy }, "\u5237\u65B0")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-log-list" }, logs?.logs?.length === 0 && /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-empty" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, "\u6682\u65E0\u8C03\u7528\u8BB0\u5F55"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u68C0\u7D22\u6216\u9605\u8BFB\u77E5\u8BC6\u540E\uFF0C\u53EF\u5728\u8FD9\u91CC\u67E5\u770B\u8C03\u7528\u7ED3\u679C\u3002")), (logs?.logs || []).map((log) => /* @__PURE__ */ import_react2.default.createElement(
+    "button",
+    {
+      type: "button",
+      className: "tkb-log-row",
+      key: log.id,
+      onClick: () => run({ action: "call", id: log.id }, setDetail)
+    },
+    /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-log-operation" }, log.operation, /* @__PURE__ */ import_react2.default.createElement(
+      "span",
+      {
+        className: "tkb-pill",
+        "data-failed": log.status_code >= 400
+      },
+      "HTTP ",
+      log.status_code
+    )),
+    /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-log-summary" }, log.result_summary || log.request_summary || "\u77E5\u8BC6\u8C03\u7528"),
+    /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-log-time" }, new Date(log.ts * 1e3).toLocaleString(), /* @__PURE__ */ import_react2.default.createElement("br", null), Math.round(log.duration_ms), " ms \u2192")
+  ))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-pagination" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "tkb-muted" }, "\u7B2C ", page, " \u9875 \xB7 \u5171 ", logs?.total ?? 0, " \u6761"), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement(
+    Button,
+    {
+      onClick: () => loadLogs(page - 1),
+      disabled: busy || page <= 1
+    },
+    "\u4E0A\u4E00\u9875"
+  ), /* @__PURE__ */ import_react2.default.createElement(
+    Button,
+    {
+      onClick: () => loadLogs(page + 1),
+      disabled: busy || !logs || page * 10 >= logs.total
+    },
+    "\u4E0B\u4E00\u9875"
+  ))), detail && /* @__PURE__ */ import_react2.default.createElement("aside", { className: "tkb-detail", "aria-label": "\u8C03\u7528\u8BE6\u60C5" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "tkb-section-head" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, "\u8C03\u7528\u8BE6\u60C5"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setDetail(null) }, "\u5173\u95ED")), /* @__PURE__ */ import_react2.default.createElement("pre", null, JSON.stringify(detail, null, 2)))))));
 }
 
 // plugins/dsh-teamkb/client-source.js
 var import_react3 = __toESM(require("react"), 1);
 var name = "teamkb-settings";
 var inject = ["slots", "configForms", "connection"];
-var h2 = import_react3.default.createElement;
+var h = import_react3.default.createElement;
 var palette = {
   fg: "var(--dsw-alias-label-primary, inherit)",
   muted: "var(--dsw-alias-label-secondary, #929292)",
   line: "var(--dsw-alias-border-l3, #80808055)",
-  surface: "var(--dsw-alias-bg-layer-1, transparent)",
-  input: "var(--dsw-alias-bg-layer-2, transparent)",
+  surface: "var(--dsw-alias-card-fill, var(--dsw-alias-bg-layer-1, #f7f8fa))",
+  input: "var(--dsw-alias-bg-base, #fff)",
   accent: "var(--dsw-static-blue-500, #3b82f6)"
 };
 var formStyle = {
@@ -815,8 +389,8 @@ function TeamKBSettings({ form, view }) {
       setBusy(false);
     }
   }
-  const field = (title, input) => h2("label", { style: { display: "grid", gap: 8 } }, title, input);
-  const settingSection = (title, description, ...children) => h2(
+  const field = (title, input) => h("label", { style: { display: "grid", gap: 8 } }, title, input);
+  const settingSection = (title, description, ...children) => h(
     "section",
     {
       style: {
@@ -828,11 +402,11 @@ function TeamKBSettings({ form, view }) {
         background: palette.surface
       }
     },
-    h2(
+    h(
       "div",
       null,
-      h2("strong", { style: { fontSize: 14 } }, title),
-      description ? h2(
+      h("strong", { style: { fontSize: 14 } }, title),
+      description ? h(
         "p",
         {
           style: {
@@ -846,7 +420,7 @@ function TeamKBSettings({ form, view }) {
     ),
     ...children
   );
-  const checkbox = (text, checked, onChange) => h2(
+  const checkbox = (text, checked, onChange) => h(
     "label",
     {
       style: {
@@ -857,27 +431,27 @@ function TeamKBSettings({ form, view }) {
         cursor: "pointer"
       }
     },
-    h2("input", {
+    h("input", {
       type: "checkbox",
       checked,
       onChange,
       style: { marginTop: 4, accentColor: palette.accent }
     }),
-    h2("span", null, text)
+    h("span", null, text)
   );
-  return h2(
+  return h(
     "form",
     {
       className: "teamkb-ui",
       style: { ...formStyle, containerType: "inline-size" },
       onSubmit: save
     },
-    h2(UIStyle),
-    h2(
+    h(UIStyle),
+    h(
       "header",
       null,
-      h2("h2", { style: { margin: 0, fontSize: 22 } }, "\u8FDE\u63A5\u8BBE\u7F6E"),
-      h2(
+      h("h2", { style: { margin: 0, fontSize: 22 } }, "\u8FDE\u63A5\u8BBE\u7F6E"),
+      h(
         "p",
         { style: { margin: "6px 0 0", color: palette.muted, fontSize: 13 } },
         "Desktop \u4E0E Web \u5171\u7528\u5BBF\u4E3B\u8FDE\u63A5\u3002"
@@ -888,7 +462,7 @@ function TeamKBSettings({ form, view }) {
       "\u56E2\u961F\u77E5\u8BC6\u670D\u52A1\u7684 HTTP(S) \u6839\u5730\u5740\u3002",
       field(
         "\u670D\u52A1\u5730\u5740",
-        h2("input", {
+        h("input", {
           style: textInput,
           type: "url",
           value: url ?? value.serverUrl ?? "https://www.ljc.monster",
@@ -902,7 +476,7 @@ function TeamKBSettings({ form, view }) {
       "\u4FDD\u5B58\u5728\u5F53\u524D Harness profile\uFF1B\u7559\u7A7A\u4FDD\u7559\u5F53\u524D\u51ED\u636E\u3002",
       field(
         "\u4E2A\u4EBA API Key",
-        h2("input", {
+        h("input", {
           style: textInput,
           type: "password",
           autoComplete: "new-password",
@@ -932,7 +506,7 @@ function TeamKBSettings({ form, view }) {
         (e) => setContribute(e.target.checked)
       )
     ),
-    h2(
+    h(
       "div",
       {
         style: {
@@ -942,7 +516,7 @@ function TeamKBSettings({ form, view }) {
           flexWrap: "wrap"
         }
       },
-      h2(
+      h(
         "button",
         {
           type: "submit",
@@ -954,7 +528,7 @@ function TeamKBSettings({ form, view }) {
         },
         busy ? "\u4FDD\u5B58\u4E2D\u2026" : "\u4FDD\u5B58\u8BBE\u7F6E"
       ),
-      h2(
+      h(
         "p",
         {
           role: "status",
@@ -963,7 +537,7 @@ function TeamKBSettings({ form, view }) {
         message
       )
     ),
-    h2(
+    h(
       "a",
       {
         href: "https://www.ljc.monster/#/guide",
@@ -981,7 +555,7 @@ function apply(ctx) {
   const snapshot = () => controller.getSnapshot();
   function BundleSettings(props) {
     const state = (0, import_react3.useSyncExternalStore)(subscribe, snapshot, snapshot);
-    return h2(TeamKBSettings, {
+    return h(TeamKBSettings, {
       ...props,
       form: {
         state,

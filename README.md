@@ -42,10 +42,10 @@ Claude Code 将 `codex` 换成 `claudecode`；MCP + Skill 使用 `recommended`�
 
 ## DeepSeek Harness 插件
 
-在 Harness「Plugins → Add plugin」输入 [dsh-teamkb 插件包](https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz)，或执行：
+在 Harness「Plugins → Add plugin」输入 [dsh-teamkb 插件包](https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.4.tgz)，或执行：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.4.tgz
 # Desktop / GUI 使用 --profile desktop
 ```
 

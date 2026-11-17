@@ -9,8 +9,8 @@ const palette = {
   fg: "var(--dsw-alias-label-primary, inherit)",
   muted: "var(--dsw-alias-label-secondary, #929292)",
   line: "var(--dsw-alias-border-l3, #80808055)",
-  surface: "var(--dsw-alias-bg-layer-1, transparent)",
-  input: "var(--dsw-alias-bg-layer-2, transparent)",
+  surface: "var(--dsw-alias-card-fill, var(--dsw-alias-bg-layer-1, #f7f8fa))",
+  input: "var(--dsw-alias-bg-base, #fff)",
   accent: "var(--dsw-static-blue-500, #3b82f6)",
 };
 const formStyle = {

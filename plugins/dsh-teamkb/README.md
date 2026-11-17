@@ -7,14 +7,14 @@
 在 Harness 的 **Plugins / 插件 → 添加插件** 中输入域名下载地址：
 
 ```text
-https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.4.tgz
 ```
 
 也可通过 CLI 安装到实际使用的 profile：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
-dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.3.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.4.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.4.tgz
 ```
 
 只安装到正在使用的 profile，无需两条都运行。界面显示 `restart-required` 时重启对应 Web 服务或 Desktop；新建会话后测试。安装包包含可直接加载的 JavaScript，无 prepare/build 脚本，用户不需要下载 GitHub 源码。不要修改 profile 中其他 bundle。
@@ -59,3 +59,16 @@ npm pack --ignore-scripts
 ## 0.1.3 界面更新
 
 统一自适应工作台宽度；可搜索的独立分类目录替代标签堆叠，日志改为紧凑列表，配置改为分组表单。跟随 Harness 深浅主题，支持窄窗口布局、键盘焦点和减少动画偏好。
+
+
+## 0.1.4 宿主样式兼容
+
+参考 Harness 官方 ui-plugin-manager、client-ui-stats、client-ui-forge 的页面组织、主题变量和滚动约定，重构 React 视图与插件独立样式。修复旧预览版缺少 card-fill 变量导致深色界面出现浅色卡片的问题；标题、按钮、分类列表不再随宿主基础样式挤压换行。分类首次自动加载，目录限制高度并独立滚动，窄窗口自动改为上下布局；阅读可返回搜索结果，日志分页与详情保留。
+
+参考源码（MIT，仅参考布局约定；本插件界面独立实现）：
+
+- https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/client/ui-plugin-manager
+- https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/experimental/client-ui-stats
+- https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/experimental/client-ui-forge
+
+在真实 Harness Web 0.2.2-rc.1 中验证 Host RPC、配置保存、分类、搜索、阅读返回、日志详情和深浅主题，覆盖 1440 / 850 / 600 像素窗口。Desktop 共用前端模块，尚未在 macOS Desktop 真机验证。升级后重启对应宿主，不能只刷新旧会话。
