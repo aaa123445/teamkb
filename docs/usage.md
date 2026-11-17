@@ -121,14 +121,14 @@ Key 从已初始化的私有连接文件读取，不内联到共享 MCP 配置�
 Desktop / Web 插件独立于 CLI/MCP，仍无需 Python。Harness「Plugins → Add plugin」粘贴：
 
 ```text
-https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.7.tgz
 ```
 
 或：
 
 ```bash
-dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.7.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.7.tgz
 ```
 
 选择实际使用的 profile，打开 TeamKB 插件设置填写服务地址和个人 Key。包含侧栏工作台、分类、规范、检索、阅读、知识链、调用日志与提交。支持官方预览版 0.2.2 rc 系列；重装后重启宿主。配置入口、凭据及兼容范围见仓库 plugins/dsh-teamkb/README.md。
@@ -261,3 +261,8 @@ writer / admin 可建立相关知识、前置知识、问题与解法、应用�
 个人 Key 的可查看副本加密保存在数据库中，加密文件为数据目录下 `personal-key-encryption.key`（权限 600），备份和迁移时需一并保留。只有登录后的本人能查看未吊销的个人 Key，列表默认不返回完整 Key。
 
 DeepSeek Harness 插件还提供 TeamKB 侧栏工作台，可进行统计、分类查询、文档检索、正文阅读和个人调用日志查看；所有 TeamKB HTTP 请求由 Harness 宿主执行，浏览器端不直接持有 API Key。
+
+
+### Harness 插件检查更新
+
+从 0.1.7 开始，在 TeamKB → 连接配置 → 插件更新中检查并一键安装新版。安装前自动校验，保留 Key 和设置；安装完成后保存任务，重启当前 Desktop 或 Web 服务生效。旧版需先使用域名安装命令升级一次到 0.1.7，之后可以直接在插件中更新。

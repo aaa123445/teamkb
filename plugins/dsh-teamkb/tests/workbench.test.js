@@ -20,3 +20,11 @@ test('workbench mounts through the owner-only Connection fetch registry',async()
   assert.equal(response.headers.get('cache-control'),'no-store');
   assert.deepEqual(await response.json(),{type:'server-response',rpcId:'test',result:{ok:true,value:{documents:1}}});
 });
+
+test('update RPC remains on owner connection and never dispatches through knowledge credentials',async()=>{
+ let route;let checked=0,installed=0;const updater={check:async()=>{checked++;return {available:true}},install:async input=>{installed++;assert.equal(input.version,'0.1.8');return {application:'restart-required'}}};
+ registerWorkbench({inject:(_,fn)=>fn({effect:fn=>fn(),connection:{fetch:{register:value=>route=value}}})},async()=>{throw Error('must not call knowledge API')},updater);
+ const send=async payload=>{const r=await route.fetch(new Request('http://localhost/api/teamkb/query',{method:'POST',body:JSON.stringify({type:'client-request',method:'teamkb/query',rpcId:'fixture',payload})}));return (await r.json()).result};
+ assert.equal((await send({action:'check-update'})).value.available,true);assert.equal((await send({action:'install-update',version:'0.1.8'})).value.application,'restart-required');assert.equal(checked,1);assert.equal(installed,1);
+ const invalid=await route.fetch(new Request('http://localhost/api/teamkb/query',{method:'POST',body:JSON.stringify({action:'install-update'})}));assert.equal(invalid.status,400);assert.equal(installed,1);
+});

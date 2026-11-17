@@ -29,7 +29,7 @@ export async function workbenchQuery(api, input, signal) {
   }
 }
 
-export function registerWorkbench(ctx, api) {
+export function registerWorkbench(ctx, api, updater) {
   ctx.inject(['connection'], child => {
     // Exact Connection routes require an authenticated owner on Desktop and Web.
     child.effect(() => child.connection.fetch.register({
@@ -40,7 +40,7 @@ export function registerWorkbench(ctx, api) {
         if (envelope?.type !== 'client-request' || envelope.method !== 'teamkb/query' || typeof envelope.rpcId !== 'string')
           return new Response('Invalid request', {status:400});
         let result;
-        try { result = {ok:true, value:await workbenchQuery(api, envelope.payload, request.signal)}; }
+        try { const input=envelope.payload;const value=input?.action==='check-update' && updater ? await updater.check(request.signal) : input?.action==='install-update' && updater ? await updater.install(input, request.signal) : await workbenchQuery(api,input,request.signal); result={ok:true,value}; }
         catch (error) { result = {ok:false, error:{code:'teamkb/request-failed', message:error.message || 'TeamKB 请求失败', details:{}}}; }
         return Response.json({type:'server-response',rpcId:envelope.rpcId,result}, {headers:{'Cache-Control':'no-store'}});
       },

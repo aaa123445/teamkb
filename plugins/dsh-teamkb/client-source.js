@@ -1,3 +1,4 @@
+import { UpdatePanel } from "./update-panel.jsx";
 import { UIStyle } from "./ui-style.js";
 import { Workbench, WorkbenchIcon } from "./workbench-client.js";
 import React, { useState, useSyncExternalStore } from "react";
@@ -43,7 +44,7 @@ const primaryButton = {
   cursor: "pointer",
 };
 
-function TeamKBSettings({ form, view }) {
+function TeamKBSettings({ form, view, query }) {
   const [url, setUrl] = useState(null);
   const [key, setKey] = useState("");
   const [clearKey, setClearKey] = useState(false);
@@ -148,6 +149,7 @@ function TeamKBSettings({ form, view }) {
       onSubmit: save,
     },
     h(UIStyle),
+    query ? h(UpdatePanel, { query }) : null,
     h(
       "header",
       null,
@@ -260,6 +262,7 @@ export function apply(ctx) {
     const state = useSyncExternalStore(subscribe, snapshot, snapshot);
     return h(TeamKBSettings, {
       ...props,
+      query,
       form: {
         state,
         mutate: (ops, revision) => controller.mutate(ops, revision),
@@ -313,7 +316,7 @@ export function apply(ctx) {
         name: "plugins.row.config",
         key: "dsh-teamkb#teamkb",
       },
-      TeamKBSettings,
+      (props) => h(TeamKBSettings, { ...props, query }),
     ),
   );
 }

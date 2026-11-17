@@ -7,14 +7,14 @@
 在 Harness 的 **Plugins / 插件 → 添加插件** 中输入域名下载地址：
 
 ```text
-https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.7.tgz
 ```
 
 也可通过 CLI 安装到实际使用的 profile：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
-dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.6.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.7.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.7.tgz
 ```
 
 只安装到正在使用的 profile，无需两条都运行。界面显示 `restart-required` 时重启对应 Web 服务或 Desktop；新建会话后测试。安装包包含可直接加载的 JavaScript，无 prepare/build 脚本，用户不需要下载 GitHub 源码。不要修改 profile 中其他 bundle。
@@ -82,3 +82,10 @@ npm pack --ignore-scripts
 ## 0.1.6 贡献状态复核
 
 再次汇报旧贡献前按 ID 实时查询 kb_contributions；返回 checked_at、status_label、in_review_queue，并保留审核意见与事件。rejected 表示已拒绝且不在待审核队列，不能继续沿用最初提交的 pending。禁止为插件自检、开关或权限测试创建真实贡献。更新并重启后，新会话加载新工作流；旧会话中的旧结论应重新查询纠正。
+
+
+## 0.1.7 插件内更新
+
+打开 TeamKB 工作台 → 连接配置，或宿主插件详情设置，可自动检查本站最新版本，并点击“立即更新”。下载来自固定本站地址，先校验 SHA-256，再通过 Harness 官方 runProfilePnpm 公共接口更新当前 profile；不执行包生命周期脚本、不删除旧插件或配置、不自动重启。Desktop 使用宿主打包的 Node/pnpm，Web 使用当前 profile 的包管理配置。安装后明确提示保存任务并重启，重启前显示“已安装，待重启”，避免重复更新。
+
+需要先手动升级到 0.1.7 一次，旧版本没有此入口。更新检查不需要个人 Key，也不会发送 Key；安装只通过当前 owner 连接的 RPC 提供，不暴露给 kb_* 工具或远端访客。发布时 deploy/build-dsh-plugin.sh 生成 dsh-release.json，客户端下载清单并校验版本、包名、大小及 SHA。宿主不支持 profile 管理或安装失败时会提示，不宣称已更新。
