@@ -7,14 +7,14 @@
 在 Harness 的 **Plugins / 插件 → 添加插件** 中输入域名下载地址：
 
 ```text
-https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.4.tgz
+https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.5.tgz
 ```
 
 也可通过 CLI 安装到实际使用的 profile：
 
 ```bash
-dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.4.tgz
-dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.4.tgz
+dsh plugin --profile web add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.5.tgz
+dsh plugin --profile desktop add https://www.ljc.monster/static/downloads/dsh-teamkb-0.1.5.tgz
 ```
 
 只安装到正在使用的 profile，无需两条都运行。界面显示 `restart-required` 时重启对应 Web 服务或 Desktop；新建会话后测试。安装包包含可直接加载的 JavaScript，无 prepare/build 脚本，用户不需要下载 GitHub 源码。不要修改 profile 中其他 bundle。
@@ -72,3 +72,8 @@ npm pack --ignore-scripts
 - https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/experimental/client-ui-forge
 
 在真实 Harness Web 0.2.2-rc.1 中验证 Host RPC、配置保存、分类、搜索、阅读返回、日志详情和深浅主题，覆盖 1440 / 850 / 600 像素窗口。Desktop 共用前端模块，尚未在 macOS Desktop 真机验证。升级后重启对应宿主，不能只刷新旧会话。
+
+
+## 0.1.5 调用详情弹窗
+
+调用日志详情改为居中模态窗口，长结果在弹窗内滚动，不再追加到列表底部。支持关闭按钮、Esc 和点击遮罩关闭，并恢复原日志焦点与列表位置。已在真实 Harness Web 的桌面和 600px 窗口验证。升级后重启宿主。

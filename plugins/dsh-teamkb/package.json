@@ -1,6 +1,6 @@
 {
   "name": "dsh-teamkb",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "TeamKB 团队知识库：分类检索、规范、知识链和经验证的知识贡献，支持 Harness Desktop 与 Web。",
   "type": "module",
   "main": "index.js",

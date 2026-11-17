@@ -89,7 +89,7 @@ const canWrite = computed(() =>
 const origin = window.location.origin;
 const prompt = computed(() =>
   agent.value === "dsh"
-    ? `dsh plugin --profile ${dshProfile.value} add ${origin}/static/downloads/dsh-teamkb-0.1.4.tgz`
+    ? `dsh plugin --profile ${dshProfile.value} add ${origin}/static/downloads/dsh-teamkb-0.1.5.tgz`
     : manifest.value
       ? commandMode.value
         ? installationCommand({
@@ -273,11 +273,11 @@ onBeforeUnmount(() => {
               团队知识库」详情页配置，填写个人 Key。无需 Python 或项目初始化。
             </p>
             <a
-              :href="origin + '/static/downloads/dsh-teamkb-0.1.4.tgz'"
+              :href="origin + '/static/downloads/dsh-teamkb-0.1.5.tgz'"
               class="text-link"
               >下载 TeamKB 插件包 →</a
             >
-            <p>地址：{{ origin }}/static/downloads/dsh-teamkb-0.1.4.tgz</p>
+            <p>地址：{{ origin }}/static/downloads/dsh-teamkb-0.1.5.tgz</p>
             <p>
               支持官方预览版 0.2.2 rc 系列；Desktop 和 Web 安装到各自实际使用的
               profile，提示重启时重启对应应用。贡献开关在 Harness

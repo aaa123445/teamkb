@@ -39,19 +39,17 @@ const assert = require("assert/strict");
     if (req.url.startsWith("/api/v1/account/calls?"))
       v = {
         total: 1,
-        logs: [
-          {
-            id: 1,
-            operation: "search",
-            status_code: 200,
-            ts: 1700000000,
-            duration_ms: 24,
-            result_summary: "找到相关团队知识，返回已脱敏的查询结果",
-          },
-        ],
+        logs: Array.from({ length: 10 }, (_, i) => ({
+          id: i + 1,
+          operation: i ? "read" : "search",
+          status_code: 200,
+          ts: 1700000000,
+          duration_ms: 24,
+          result_summary: "找到相关团队知识，返回已脱敏的查询结果",
+        })),
       };
     if (req.url === "/api/v1/account/calls/1")
-      v = { id: 1, response: { content: "日志结果已脱敏" } };
+      v = { id: 1, response: { content: "日志结果已脱敏".repeat(800) } };
     res.end(JSON.stringify(v));
   });
   await new Promise((r) => upstream.listen(0, "127.0.0.1", r));
@@ -135,12 +133,52 @@ const assert = require("assert/strict");
     await p.getByRole("button", { name: "← 返回结果", exact: true }).click();
     await p.getByRole("button", { name: /数据库连接超时排查/ }).waitFor();
     await p.getByRole("button", { name: "调用日志", exact: true }).click();
-    await p.getByRole("button", { name: /search HTTP 200/ }).click();
-    await p
-      .getByLabel("调用详情")
-      .getByText(/日志结果已脱敏/)
-      .waitFor();
-    await p.screenshot({ path: "/tmp/teamkb-014-logs.png" });
+    const log = p.getByRole("button", { name: /search HTTP 200/ });
+    const scrollBefore = await p
+      .locator(".tkb-scroll")
+      .evaluate((e) => e.scrollTop);
+    for (const width of [1440, 600]) {
+      await p.setViewportSize({ width, height: 900 });
+      await log.click();
+      const dialog = p.getByRole("dialog", { name: "调用详情", exact: true });
+      await dialog.waitFor();
+      await dialog.getByText(/日志结果已脱敏/).waitFor();
+      assert(
+        await dialog.evaluate((e) => {
+          const r = e.getBoundingClientRect();
+          return (
+            r.top >= 0 &&
+            r.bottom <= innerHeight &&
+            r.left >= 0 &&
+            r.right <= innerWidth
+          );
+        }),
+      );
+      assert(
+        await dialog
+          .locator(".tkb-detail-body")
+          .evaluate((e) => e.scrollHeight > e.clientHeight),
+      );
+      assert(
+        await dialog
+          .getByRole("button", { name: "关闭", exact: true })
+          .evaluate((e) => e === document.activeElement),
+      );
+      await p.keyboard.press("Escape");
+      await dialog.waitFor({ state: "detached" });
+      assert(await log.evaluate((e) => e === document.activeElement));
+      await log.click();
+      await dialog.getByRole("button", { name: "关闭", exact: true }).click();
+      await log.click();
+      await dialog.waitFor();
+      await p.mouse.click(1, 1);
+      await dialog.waitFor({ state: "detached" });
+    }
+    assert.equal(
+      await p.locator(".tkb-scroll").evaluate((e) => e.scrollTop),
+      scrollBefore,
+    );
+    await p.setViewportSize({ width: 1440, height: 1000 });
     await p.getByRole("button", { name: "知识查询", exact: true }).click();
     await p.evaluate(() => {
       document.body.setAttribute("data-ds-dark-theme", "");
@@ -166,7 +204,7 @@ const assert = require("assert/strict");
     }
     assert.deepEqual(errors, []);
     console.log(
-      "PASS Harness Web: real host RPC, settings, classification scroll, search/read/back, logs/detail, dark/light and 850/600px layout; no JS errors",
+      "PASS Harness Web: real host RPC, settings, classification scroll, search/read/back, logs/modal bounds, independent scrolling, Escape/close/backdrop/focus restoration, dark/light and 850/600px layout; no JS errors",
     );
   } finally {
     await b.close();

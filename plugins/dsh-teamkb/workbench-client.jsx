@@ -16,6 +16,54 @@ export function WorkbenchIcon() {
     </svg>
   );
 }
+function LogDetail({ value, onClose }) {
+  const dialog = useRef(null);
+  useEffect(() => {
+    const node = dialog.current;
+    const previousFocus = document.activeElement;
+    node.showModal();
+    return () => {
+      if (node.open) node.close();
+      if (previousFocus?.isConnected)
+        previousFocus.focus({ preventScroll: true });
+    };
+  }, []);
+  return (
+    <dialog
+      ref={dialog}
+      className="tkb-detail-dialog"
+      aria-labelledby="tkb-detail-title"
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      onClick={(event) => {
+        if (event.target !== event.currentTarget) return;
+        const rect = event.currentTarget.getBoundingClientRect();
+        if (
+          event.clientX < rect.left ||
+          event.clientX > rect.right ||
+          event.clientY < rect.top ||
+          event.clientY > rect.bottom
+        )
+          onClose();
+      }}
+    >
+      <header className="tkb-detail-head">
+        <div>
+          <h2 id="tkb-detail-title">调用详情</h2>
+          <p className="tkb-muted">记录 #{value.id ?? "—"}</p>
+        </div>
+        <Button onClick={onClose} autoFocus>
+          关闭
+        </Button>
+      </header>
+      <div className="tkb-detail-body">
+        <pre>{JSON.stringify(value, null, 2)}</pre>
+      </div>
+    </dialog>
+  );
+}
 const Button = ({ children, primary = false, ...props }) => (
   <button
     type="button"
@@ -368,6 +416,7 @@ export function Workbench({ query, Settings }) {
                     type="button"
                     className="tkb-log-row"
                     key={log.id}
+                    aria-haspopup="dialog"
                     onClick={() =>
                       run({ action: "call", id: log.id }, setDetail)
                     }
@@ -412,13 +461,7 @@ export function Workbench({ query, Settings }) {
                 </div>
               </div>
               {detail && (
-                <aside className="tkb-detail" aria-label="调用详情">
-                  <div className="tkb-section-head">
-                    <h2>调用详情</h2>
-                    <Button onClick={() => setDetail(null)}>关闭</Button>
-                  </div>
-                  <pre>{JSON.stringify(detail, null, 2)}</pre>
-                </aside>
+                <LogDetail value={detail} onClose={() => setDetail(null)} />
               )}
             </section>
           )}

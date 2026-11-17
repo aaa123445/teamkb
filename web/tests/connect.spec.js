@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }) => {
               ["team-knowledge-0.6.2.zip", "b".repeat(64)],
               ["install-teamkb-0.6.2.sh", "c".repeat(64)],
               ["install-teamkb-0.6.2.ps1", "d".repeat(64)],
-              ["dsh-teamkb-0.1.4.tgz", "e".repeat(64)],
+              ["dsh-teamkb-0.1.5.tgz", "e".repeat(64)],
               ["teamkb-codex-plugin-0.1.1.zip", "f".repeat(64)],
               ["teamkb-claude-plugin-0.1.1.zip", "f".repeat(64)],
             ]),
@@ -273,7 +273,7 @@ test("Harness plugin installation selects independent GUI and Web profiles", asy
   await page.goto("/#/connect?agent=dsh");
   const preview = page.getByLabel("安装提示词预览");
   await expect(preview).toContainText("dsh plugin --profile web add");
-  await expect(preview).toContainText("/static/downloads/dsh-teamkb-0.1.4.tgz");
+  await expect(preview).toContainText("/static/downloads/dsh-teamkb-0.1.5.tgz");
   await expect(preview).not.toContainText("python");
   await page.getByRole("combobox", { name: "Harness profile" }).click();
   await page
