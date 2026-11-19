@@ -1,0 +1,139 @@
+/* Shared surfaces also cover teleported dialogs and selects. */
+:root[data-theme="dark"] {
+  --night-surface: #171c26;
+  --night-soft: #202735;
+  --night-tint: #28314b;
+  --night-text: #e8ecf4;
+  --night-muted: #aab5c8;
+  --night-border: #354052;
+  --night-039855: #7bf4be;
+  --night-12b76a: #7df2bc;
+  --night-388365: #9bd4bd;
+  --night-3c8a67: #9bd4ba;
+  --night-438363: #a1cfb8;
+  --night-465fff: #7b8bf4;
+  --night-5c74eb: #8093ef;
+  --night-5d78e2: #869ae9;
+  --night-617bd9: #8c9fe3;
+  --night-6983ed: #7f96f0;
+  --night-6e50ad: #ae9dd2;
+  --night-714ead: #b09dd3;
+  --night-7552b8: #ae9ad5;
+  --night-7655a0: #b5a2cd;
+  --night-7a8dc9: #99a8d6;
+  --night-7c72d5: #9991de;
+  --night-7c74cf: #9b95da;
+  --night-8062a1: #b7a6ca;
+  --night-8062a6: #b5a4cb;
+  --night-8161a8: #b6a3cc;
+  --night-869aff: #8fa0f6;
+  --night-875bf7: #9d7bf4;
+  --night-876bb1: #b3a1ce;
+  --night-879bdf: #8ea1e1;
+  --night-879be3: #8b9fe4;
+  --night-8b6acf: #ab93dc;
+  --night-8d72b9: #b2a0d0;
+  --night-9d4b58: #d19ea6;
+  --night-a6495a: #d39ca6;
+  --night-a78645: #d5c19a;
+  --night-ad8a4b: #d4c09b;
+  --night-b28b4e: #d4be9b;
+  --night-b42318: #ee8981;
+  --night-b64f55: #d59a9e;
+  --night-b84b54: #d7999e;
+  --night-b88930: #e1c58e;
+  --night-bb6570: #d39ca3;
+  --night-c75d65: #da959a;
+  --night-d47777: #dd9393;
+  --night-d92d20: #ed8a83;
+  --night-dc8d23: #ebbf84;
+  --night-e68b8e: #e68b8e;
+}
+html {
+  scrollbar-gutter: auto;
+  scrollbar-color: var(--night-border, #cbd3e1) transparent;
+}
+.theme-switcher {
+  position: relative;
+  flex-shrink: 0;
+}
+.theme-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 60;
+  width: 164px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 12px 36px #0002;
+}
+.theme-menu-title {
+  padding: 7px 9px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.theme-option:hover {
+  background: var(--muted);
+}
+.theme-option.selected {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.theme-check {
+  margin-left: auto;
+}
+.workspace-main,
+.topbar,
+.topbar-right,
+.breadcrumb {
+  min-width: 0;
+}
+.breadcrumb strong,
+.account-chip strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.breadcrumb strong {
+  max-width: 12em;
+}
+.account-chip strong {
+  max-width: 9em;
+}
+.sidebar-header,
+.sidebar-bottom {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .topbar .legacy-key-button {
+    display: none;
+  }
+  .topbar-right {
+    gap: 3px;
+  }
+  .breadcrumb {
+    flex: 1;
+    overflow: hidden;
+  }
+  .site-header-actions {
+    gap: 8px;
+  }
+}
+
+/* Overlays lock both public pages and the workspace content pane. */
+body.scroll-locked .workspace-scroll {
+  overflow-y: hidden;
+}

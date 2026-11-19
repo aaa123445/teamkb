@@ -1,12 +1,6 @@
 <script setup>
 // Adapted from leoMirandaa/shadcn-vue-landing-page/src/components/Hero.vue (MIT).
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Sparkles,
-  BookOpen,
-  Check,
-} from "lucide-vue-next";
+import { ArrowRight, ArrowUpRight, Check } from "lucide-vue-next";
 import { currentUser, hasAccess } from "../../composables/session";
 import { serviceHealth } from "../../composables/workspace";
 import WorkbenchPreview from "./WorkbenchPreview.vue";
@@ -15,11 +9,6 @@ import WorkbenchPreview from "./WorkbenchPreview.vue";
   <section class="site-hero">
     <div class="hero-grid-bg" aria-hidden="true" />
     <div class="site-container hero-container">
-      <div class="release-pill">
-        <span><Sparkles :size="13" /> 为团队与 Agent 构建</span><i /><span
-          >你的团队知识，现在互相连接<ArrowUpRight :size="13"
-        /></span>
-      </div>
       <h1>
         让知识流动，<br />让每一次开发<span class="gradient-text"
           >都有依据。</span
@@ -33,15 +22,15 @@ import WorkbenchPreview from "./WorkbenchPreview.vue";
       <div class="hero-actions">
         <RouterLink
           :to="
-            hasAccess ? '/workspace' : currentUser ? '/account' : '/register'
+            !currentUser ? '/register' : hasAccess ? '/workspace' : '/account'
           "
           class="button primary large"
           >{{
-            hasAccess
-              ? "打开我的工作台"
-              : currentUser
-                ? "查看入网状态"
-                : "开始使用工作台"
+            !currentUser
+              ? "注册入网"
+              : hasAccess
+                ? "打开我的工作台"
+                : "查看入网状态"
           }}<ArrowRight :size="18" /></RouterLink
         ><RouterLink to="/guide" class="button large"
           >阅读接入指南<ArrowUpRight :size="17"
@@ -58,15 +47,15 @@ import WorkbenchPreview from "./WorkbenchPreview.vue";
           <strong
             >{{ serviceHealth?.documents?.toLocaleString() ?? "—"
             }}<small>篇</small></strong
-          ><span>知识文档 · 实时连接工作台</span>
+          ><span>知识文档</span>
         </div>
         <div>
           <strong>8<small>类</small></strong
-          ><span>分类管理 · 审核发布 · 版本追溯</span>
+          ><span>知识分类</span>
         </div>
         <div>
           <strong>3<small>种</small></strong
-          ><span>接入方式 · 融入你的工具链</span>
+          ><span>接入方式</span>
         </div>
       </div>
     </div>

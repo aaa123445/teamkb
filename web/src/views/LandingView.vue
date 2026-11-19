@@ -21,21 +21,20 @@ import { hasAccess, currentUser } from "../composables/session";
     <FeaturesSection /><WorkflowSection /><IntegrationsSection /><FaqSection />
     <section class="site-cta-wrap site-container">
       <div class="site-cta">
-        <span class="site-kicker">LESS GUESSWORK. MORE BUILDING.</span>
         <h2>把时间用在创造上，<br />让知识为你铺好下一步。</h2>
         <p>你的下一次开发，可以从已有的经验开始。</p>
         <div>
           <RouterLink
             :to="
-              hasAccess ? '/workspace' : currentUser ? '/account' : '/register'
+              !currentUser ? '/register' : hasAccess ? '/workspace' : '/account'
             "
             class="button primary large"
             >{{
-              hasAccess
-                ? "进入工作台"
-                : currentUser
-                  ? "查看账号状态"
-                  : "注册并申请入网"
+              !currentUser
+                ? "注册并申请入网"
+                : hasAccess
+                  ? "进入工作台"
+                  : "查看账号状态"
             }}<ArrowRight :size="17" /></RouterLink
           ><RouterLink to="/guide" class="button large"
             ><BookOpen :size="17" />阅读使用说明</RouterLink

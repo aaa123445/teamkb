@@ -2,8 +2,9 @@
 import { ref, watch, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ArrowUpRight, ArrowRight, Menu, X } from "lucide-vue-next";
+import ThemeSwitcher from "../workspace/ThemeSwitcher.vue";
 import BrandMark from "../ui/BrandMark.vue";
-import { currentUser } from "../../composables/session";
+import { currentUser, hasAccess } from "../../composables/session";
 const route = useRoute(),
   router = useRouter(),
   open = ref(false);
@@ -50,9 +51,13 @@ async function go(section) {
         /></RouterLink>
       </nav>
       <div class="site-header-actions">
+        <ThemeSwitcher />
         <RouterLink v-if="!currentUser" to="/login" class="site-login"
           >登录</RouterLink
-        ><RouterLink to="/workspace" class="button primary"
+        ><RouterLink
+          v-else-if="hasAccess"
+          to="/workspace"
+          class="button primary"
           >进入工作台<ArrowUpRight :size="15" /></RouterLink
         ><button
           class="icon-button site-menu-toggle"

@@ -33,8 +33,6 @@ import {
   Files,
   ShieldCheck,
   Layers,
-  ChevronDown,
-  Command,
   PlugZap,
   Network,
   Bot,
@@ -50,17 +48,22 @@ import { apiKey, keyDialogOpen, notice, stats } from "../composables/workspace";
 import { focusMain, trapFocus } from "../composables/accessibility";
 import BrandMark from "../components/ui/BrandMark.vue";
 import CommandPalette from "../components/workspace/CommandPalette.vue";
+import WorkspaceTour from "../components/workspace/WorkspaceTour.vue";
+import ThemeSwitcher from "../components/workspace/ThemeSwitcher.vue";
 import "../styles/workspace.css";
 import "../styles/knowledge.css";
 import "../styles/studio.css";
 const props = defineProps({ online: Boolean }),
   route = useRoute(),
   router = useRouter();
+const tourSeenKey = "v8wb_workspace_tour";
 const mobileOpen = ref(false),
   collapsed = ref(localStorage.getItem("v8wb_sidebar_collapsed") === "true"),
   paletteOpen = ref(false),
   trigger = ref(null),
-  sidebarEl = ref(null);
+  sidebarEl = ref(null),
+  scrollArea = ref(null),
+  tourOpen = ref(false);
 const groups = computed(() => [
   {
     label: "知识空间",
@@ -104,9 +107,11 @@ function selected(to) {
 }
 watch(
   () => route.fullPath,
-  () => {
+  async () => {
     mobileOpen.value = false;
     paletteOpen.value = false;
+    await nextTick();
+    scrollArea.value?.scrollTo({ top: 0, left: 0, behavior: "instant" });
   },
 );
 watch(collapsed, (value) =>
@@ -126,6 +131,22 @@ watch(mobileOpen, async (value) => {
 function resize() {
   if (window.innerWidth > 900) mobileOpen.value = false;
 }
+function closeTour() {
+  tourOpen.value = false;
+  try {
+    localStorage.setItem(tourSeenKey, "done");
+  } catch {}
+}
+watch(
+  [sessionReady, keyDialogOpen, mobileOpen, paletteOpen],
+  ([ready, keyOpen, sidebarOpen, searchOpen]) => {
+    if (!ready || keyOpen || sidebarOpen || searchOpen) return;
+    try {
+      if (!localStorage.getItem(tourSeenKey)) tourOpen.value = true;
+    } catch {}
+  },
+  { immediate: true, flush: "post" },
+);
 function key(event) {
   const dialog = document.querySelector('[aria-modal="true"]');
   if (
@@ -166,7 +187,13 @@ async function signOut() {
 }
 </script>
 <template>
-  <div class="workspace" :class="{ 'sidebar-collapsed': collapsed }">
+  <div
+    class="workspace"
+    :class="{
+      'sidebar-collapsed': collapsed,
+      'workspace-chat': route.path === '/assistant',
+    }"
+  >
     <a class="skip-link" href="#main" @click.prevent="focusMain"
       >跳转到主要内容</a
     >
@@ -194,15 +221,6 @@ async function signOut() {
           <X :size="19" />
         </button>
       </div>
-      <RouterLink
-        to="/library"
-        class="workspace-switch"
-        :title="collapsed ? '团队工作空间' : undefined"
-        ><span class="workspace-avatar"><Layers :size="18" /></span
-        ><span
-          ><strong>团队工作空间</strong><small>共享知识 · 连接经验</small></span
-        ><ChevronDown :size="14"
-      /></RouterLink>
       <div class="sidebar-body">
         <nav
           v-for="group in groups"
@@ -214,6 +232,7 @@ async function signOut() {
             v-for="item in group.items"
             :key="item.to"
             :to="item.to"
+            :data-tour="item.to === '/connect' ? 'connect' : undefined"
             :title="collapsed ? item.label : undefined"
             :aria-label="item.label"
             :class="{ selected: selected(item.to) }"
@@ -225,14 +244,6 @@ async function signOut() {
             }}</small></RouterLink
           >
         </nav>
-        <div class="sidebar-note">
-          <span class="sidebar-note-icon"><Command :size="19" /></span
-          ><strong>把知识带进工作流</strong>
-          <p>连接 MCP、Skill 或 CLI，让 Agent 复用团队经验。</p>
-          <RouterLink to="/guide"
-            >查看接入指南 <ArrowUpRight :size="14"
-          /></RouterLink>
-        </div>
       </div>
       <div class="sidebar-bottom">
         <RouterLink to="/" class="back-to-site" title="返回官网"
@@ -241,8 +252,7 @@ async function signOut() {
         <div class="service-status">
           <span :class="['status-dot', { online: props.online }]" /><span>{{
             props.online ? "知识服务已连接" : "服务连接异常"
-          }}</span
-          ><small>TeamKB</small>
+          }}</span>
         </div>
       </div>
     </aside>
@@ -273,19 +283,24 @@ async function signOut() {
         </div>
         <div class="topbar-right">
           <button
-            class="global-search-trigger"
+            class="icon-button"
+            data-tour="search"
             aria-label="打开全局搜索"
+            title="打开全局搜索"
+            aria-keyshortcuts="Control+K Meta+K"
             @click="paletteOpen = true"
           >
-            <Search :size="17" /><span>搜索知识或快速前往</span
-            ><kbd>⌘ K</kbd></button
-          ><RouterLink
-            to="/guide"
-            class="icon-button header-help"
-            aria-label="接入指南"
-            title="接入指南"
-            ><LifeBuoy :size="20" /></RouterLink
-          ><span class="header-divider account-divider" />
+            <Search :size="19" aria-hidden="true" /></button
+          ><button
+            type="button"
+            class="icon-button"
+            aria-label="查看工作台引导"
+            title="查看工作台引导"
+            aria-haspopup="dialog"
+            @click="tourOpen = true"
+          >
+            <LifeBuoy :size="20" aria-hidden="true" /></button
+          ><ThemeSwitcher /><span class="header-divider account-divider" />
           <template v-if="currentUser"
             ><RouterLink to="/account" class="account-chip"
               ><span class="avatar-small">{{
@@ -316,19 +331,22 @@ async function signOut() {
           ></template>
         </div>
       </header>
-      <main id="main" class="content" tabindex="-1">
-        <div v-if="!sessionReady" class="async-state" role="status">
-          正在恢复工作空间…
-        </div>
-        <slot v-else />
-      </main>
-      <footer class="page-footer">
-        <span>TeamKB <i /> 团队的每一份经验，都值得被连接。</span
-        ><a href="/docs" target="_blank" rel="noopener"
-          >API 文档 <ArrowUpRight :size="13"
-        /></a>
-      </footer>
+      <div ref="scrollArea" class="workspace-scroll">
+        <main id="main" class="content" tabindex="-1">
+          <div v-if="!sessionReady" class="async-state" role="status">
+            正在恢复工作空间…
+          </div>
+          <slot v-else />
+        </main>
+        <footer class="page-footer">
+          <span>TeamKB</span
+          ><a href="/docs" target="_blank" rel="noopener"
+            >API 文档 <ArrowUpRight :size="13"
+          /></a>
+        </footer>
+      </div>
     </div>
     <CommandPalette :open="paletteOpen" @close="paletteOpen = false" />
+    <WorkspaceTour v-if="tourOpen" @close="closeTour" />
   </div>
 </template>
