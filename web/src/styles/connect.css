@@ -169,8 +169,6 @@
 .connect-output {
   padding: 25px;
   min-width: 0;
-  position: sticky;
-  top: 97px;
 }
 .connect-output-heading {
   display: flex;
