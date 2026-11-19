@@ -120,19 +120,19 @@ onBeforeUnmount(() => {
 <style>
 .connect-step-layout {
   display: grid;
-  grid-template-columns: minmax(0, 860px) minmax(0, 220px);
+  grid-template-columns: 220px minmax(0, 860px);
   gap: 24px;
   align-items: start;
 }
 .connect-step-layout > .connect-layout {
-  grid-area: 1 / 1;
+  grid-area: 1 / 2;
   grid-template-columns: minmax(0, 1fr);
   min-width: 0;
 }
 .connect-step-nav {
   position: sticky;
   top: var(--sticky-top, 89px);
-  grid-area: 1 / 2;
+  grid-area: 1 / 1;
   z-index: 2;
   padding: 12px;
   border: 1px solid var(--border);
@@ -202,7 +202,6 @@ onBeforeUnmount(() => {
   }
   .connect-step-nav {
     --connect-nav-inline: 1;
-    grid-area: 1 / 1;
     padding: 6px;
   }
   .connect-step-nav-title {

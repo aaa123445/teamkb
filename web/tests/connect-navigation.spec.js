@@ -29,7 +29,7 @@ test("connection steps stay visible, track scrolling and match the selected agen
   if (isMobile) {
     expect(navBox.y + navBox.height).toBeLessThanOrEqual(methodBox.y);
   } else {
-    expect(navBox.x).toBeGreaterThanOrEqual(methodBox.x + methodBox.width);
+    expect(navBox.x + navBox.width).toBeLessThanOrEqual(methodBox.x);
   }
 
   await methodPanel.getByRole("button", { name: /仅 CLI/ }).click();
