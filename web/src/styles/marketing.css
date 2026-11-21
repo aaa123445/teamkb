@@ -111,10 +111,6 @@
 }
 .site-hero {
   position: relative;
-  padding-top: 67px;
-  background:
-    radial-gradient(ellipse 54% 35% at 50% 12%, #ede9ff60, transparent 100%),
-    linear-gradient(var(--night-surface, #fcfbff), var(--night-surface, #fff));
   overflow: hidden;
 }
 .hero-grid-bg {
@@ -1831,11 +1827,6 @@
 .integration-detail,
 .integration-intro {
   min-width: 0;
-}
-:root[data-theme="dark"] .site-hero {
-  background:
-    radial-gradient(ellipse at 50% 0%, #30284a, transparent 65%),
-    var(--background);
 }
 :root[data-theme="dark"] .preview-shell {
   box-shadow:

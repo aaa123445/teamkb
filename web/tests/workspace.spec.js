@@ -142,7 +142,19 @@ test("页面导航、清单与移动端无横向溢出", async ({ page, isMobile
   await expect(page.getByText("确认接口签名", { exact: true })).toBeVisible();
   await expect(page.getByText("验证扩展行为", { exact: true })).toBeVisible();
   await navigate(page, "知识总览", isMobile);
-  await expect(page.locator(".stat-card").first()).toContainText("234");
+  await expect(page.locator(".overview-metric").first()).toContainText("234");
+  await expect(page.getByRole("table", { name: "最近更新" })).toBeVisible();
+  await expect(page.getByRole("link", { name: doc.title })).toHaveAttribute(
+    "href",
+    /#\/documents\//,
+  );
+  const search = page.getByRole("button", { name: "打开全局搜索" });
+  await search.click();
+  await expect(
+    page.getByRole("dialog", { name: "全局知识搜索" }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(search).toBeFocused();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

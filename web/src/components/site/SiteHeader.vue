@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, nextTick } from "vue";
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ArrowUpRight, ArrowRight, Menu, X } from "lucide-vue-next";
 import ThemeSwitcher from "../workspace/ThemeSwitcher.vue";
@@ -8,6 +8,15 @@ import { currentUser, hasAccess } from "../../composables/session";
 const route = useRoute(),
   router = useRouter(),
   open = ref(false);
+const scrolled = ref(false);
+function updateHeader() {
+  scrolled.value = window.scrollY > 36;
+}
+onMounted(() => {
+  updateHeader();
+  window.addEventListener("scroll", updateHeader, { passive: true });
+});
+onBeforeUnmount(() => window.removeEventListener("scroll", updateHeader));
 const links = [
   { label: "产品能力", section: "features" },
   { label: "使用流程", section: "workflow" },
@@ -35,7 +44,11 @@ async function go(section) {
 }
 </script>
 <template>
-  <header class="site-header" @keydown.esc="open = false">
+  <header
+    class="site-header"
+    :class="{ 'is-scrolled': scrolled }"
+    @keydown.esc="open = false"
+  >
     <div class="site-header-inner">
       <RouterLink to="/" class="site-brand" aria-label="TeamKB 官网"
         ><BrandMark

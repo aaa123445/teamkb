@@ -1,11 +1,13 @@
 <script setup>
+import { useRoute } from "vue-router";
 import { focusMain } from "../composables/accessibility";
 import SiteHeader from "../components/site/SiteHeader.vue";
 import SiteFooter from "../components/site/SiteFooter.vue";
 import "../styles/marketing.css";
+const route = useRoute();
 </script>
 <template>
-  <div class="public-site">
+  <div class="public-site" :class="{ 'site-home': route.name === 'home' }">
     <a class="skip-link" href="#main" @click.prevent="focusMain"
       >跳转到主要内容</a
     ><SiteHeader />

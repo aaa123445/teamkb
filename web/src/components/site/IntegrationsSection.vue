@@ -73,7 +73,6 @@ function choose(index) {
     class="site-section site-container integration-section"
   >
     <div class="integration-intro">
-      <span class="site-kicker">ONE KNOWLEDGE BASE. YOUR TOOLS.</span>
       <h2>你熟悉的工具，<br />同一个知识来源。</h2>
       <p>
         不必离开你的开发节奏。选择合适的接入方式，把团队知识带到需要它的地方。
@@ -106,7 +105,7 @@ function choose(index) {
             <Check v-if="copied" :size="16" /><Copy v-else :size="16" />
           </button>
         </div>
-        <pre><code>{{ active.code }}</code></pre>
+        <pre :key="active.name"><code>{{ active.code }}</code></pre>
         <div class="code-window-foot">
           <span class="status-dot online" />{{
             active.name === "MCP"

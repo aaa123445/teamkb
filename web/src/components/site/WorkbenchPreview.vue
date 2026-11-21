@@ -41,8 +41,7 @@ const topic = computed(() => topics[selected.value]);
 <template>
   <div class="product-preview" aria-label="工作台功能示意">
     <div class="preview-topbar">
-      <span class="window-dots"><i /><i /><i /></span
-      ><span><span class="status-dot online" /> TeamKB / 工作流示意</span
+      <span><BookOpen :size="15" /> TeamKB / 知识检索示例</span
       ><span class="preview-secure"
         ><ShieldCheck :size="13" />团队专属空间</span
       >
@@ -51,14 +50,11 @@ const topic = computed(() => topics[selected.value]);
       <div class="preview-sidebar">
         <div class="preview-space">
           <span class="preview-space-icon"><Command :size="18" /></span
-          ><span>团队知识库 <small>TEAM WORKSPACE</small></span>
+          ><span>团队知识库</span>
         </div>
         <div class="preview-nav-item active"><Search :size="15" />知识检索</div>
         <div class="preview-nav-item"><BookOpen :size="15" />团队规范</div>
         <div class="preview-nav-item"><Layers :size="15" />经验沉淀</div>
-        <div class="preview-side-bottom">
-          <span class="status-dot online" />知识，即刻连接
-        </div>
       </div>
       <div class="preview-workspace">
         <div class="preview-breadcrumb">
@@ -66,7 +62,6 @@ const topic = computed(() => topics[selected.value]);
         </div>
         <div class="preview-headline">
           <h2>{{ topic.title }}</h2>
-          <span class="badge">WORKFLOW PREVIEW</span>
         </div>
         <RouterLink
           :to="{ name: 'search', query: { q: topic.query } }"
@@ -75,9 +70,8 @@ const topic = computed(() => topics[selected.value]);
           ><span class="preview-search-action"
             >去检索<ArrowUpRight :size="14" /></span
         ></RouterLink>
-        <div class="preview-topic-switch">
-          <span>探索知识域</span
-          ><button
+        <div class="preview-topic-switch" role="group" aria-label="检索示例">
+          <button
             v-for="(item, index) in topics"
             :key="item.label"
             :class="{ active: selected === index }"
@@ -87,7 +81,7 @@ const topic = computed(() => topics[selected.value]);
             {{ item.label }}
           </button>
         </div>
-        <div class="preview-flow">
+        <div :key="topic.label" class="preview-flow">
           <div class="preview-document-list">
             <span class="preview-section-label">从文档找到依据</span
             ><RouterLink
@@ -123,14 +117,7 @@ const topic = computed(() => topics[selected.value]);
               >
             </div>
             <div class="preview-agent-step">
-              <span class="step-current" /><span
-                >基于文档实施<span class="preview-agent-note"
-                  >版本、出处、边界，都有迹可循。</span
-                ></span
-              >
-            </div>
-            <div class="preview-agent-foot">
-              <span class="agent-spark">✦</span> 把依据带进每一步开发
+              <span class="step-current" /><span>核对版本与适用范围</span>
             </div>
           </div>
         </div>

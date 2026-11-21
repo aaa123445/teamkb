@@ -33,7 +33,6 @@ const steps = [
   <section id="workflow" class="workflow-band">
     <div class="site-container site-section">
       <div class="site-section-heading">
-        <span class="site-kicker">A SIMPLE START</span>
         <h2>三步，连接你的知识工作空间。</h2>
         <p>网页直接使用，开发工具按需连接。第一次接入，也有清晰的路径。</p>
       </div>

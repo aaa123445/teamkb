@@ -25,7 +25,9 @@ test("未登录的官网首页隐藏工作台按钮，预览检索可用", async
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /让知识流动/ })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "TeamKB 团队知识库", exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("complementary", { name: "工作台导航" }),
   ).toHaveCount(0);
@@ -139,7 +141,9 @@ test("官网和工作台互通，侧栏控制与旧检索链接兼容", async ({
     await page.getByRole("button", { name: "展开侧栏" }).click();
   }
   await page.getByRole("link", { name: "返回官网", exact: true }).click();
-  await expect(page.getByRole("heading", { name: /让知识流动/ })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "TeamKB 团队知识库", exact: true }),
+  ).toBeVisible();
   await page.goto("/#/?q=组织同步");
   await expect(page.getByRole("textbox", { name: "搜索知识库" })).toHaveValue(
     "组织同步",
@@ -154,7 +158,9 @@ test("官网跳转主内容不改变哈希路由，许可随构建发布", async
   await page.keyboard.press("Tab");
   await page.getByRole("link", { name: "跳转到主要内容" }).press("Enter");
   await expect(page.locator("#main")).toBeFocused();
-  await expect(page.getByRole("heading", { name: /让知识流动/ })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "TeamKB 团队知识库", exact: true }),
+  ).toBeVisible();
   for (const name of [
     "shadcn-vue-landing-page",
     "shadcn-vue-admin",

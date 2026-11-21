@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted, onBeforeUnmount, ref } from "vue";
 import { ArrowRight, BookOpen } from "lucide-vue-next";
 import HeroSection from "../components/site/HeroSection.vue";
 import FeaturesSection from "../components/site/FeaturesSection.vue";
@@ -6,23 +7,37 @@ import WorkflowSection from "../components/site/WorkflowSection.vue";
 import IntegrationsSection from "../components/site/IntegrationsSection.vue";
 import FaqSection from "../components/site/FaqSection.vue";
 import { hasAccess, currentUser } from "../composables/session";
+import "../styles/landing.css";
+
+const page = ref(null);
+let observer;
+onMounted(() => {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const { target, isIntersecting } of entries) {
+        if (!isIntersecting) continue;
+        target.classList.add("site-enter");
+        observer.unobserve(target);
+      }
+    },
+    { rootMargin: "0px 0px -50px 0px" },
+  );
+  for (const item of page.value.querySelectorAll(
+    ".site-section-heading, .site-feature-card, .workflow-step, .integration-intro, .integration-detail, .faq-list, .site-cta",
+  )) {
+    observer.observe(item);
+  }
+});
+onBeforeUnmount(() => observer?.disconnect());
 </script>
 <template>
-  <div class="landing-page">
+  <div ref="page" class="landing-page">
     <HeroSection />
-    <div class="platform-strip site-container">
-      <span>沉淀团队的每一类知识</span>
-      <div>
-        <span>技术开发</span><i /><span>运维部署</span><i /><span
-          >产品与业务</span
-        ><i /><span>项目实践</span><i /><span>团队规范</span>
-      </div>
-    </div>
     <FeaturesSection /><WorkflowSection /><IntegrationsSection /><FaqSection />
     <section class="site-cta-wrap site-container">
       <div class="site-cta">
-        <h2>把时间用在创造上，<br />让知识为你铺好下一步。</h2>
-        <p>你的下一次开发，可以从已有的经验开始。</p>
+        <h2>开始使用 TeamKB</h2>
         <div>
           <RouterLink
             :to="

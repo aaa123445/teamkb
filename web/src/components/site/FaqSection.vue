@@ -32,7 +32,6 @@ const questions = [
 <template>
   <section id="faq" class="site-section site-container faq-section">
     <div class="site-section-heading">
-      <span class="site-kicker">A FEW THINGS TO KNOW</span>
       <h2>开始之前，你可能想知道。</h2>
       <p>
         更多安装步骤与排查方法，都在<RouterLink to="/guide">使用说明</RouterLink

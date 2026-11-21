@@ -221,6 +221,18 @@ async function signOut() {
           <X :size="19" />
         </button>
       </div>
+      <button
+        type="button"
+        class="sidebar-search"
+        data-tour="search"
+        aria-label="打开全局搜索"
+        aria-keyshortcuts="Control+K Meta+K"
+        title="打开全局搜索"
+        @click="paletteOpen = true"
+      >
+        <Search :size="17" aria-hidden="true" />
+        <span>搜索知识</span>
+      </button>
       <div class="sidebar-body">
         <nav
           v-for="group in groups"
@@ -283,8 +295,8 @@ async function signOut() {
         </div>
         <div class="topbar-right">
           <button
-            class="icon-button"
-            data-tour="search"
+            class="icon-button mobile-search"
+            data-tour="mobile-search"
             aria-label="打开全局搜索"
             title="打开全局搜索"
             aria-keyshortcuts="Control+K Meta+K"
