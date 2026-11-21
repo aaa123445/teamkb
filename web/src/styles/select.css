@@ -27,7 +27,7 @@
 .app-select.is-open {
   outline: none;
   border-color: #a69cff;
-  box-shadow: 0 0 0 3px #635bff12;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 8%, transparent);
 }
 .app-select:disabled {
   opacity: 0.5;

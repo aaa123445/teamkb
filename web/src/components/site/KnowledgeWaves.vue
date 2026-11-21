@@ -62,7 +62,7 @@ onMounted(() => {
   const root = document.documentElement;
   const updateColor = () => {
     stroke = getComputedStyle(canvas.value)
-      .getPropertyValue("--landing-accent")
+      .getPropertyValue("--primary")
       .trim();
     if (!frame) draw(0);
   };

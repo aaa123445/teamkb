@@ -283,8 +283,8 @@ onBeforeUnmount(() => {
   margin-top: 5px;
 }
 .command-result.active {
-  background: #f2f4ff;
-  color: #465fff;
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 .command-empty {
   padding: 25px 16px;

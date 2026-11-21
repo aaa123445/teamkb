@@ -1,14 +1,4 @@
 .public-site.site-home {
-  --landing-ink: #1d2024;
-  --landing-muted: #575d64;
-  --landing-line: #e0e3e6;
-  --landing-accent: #272d34;
-  --landing-on-accent: #fff;
-  --landing-accent-soft: #e9ecf0;
-  --landing-base: #f4f5f6;
-  --landing-surface: #fff;
-  --landing-panel: #eceef1;
-  --landing-hover: #f7f8fa;
   --landing-active: #e1e5ea;
   --landing-edge: #a8afb8;
   --landing-terminal: #191c20;
@@ -17,37 +7,10 @@
   --landing-terminal-ink: #f0f1f3;
   --landing-terminal-muted: #b1b7be;
   --landing-shadow: #11151c;
-  --primary: var(--landing-accent);
-  --primary-hover: color-mix(
-    in srgb,
-    var(--landing-accent) 84%,
-    var(--landing-on-accent)
-  );
-  --primary-soft: var(--landing-accent-soft);
-  --card: var(--landing-surface);
-  --foreground: var(--landing-ink);
-  --muted: var(--landing-hover);
-  --muted-foreground: var(--landing-muted);
-  --border: var(--landing-line);
-  --night-text: var(--landing-ink);
-  --night-muted: var(--landing-muted);
-  --night-border: var(--landing-line);
-  --night-soft: var(--landing-accent-soft);
-  --night-surface: var(--landing-surface);
-  background: var(--landing-base);
-  color: var(--landing-ink);
+  background: var(--background);
+  color: var(--foreground);
 }
 :root[data-theme="dark"] .site-home {
-  --landing-ink: #f0f1f3;
-  --landing-muted: #b1b7be;
-  --landing-line: #363b41;
-  --landing-accent: #e4e8ee;
-  --landing-on-accent: #1a1d22;
-  --landing-accent-soft: #2d3239;
-  --landing-base: #121416;
-  --landing-surface: #1e2125;
-  --landing-panel: #24282d;
-  --landing-hover: #282c31;
   --landing-active: #323840;
   --landing-edge: #69727c;
   --landing-shadow: #07080a;
@@ -72,8 +35,8 @@
 }
 .site-home .site-header.is-scrolled .site-header-inner,
 .site-home .site-header:has(.site-mobile-nav) .site-header-inner {
-  border-color: var(--landing-line);
-  background: color-mix(in srgb, var(--landing-surface) 87%, transparent);
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--card) 87%, transparent);
   backdrop-filter: blur(16px);
   box-shadow: 0 8px 30px
     color-mix(in srgb, var(--landing-shadow) 12%, transparent);
@@ -81,30 +44,21 @@
 .site-home .site-mobile-nav {
   width: calc(100% - 36px);
   margin: 15px auto 0;
-  border: 1px solid var(--landing-line);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: var(--landing-surface);
+  background: var(--card);
 }
 .site-home .site-header .brand-name small {
   display: none;
 }
-.site-home .brand-symbol {
-  background: var(--landing-accent);
-  color: var(--landing-on-accent);
-  box-shadow: none;
-}
-.site-home .brand-symbol > i {
-  background: currentColor;
-  opacity: 0.55;
-}
 .site-home .site-header .brand-name strong,
 .site-home .site-nav a,
 .site-home .site-nav button {
-  color: var(--landing-ink);
+  color: var(--foreground);
 }
 .site-home .site-nav button:hover,
 .site-home .site-nav a:hover {
-  color: var(--landing-accent);
+  color: var(--primary);
 }
 .site-home .landing-page .site-hero {
   padding: 0;
@@ -116,7 +70,7 @@
 .site-home .site-hero h1 {
   position: relative;
   margin: 0 0 20px;
-  color: var(--landing-ink);
+  color: var(--foreground);
   font-size: 84px;
   font-weight: 650;
   letter-spacing: 0;
@@ -125,7 +79,7 @@
 .site-home .site-hero h1 span {
   display: block;
   margin-top: 12px;
-  color: var(--landing-ink);
+  color: var(--foreground);
   font-size: 0.56em;
   font-weight: 550;
   letter-spacing: 0;
@@ -133,13 +87,13 @@
 .site-home .hero-description {
   max-width: 640px;
   margin: 0 auto 30px;
-  color: var(--landing-muted);
+  color: var(--muted-foreground);
   font-size: 15px;
 }
 .site-home :is(.hero-actions, .site-header-actions) .primary {
-  background: var(--landing-accent);
-  border-color: var(--landing-accent);
-  color: var(--landing-on-accent);
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
   border-radius: 999px;
   box-shadow: 0 10px 26px
     color-mix(in srgb, var(--landing-shadow) 15%, transparent);
@@ -149,24 +103,24 @@
     color-mix(in srgb, var(--landing-shadow) 18%, transparent);
 }
 .site-home .hero-actions .button:not(.primary) {
-  border-color: var(--landing-line);
+  border-color: var(--border);
   border-radius: 999px;
-  color: var(--landing-ink);
-  background: var(--landing-surface);
+  color: var(--foreground);
+  background: var(--card);
 }
 .site-home .product-preview {
   margin-top: 66px;
-  border-color: var(--landing-line);
+  border-color: var(--border);
   border-radius: 22px;
   box-shadow: 0 28px 90px
     color-mix(in srgb, var(--landing-shadow) 17%, transparent);
-  background: var(--landing-surface);
+  background: var(--card);
 }
 .site-home .preview-topbar {
   height: 48px;
   justify-content: space-between;
-  background: var(--landing-panel);
-  border-color: var(--landing-line);
+  background: var(--secondary);
+  border-color: var(--border);
   font-size: 12px;
 }
 .site-home .preview-topbar > span {
@@ -175,16 +129,16 @@
   align-items: center;
 }
 .site-home .preview-sidebar {
-  background: var(--landing-panel);
-  border-color: var(--landing-line);
+  background: var(--secondary);
+  border-color: var(--border);
 }
 .site-home .preview-space-icon {
-  background: var(--landing-accent-soft);
-  color: var(--landing-accent);
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 .site-home .preview-nav-item.active {
   background: var(--landing-active);
-  color: var(--landing-accent);
+  color: var(--primary);
 }
 .site-home
   :is(
@@ -194,23 +148,23 @@
     .preview-search,
     .preview-secure
   ) {
-  color: var(--landing-muted);
+  color: var(--muted-foreground);
 }
 .site-home .preview-workspace {
-  background: var(--landing-surface);
+  background: var(--card);
 }
 .site-home .preview-search {
   padding: 10px 12px;
-  border-color: var(--landing-line);
-  background: var(--landing-base);
+  border-color: var(--border);
+  background: var(--background);
   font-size: 13px;
 }
 .site-home .preview-search-action,
 .site-home .preview-topic-switch button.active,
 .site-home .preview-file-icon {
-  border-color: var(--landing-line);
-  background: var(--landing-accent-soft);
-  color: var(--landing-accent);
+  border-color: var(--border);
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 .site-home .preview-topic-switch {
   flex-wrap: wrap;
@@ -221,35 +175,35 @@
 }
 .site-home .preview-section-label,
 .site-home .preview-doc small {
-  color: var(--landing-muted);
+  color: var(--muted-foreground);
   font-size: 11px;
 }
 .site-home .preview-doc strong {
-  color: var(--landing-ink);
+  color: var(--foreground);
   font-size: 13px;
 }
 .site-home .preview-agent {
-  border-color: var(--landing-line);
-  background: var(--landing-hover);
+  border-color: var(--border);
+  background: var(--muted);
 }
 .site-home .preview-agent-heading,
 .site-home .preview-agent-step {
-  color: var(--landing-muted);
+  color: var(--muted-foreground);
   font-size: 12px;
 }
 .site-home .preview-agent-step code {
-  color: var(--landing-accent);
+  color: var(--primary);
 }
 .site-home .preview-agent-heading > i {
-  background: var(--landing-muted);
+  background: var(--muted-foreground);
 }
 .site-home .step-current {
-  border-color: var(--landing-muted);
+  border-color: var(--muted-foreground);
   box-shadow: none;
 }
 .site-home .workflow-band {
-  border-color: var(--landing-line);
-  background: var(--landing-panel);
+  border-color: var(--border);
+  background: var(--secondary);
 }
 .site-home .site-section {
   padding-top: 128px;
@@ -257,7 +211,7 @@
 }
 .site-home .site-section-heading h2,
 .site-home .integration-intro > h2 {
-  color: var(--landing-ink);
+  color: var(--foreground);
   font-weight: 600;
 }
 .site-home .site-section-heading p,
@@ -266,32 +220,32 @@
 .site-home .integration-intro > p,
 .site-home .integration-detail > p,
 .site-home .faq-list p {
-  color: var(--landing-muted);
+  color: var(--muted-foreground);
 }
 .site-home .site-feature-card,
 .site-home .integration-options button {
-  border-color: var(--landing-line);
-  background: var(--landing-surface);
+  border-color: var(--border);
+  background: var(--card);
   box-shadow: 0 14px 34px
     color-mix(in srgb, var(--landing-shadow) 5%, transparent);
 }
 .site-home .site-feature-card:hover,
 .site-home .integration-options button.active {
   border-color: var(--landing-edge);
-  background: var(--landing-hover);
+  background: var(--muted);
   box-shadow: 0 18px 44px
     color-mix(in srgb, var(--landing-shadow) 9%, transparent);
 }
 .site-home .site-feature-icon,
 .site-home .workflow-step-top > span {
-  border-color: var(--landing-line);
-  background: var(--landing-accent-soft);
-  color: var(--landing-accent);
+  border-color: var(--border);
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 .site-home .site-feature-card h3,
 .site-home .workflow-step h3,
 .site-home .faq-list summary {
-  color: var(--landing-ink);
+  color: var(--foreground);
 }
 .site-home .site-cta {
   background: var(--landing-terminal);
@@ -322,8 +276,8 @@
   outline-color: var(--landing-terminal-ink);
 }
 .site-home .site-footer {
-  border-color: var(--landing-line);
-  background: var(--landing-panel);
+  border-color: var(--border);
+  background: var(--secondary);
 }
 .site-home .code-window {
   background: var(--landing-terminal);
@@ -354,7 +308,7 @@
 }
 .site-home .faq-list,
 .site-home .faq-list details {
-  border-color: var(--landing-line);
+  border-color: var(--border);
 }
 .knowledge-waves {
   position: absolute;
@@ -407,7 +361,7 @@
     box-shadow 180ms;
 }
 .site-home :is(.preview-doc, .site-feature-card > a):hover {
-  color: var(--landing-accent);
+  color: var(--primary);
 }
 @keyframes landing-rise {
   from {

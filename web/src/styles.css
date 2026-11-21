@@ -17,37 +17,43 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.205 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.205 0 0);
-  --secondary: #f4f5f8;
-  --muted: #f6f7f9;
-  --muted-foreground: #737b8c;
-  --border: #e6e8ee;
-  --input: #dfe2ea;
-  --ring: #a69cff;
-  --primary: #635bff;
-  --primary-hover: #5046e4;
-  --primary-soft: #f0eeff;
+  --background: #f4f5f6;
+  --foreground: #1d2024;
+  --card: #fff;
+  --card-foreground: var(--foreground);
+  --secondary: #eceef1;
+  --muted: #f7f8fa;
+  --muted-foreground: #575d64;
+  --border: #e0e3e6;
+  --input: #ccd1d7;
+  --primary: #272d34;
+  --primary-hover: color-mix(
+    in srgb,
+    var(--primary) 84%,
+    var(--primary-foreground)
+  );
+  --primary-soft: #e9ecf0;
   --primary-foreground: #fff;
+  --ring: #737d89;
   --radius: 12px;
-  --shadow: 0 4px 18px #20294308;
+  --shadow: 0 4px 18px #11151c08;
   --green: var(--primary);
   --green-dark: var(--primary-hover);
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --background: #10131a;
-  --foreground: #e8ecf4;
-  --card: #171c26;
-  --card-foreground: #e8ecf4;
-  --secondary: #202735;
-  --muted: #1b222f;
-  --muted-foreground: #a4afc2;
-  --border: #2d3748;
-  --input: #384357;
-  --primary-soft: #202b57;
+  --background: #121416;
+  --foreground: #f0f1f3;
+  --card: #1e2125;
+  --secondary: #24282d;
+  --muted: #282c31;
+  --muted-foreground: #b1b7be;
+  --border: #363b41;
+  --input: #50575f;
+  --primary: #e4e8ee;
+  --primary-soft: #2d3239;
+  --primary-foreground: #1a1d22;
+  --ring: #9ba4af;
 }
 * {
   box-sizing: border-box;
@@ -140,8 +146,8 @@ input:focus,
 textarea:focus,
 :is(select, .app-select):focus {
   outline: 0;
-  border-color: var(--night-border, #ada5ff);
-  box-shadow: 0 0 0 3px #635bff10;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 textarea {
   resize: vertical;
@@ -173,14 +179,14 @@ textarea {
 }
 .button.primary {
   background: var(--primary);
-  color: #fff;
+  color: var(--primary-foreground);
   border-color: var(--primary);
-  box-shadow: 0 2px 3px #635bff1a;
+  box-shadow: 0 2px 3px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 .button.primary:hover:not(:disabled) {
   background: var(--primary-hover);
   border-color: var(--primary-hover);
-  box-shadow: 0 4px 12px #635bff26;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 .button.small {
   min-height: 31px;
@@ -313,11 +319,8 @@ textarea {
   letter-spacing: -2px;
   font-size: 22px;
   font-weight: 750;
-  color: #fff;
-  background: linear-gradient(145deg, #7a72ff, #5148db);
-  box-shadow:
-    inset 0 1px #ffffff33,
-    0 2px 8px #635bff26;
+  color: var(--primary-foreground);
+  background: var(--primary);
 }
 .brand-symbol > span {
   font-size: 20px;
@@ -328,7 +331,8 @@ textarea {
   right: 6px;
   width: 4px;
   height: 4px;
-  background: var(--night-soft, #c5c0ff);
+  background: currentColor;
+  opacity: 0.55;
   border-radius: 2px;
 }
 .brand-name {

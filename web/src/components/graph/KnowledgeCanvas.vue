@@ -26,7 +26,7 @@ const emit = defineEmits(["select"]);
 const canvas = ref(null),
   ready = ref(false),
   failure = ref("");
-const colors = ["#7963d2", "#3985a5", "#27977e", "#be8543", "#bd638e"];
+const colors = ["var(--primary)", "var(--muted-foreground)", "var(--ring)"];
 const options = {
   debug: false,
   allowShowMiniToolBar: false,
@@ -40,8 +40,8 @@ const options = {
   defaultNodeColor: "transparent",
   defaultNodeBorderWidth: 0,
   defaultNodeBorderColor: "transparent",
-  defaultLineColor: "#c6bedc",
-  defaultLineFontColor: "#8b82a0",
+  defaultLineColor: "#9099a3",
+  defaultLineFontColor: "var(--muted-foreground)",
   defaultLineWidth: 1.5,
   defaultLineShape: 4,
   defaultJunctionPoint: "border",
@@ -124,7 +124,7 @@ async function draw() {
         from: e.source_id,
         to: e.target_id,
         text: e.label,
-        color: e.origin === "manual" ? "#a99acb" : "#c0c9d4",
+        color: e.origin === "manual" ? "#737d89" : "#9ca5af",
         dashType: e.origin === "reference" ? 1 : 0,
         showEndArrow: true,
         lineWidth: e.origin === "manual" ? 1.8 : 1.3,
@@ -225,8 +225,8 @@ onBeforeUnmount(() => {
   overflow: hidden;
   border-radius: 14px;
   background:
-    radial-gradient(ellipse at 50% 45%, #eeebf7a3, transparent 65%),
-    radial-gradient(#c9c5d773 0.7px, transparent 0.7px);
+    radial-gradient(ellipse at 50% 45%, var(--background), transparent 65%),
+    radial-gradient(var(--input) 0.7px, transparent 0.7px);
   background-size:
     auto,
     20px 20px;
@@ -263,7 +263,7 @@ onBeforeUnmount(() => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #a08bc9;
+  background: var(--ring);
 }
 .kb-canvas-toolbar > div {
   display: flex;
@@ -346,7 +346,7 @@ onBeforeUnmount(() => {
 .kb-graph-card.selected {
   border-color: var(--node-accent);
   box-shadow:
-    0 0 0 3px #a087c71c,
+    0 0 0 3px #11151c1c,
     0 6px 18px #604b7712;
 }
 .kb-graph-card.center {

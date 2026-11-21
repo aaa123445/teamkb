@@ -173,12 +173,11 @@
   color: #9d8aac;
 }
 .chain-page .button.primary {
-  background: #8a70af;
-  border-color: #8a70af;
-  box-shadow: 0 3px 8px #8a70af15;
+  background: var(--primary);
+  border-color: var(--primary);
 }
 .chain-page .button.primary:hover {
-  background: #7d619f;
+  background: var(--primary-hover);
 }
 .chain-secondary-actions {
   display: flex;

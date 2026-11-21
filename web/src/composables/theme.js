@@ -49,7 +49,7 @@ watch(
     document.documentElement.style.colorScheme = dark ? "dark" : "light";
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", dark ? "#10131a" : "#ffffff");
+      ?.setAttribute("content", dark ? "#121416" : "#f4f5f6");
   },
   { immediate: true },
 );

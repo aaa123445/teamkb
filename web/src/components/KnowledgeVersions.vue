@@ -298,7 +298,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   flex-direction: column;
   min-height: 300px;
-  color: #bccafa;
+  color: var(--muted-foreground);
   text-align: center;
 }
 .version-hint h3 {
@@ -321,8 +321,8 @@ onBeforeUnmount(() => {
   color: #98a2b3;
 }
 .version-drawer .button.primary {
-  background: #465fff;
-  border-color: #465fff;
+  background: var(--primary);
+  border-color: var(--primary);
 }
 @media (max-width: 600px) {
   .version-drawer > header,

@@ -2,50 +2,27 @@
 .workspace {
   --sidebar-width: 244px;
   --workspace-inset: 12px;
-  --workspace-frame: #e9edf2;
-  --workspace-bg: #f9fafc;
-  --workspace-sidebar: #f4f6fa;
-  --workspace-surface: #fff;
-  --workspace-glow: #e6eafa;
-  --workspace-side-glow: #dfe9f8;
-  --workspace-active-shadow: 0 2px 8px #263f6420;
-  --primary: #3559c4;
-  --primary-hover: #2646a6;
-  --primary-soft: #eaf0ff;
-  --ring: #a4bcfd;
-  --border: #e1e5ed;
-  --input: #dfe3eb;
-  --foreground: #1d2939;
-  --card-foreground: #344054;
+  --workspace-frame: var(--primary-soft);
+  --workspace-bg: var(--background);
+  --workspace-sidebar: var(--muted);
+  --workspace-surface: var(--card);
+  --workspace-glow: color-mix(in srgb, var(--primary) 9%, var(--background));
+  --workspace-side-glow: color-mix(in srgb, var(--primary) 10%, var(--muted));
+  --workspace-active-shadow: 0 2px 8px #11151c12;
   --radius: 14px;
-  --muted-foreground: #667085;
-  --green: var(--primary);
-  --green-dark: var(--primary-hover);
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
   padding: var(--workspace-inset);
   background: var(--workspace-frame);
-  color: var(--workspace-fg, var(--night-text, #344054));
+  color: var(--foreground);
   font-size: 14px;
 }
 :root[data-theme="dark"] .workspace {
-  --workspace-frame: #0d0f14;
-  --workspace-bg: #14171e;
-  --workspace-sidebar: #171c26;
-  --workspace-surface: #1c2230;
-  --workspace-glow: #23283c;
-  --workspace-side-glow: #202d43;
+  --workspace-frame: #0d0f10;
+  --workspace-glow: color-mix(in srgb, var(--primary) 6%, var(--background));
+  --workspace-side-glow: color-mix(in srgb, var(--primary) 5%, var(--card));
   --workspace-active-shadow: 0 0 0 transparent;
-  --workspace-fg: #dce3ef;
-  --primary: #a2b4ff;
-  --primary-hover: #c0ccff;
-  --primary-soft: #253153;
-  --border: #2c3545;
-  --input: #3a465b;
-  --foreground: #e8ecf4;
-  --card-foreground: #dce3ef;
-  --muted-foreground: #a4afc2;
 }
 .sidebar {
   position: fixed;
@@ -74,8 +51,6 @@
   flex-shrink: 0;
 }
 .sidebar .brand-symbol {
-  background: #465fff;
-  box-shadow: 0 4px 10px #465fff18;
   width: 36px;
   height: 36px;
   border-radius: 11px;
@@ -525,7 +500,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: #10182866;
+    background: #10121666;
     backdrop-filter: blur(3px);
     z-index: 35;
   }

@@ -93,7 +93,7 @@ function refresh() {
             aria-hidden="true"
           />
         </button>
-        <RouterLink to="/library" class="button overview-library">
+        <RouterLink to="/library" class="button primary overview-library">
           团队知识库 <ArrowRight :size="16" aria-hidden="true" />
         </RouterLink>
       </div>
@@ -148,8 +148,9 @@ function refresh() {
                 aria-hidden="true"
               >
                 <div>
-                  <strong>{{ formatNumber(sourceTotal) }}</strong
-                  ><span>文档</span>
+                  <strong>{{ formatNumber(sourceTotal) }}</strong><span
+                    >文档</span
+                  >
                 </div>
               </div>
               <ul class="overview-legend">

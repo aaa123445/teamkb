@@ -1,25 +1,22 @@
 .overview {
-  --overview-series-1: #476dd6;
-  --overview-series-2: #36968d;
-  --overview-series-3: #8b73bb;
-  --overview-series-4: #bd853e;
-  --overview-series-5: #c66c88;
-  --overview-series-6: #718095;
-  --overview-track: #edf0f6;
-  --overview-metric-tint: #f0f3fa;
-  --overview-shadow: 0 2px 5px #26334d06;
+  --overview-series-1: var(--primary);
+  --overview-series-2: #555e68;
+  --overview-series-3: #79828c;
+  --overview-series-4: #9aa3ad;
+  --overview-series-5: #b2bac4;
+  --overview-series-6: #c8cfd7;
+  --overview-track: var(--primary-soft);
+  --overview-metric-tint: var(--muted);
+  --overview-shadow: 0 2px 5px #11151c06;
   display: grid;
   gap: 20px;
 }
 :root[data-theme="dark"] .overview {
-  --overview-series-1: #819cf1;
-  --overview-series-2: #60b5ac;
-  --overview-series-3: #ae91db;
-  --overview-series-4: #d1a267;
-  --overview-series-5: #db88a1;
-  --overview-series-6: #8f9db2;
-  --overview-track: #2a3241;
-  --overview-metric-tint: #202838;
+  --overview-series-2: #bcc4ce;
+  --overview-series-3: #969fab;
+  --overview-series-4: #7b8591;
+  --overview-series-5: #626d79;
+  --overview-series-6: #4d5661;
   --overview-shadow: none;
 }
 .overview .overview-heading {
@@ -37,18 +34,6 @@
 .overview-actions .overview-refresh {
   border: 1px solid var(--border);
   background: var(--workspace-surface);
-}
-.overview-actions .overview-library {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: #fff;
-}
-.overview .overview-actions .overview-library:hover {
-  background: var(--primary-hover);
-  border-color: var(--primary-hover);
-}
-:root[data-theme="dark"] .overview-actions .overview-library {
-  color: #141923;
 }
 .overview-metrics,
 .overview-charts {

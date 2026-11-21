@@ -94,7 +94,7 @@
 .graph-node circle {
   stroke: #fff;
   stroke-width: 4;
-  filter: drop-shadow(0 3px 5px #465fff22);
+  filter: drop-shadow(0 3px 5px #11151c22);
 }
 .graph-node circle.selected,
 .graph-node:focus circle {
@@ -200,7 +200,7 @@
   padding: 70px 25px;
 }
 .graph-empty > svg {
-  color: #465fff;
+  color: var(--primary);
 }
 .graph-empty h2 {
   font-size: 19px;
@@ -225,7 +225,7 @@
   height: 60px;
   border-radius: 18px;
   background: #eef2ff;
-  color: #465fff;
+  color: var(--primary);
 }
 .assistant-hero h2 {
   font-size: 22px;
@@ -263,7 +263,7 @@
 }
 .assistant-unconfigured > svg {
   flex-shrink: 0;
-  color: #875bf7;
+  color: var(--primary);
 }
 .assistant-unconfigured h3 {
   font-size: 14px;
@@ -309,7 +309,7 @@
 }
 .assistant-thinking {
   padding: 20px;
-  color: #465fff;
+  color: var(--primary);
   font-size: 13px;
 }
 .assistant-answer-grid {
@@ -355,7 +355,7 @@
 .assistant-source > a {
   font-size: 12px;
   line-height: 1.7;
-  color: #465fff;
+  color: var(--primary);
 }
 .assistant-source small {
   color: #8490a7;
@@ -380,7 +380,7 @@
 }
 .agent-settings input[type="checkbox"] {
   width: 15px;
-  accent-color: #465fff;
+  accent-color: var(--primary);
 }
 .agent-settings .connect-check {
   display: flex;
@@ -452,7 +452,7 @@
   flex-wrap: wrap;
   padding-left: 18px;
   margin: 18px 0 0;
-  color: #465fff;
+  color: var(--primary);
   font-size: 12px;
   line-height: 1.8;
 }
@@ -625,8 +625,8 @@
   flex-direction: row-reverse;
 }
 .user-message .message-avatar {
-  color: #fff;
-  background: #8565b0;
+  color: var(--primary-foreground);
+  background: var(--primary);
 }
 .message-bubble {
   max-width: min(680px, 85%);
@@ -640,8 +640,8 @@
 }
 .user-message .message-bubble {
   border-radius: 13px 4px 13px 13px;
-  background: #8565b0;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-foreground);
 }
 .assistant-bubble {
   padding: 12px 16px;
@@ -698,7 +698,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #a78ac4;
+  background: var(--ring);
   animation: typing 900ms infinite ease-in-out;
 }
 .thinking-bubble i:nth-child(2) {

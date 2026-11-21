@@ -8,28 +8,28 @@
   white-space: nowrap;
 }
 .title-dot {
-  color: #465fff;
+  color: var(--primary);
   margin-left: 3px;
 }
 .tone-blue {
-  --tone: #465fff;
-  --tone-soft: #eef2ff;
+  --tone: var(--primary);
+  --tone-soft: var(--primary-soft);
 }
 .tone-violet {
-  --tone: #875bf7;
-  --tone-soft: #f4f0ff;
+  --tone: var(--muted-foreground);
+  --tone-soft: var(--secondary);
 }
 .tone-amber {
-  --tone: #dc8d23;
-  --tone-soft: #fff7eb;
+  --tone: var(--primary);
+  --tone-soft: var(--secondary);
 }
 .tone-teal {
-  --tone: #129c82;
-  --tone-soft: #eafaf5;
+  --tone: var(--muted-foreground);
+  --tone-soft: var(--primary-soft);
 }
 .tone-rose {
-  --tone: #dc5c87;
-  --tone-soft: #fff0f5;
+  --tone: var(--foreground);
+  --tone-soft: var(--muted);
 }
 .library-intro {
   position: relative;
@@ -69,7 +69,7 @@
   margin-top: 17px;
   font-size: 11px;
   font-weight: 500;
-  color: #465fff;
+  color: var(--primary);
 }
 .library-intro-links a {
   display: flex;
@@ -90,7 +90,7 @@
   line-height: 1.3;
   letter-spacing: -1.5px;
   font-weight: 650;
-  color: #465fff;
+  color: var(--primary);
 }
 .library-intro-stat strong > span {
   font-size: 12px;
@@ -351,14 +351,14 @@
 .taxonomy-all.active,
 .taxonomy-item.active {
   background: #edf2ff;
-  color: #465fff;
+  color: var(--primary);
   font-weight: 550;
 }
 .taxonomy-all.active svg,
 .taxonomy-item.active svg,
 .taxonomy-all.active small,
 .taxonomy-item.active small {
-  color: #465fff;
+  color: var(--primary);
 }
 .taxonomy-all {
   margin-bottom: 7px;
@@ -422,7 +422,7 @@
 }
 .library-search:focus-within {
   border-color: #a4bcfd;
-  box-shadow: 0 0 0 3px #465fff09;
+  box-shadow: 0 0 0 3px #11151c09;
 }
 .library-search input {
   border: 0;
@@ -475,7 +475,7 @@
 }
 .view-toggle button.active {
   background: #eef2ff;
-  color: #465fff;
+  color: var(--primary);
 }
 .kb-list-heading {
   display: flex;
@@ -525,7 +525,7 @@
   align-items: center;
   gap: 6px;
   background: #eef2ff;
-  color: #465fff;
+  color: var(--primary);
   padding: 5px 8px;
   border-radius: 5px;
 }
@@ -592,7 +592,7 @@
   transition: color 0.15s;
 }
 .kb-card:hover .knowledge-open-icon {
-  color: #465fff;
+  color: var(--primary);
 }
 .knowledge-card-body {
   flex: 1;
@@ -652,7 +652,7 @@
 }
 .kb-tags .badge:hover {
   background: #eef2ff;
-  color: #465fff;
+  color: var(--primary);
 }
 .more-tags {
   font-size: 9px;
@@ -812,7 +812,7 @@
 }
 .kb-contribution.active {
   border-color: #a4bcfd;
-  box-shadow: 0 0 0 2px #465fff08;
+  box-shadow: 0 0 0 2px #11151c08;
 }
 .kb-contribution h3 {
   font-size: 14px;
