@@ -1,7 +1,7 @@
 /* TailAdmin Vue: light sidebar, grouped navigation, sticky header and brand palette (MIT). */
 .workspace {
   --sidebar-width: 244px;
-  --workspace-inset: 12px;
+  --workspace-inset: 4px;
   --workspace-frame: var(--primary-soft);
   --workspace-bg: var(--background);
   --workspace-sidebar: var(--muted);
@@ -36,7 +36,7 @@
     )
     var(--workspace-sidebar);
   border: 1px solid var(--border);
-  border-radius: 18px 0 0 18px;
+  border-radius: 10px 0 0 10px;
   z-index: 40;
   display: flex;
   flex-direction: column;
@@ -215,7 +215,7 @@
     var(--workspace-bg);
   border: 1px solid var(--border);
   border-left: 0;
-  border-radius: 0 18px 18px 0;
+  border-radius: 0 10px 10px 0;
   transition: margin-left 0.2s;
 }
 .topbar {
@@ -316,7 +316,7 @@
   width: 100%;
   max-width: 1680px;
   flex: 1 0 auto;
-  padding: 34px 36px 42px;
+  padding: 24px 28px 32px;
   margin: 0 auto;
   min-width: 0;
   outline: none;
@@ -332,7 +332,7 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding-bottom: 24px;
+  padding: 8px;
   overflow: hidden;
 }
 .workspace-chat .route-page {
@@ -343,15 +343,6 @@
 }
 .workspace-chat .page-footer {
   display: none;
-}
-@media (max-height: 450px) {
-  .workspace-chat .assistant-chat-composer {
-    margin-inline: 10px;
-    padding: 4px 10px;
-  }
-  .workspace-chat .assistant-chat-messages {
-    padding-block: 12px;
-  }
 }
 .page-heading {
   display: flex;
@@ -451,7 +442,7 @@
     --sidebar-width: 80px;
   }
   .content {
-    padding: 28px;
+    padding: 20px 22px 28px;
   }
   .topbar {
     padding: 0 24px;

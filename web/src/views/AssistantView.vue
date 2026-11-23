@@ -7,7 +7,9 @@ import {
   Network,
   ArrowRight,
   Plus,
-  UserRound,
+  History,
+  Check,
+  X,
   StopCircle,
   RotateCcw,
 } from "lucide-vue-next";
@@ -38,6 +40,22 @@ const conversations = ref([]),
 let historyGeneration = 0,
   saveQueue = Promise.resolve();
 const scroll = ref(null);
+const questionInput = ref(null);
+const historyDialog = ref(null);
+const historyTrigger = ref(null);
+
+function openHistory() {
+  historyDialog.value.showModal();
+}
+
+function closeHistory() {
+  historyDialog.value?.close();
+}
+
+function useExample(example) {
+  question.value = example;
+  questionInput.value?.focus({ preventScroll: true });
+}
 let controller;
 const labels = {
   explore: "知识探索",
@@ -52,7 +70,6 @@ const examples = [
   "我想学习移动开发，应该先看哪些知识？",
 ];
 const hasConversation = computed(() => messages.value.length > 0);
-const historyItems = computed(() => conversations.value);
 async function saveConversation() {
   if (!messages.value.length || !hasAccess.value) return;
   if (!conversationId.value) conversationId.value = crypto.randomUUID();
@@ -89,10 +106,11 @@ async function saveConversation() {
 }
 async function selectHistory(item) {
   if (busy.value || historyLoading.value) return;
-  await saveQueue.catch(() => {});
   const generation = historyGeneration;
   historyLoading.value = true;
   try {
+    await saveQueue.catch(() => {});
+    if (generation !== historyGeneration) return;
     const data = await api(
       "/assistant/conversations/" + encodeURIComponent(item.id),
     );
@@ -103,6 +121,8 @@ async function selectHistory(item) {
     mode.value = data.mode || "auto";
     question.value = "";
     error.value = "";
+    saveError.value = "";
+    closeHistory();
   } catch (e) {
     if (generation === historyGeneration) saveError.value = e.message;
   } finally {
@@ -145,15 +165,21 @@ async function restoreHistory() {
   }
 }
 
-watch(
-  () => [messages.value.length, busy.value],
-  async () => {
-    await nextTick();
+async function scrollToLatest() {
+  await nextTick();
+  // Markdown renders its tables and code-copy controls in a post-flush watcher.
+  // Measure on the next frame, after those children have their final dimensions.
+  requestAnimationFrame(() => {
     scroll.value?.scrollTo({
-      top: scroll.value.scrollHeight,
-      behavior: "smooth",
+      top: messages.value.length ? scroll.value.scrollHeight : 0,
+      behavior: "instant",
     });
-  },
+  });
+}
+
+watch(
+  () => [messages.value, messages.value.length, busy.value],
+  scrollToLatest,
 );
 async function ask(value = question.value) {
   const text = value.trim();
@@ -170,11 +196,6 @@ async function ask(value = question.value) {
     .map((m) => ({ role: m.role, content: m.content.slice(0, 4000) }));
   messages.value.push({ role: "user", content: text, time: Date.now() });
   saveConversation();
-  await nextTick();
-  scroll.value?.scrollTo({
-    top: scroll.value.scrollHeight,
-    behavior: "smooth",
-  });
   try {
     const answer = await post(
       "/assistant/ask",
@@ -237,260 +258,283 @@ onBeforeUnmount(() => controller?.abort());
 </script>
 <template>
   <section class="intelligence-page assistant-page assistant-chat-page">
-    <div class="page-heading assistant-chat-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">TEAM KNOWLEDGE ASSISTANT</div>
-        <h1>云端智能体</h1>
-        <p>基于团队知识库连续对话，回答附带可核验的原文和版本。</p>
-      </div>
+    <header class="assistant-chat-heading">
+      <h1>云端智能体</h1>
       <div class="assistant-heading-actions">
-        <button v-if="hasConversation" class="button" @click="clearChat">
-          <Plus :size="15" />新对话</button
-        ><RouterLink to="/graph" class="button"
-          ><Network :size="16" />知识链</RouterLink
+        <button
+          ref="historyTrigger"
+          type="button"
+          class="icon-button"
+          aria-label="对话历史"
+          title="对话历史"
+          aria-haspopup="dialog"
+          @click="openHistory"
         >
+          <History :size="18" aria-hidden="true" /></button
+        ><button
+          type="button"
+          class="icon-button"
+          aria-label="新对话"
+          title="新对话"
+          :disabled="historyLoading"
+          @click="clearChat"
+        >
+          <Plus :size="19" aria-hidden="true" /></button
+        ><RouterLink
+          to="/graph"
+          class="icon-button"
+          aria-label="知识链"
+          title="知识链"
+          ><Network :size="18" aria-hidden="true"
+        /></RouterLink>
       </div>
-    </div>
-    <div class="assistant-chat-shell panel">
-      <aside class="assistant-chat-sidebar">
-        <div class="assistant-sidebar-brand">
-          <span class="assistant-avatar"><Bot :size="21" /></span>
-          <div>
-            <strong>TeamKB Agent</strong
-            ><small>{{
-              status?.ready ? "知识服务在线" : "等待模型配置"
-            }}</small>
-          </div>
-        </div>
-        <div class="assistant-sidebar-section assistant-history-section">
-          <div class="assistant-history-title">
-            <span>对话历史</span
-            ><small v-if="historyItems.length"
-              >{{ historyItems.length }} 条</small
-            >
-          </div>
+    </header>
+    <dialog
+      ref="historyDialog"
+      class="assistant-history-dialog"
+      aria-labelledby="assistant-history-label"
+      @close="historyTrigger?.focus({ preventScroll: true })"
+      @click.self="closeHistory"
+    >
+      <section class="assistant-history-panel">
+        <div class="assistant-history-title">
+          <h2 id="assistant-history-label">对话历史</h2>
           <button
-            v-for="item in historyItems"
+            type="button"
+            class="icon-button"
+            aria-label="关闭对话历史"
+            autofocus
+            @click="closeHistory"
+          >
+            <X :size="18" aria-hidden="true" />
+          </button>
+        </div>
+        <div class="assistant-history-section" :aria-busy="historyLoading">
+          <button
+            v-for="item in conversations"
             :key="item.id"
+            type="button"
             class="assistant-history-item"
             @click="selectHistory(item)"
-            :title="item.title"
+            :aria-current="item.id === conversationId ? 'true' : undefined"
             :disabled="busy || historyLoading"
           >
-            <span>{{ item.title }}</span><ArrowRight :size="13" />
+            <span>{{ item.title }}</span>
+            <Check
+              v-if="item.id === conversationId"
+              :size="16"
+              aria-hidden="true"
+            />
           </button>
-          <p v-if="!historyItems.length" class="assistant-history-empty">
-            {{ historyLoading ? "正在加载历史…" : "当前还没有对话记录" }}
+          <p v-if="!conversations.length" class="assistant-history-empty">
+            {{ historyLoading ? "正在加载历史…" : "暂无历史对话" }}
+          </p>
+          <p v-if="saveError" class="assistant-history-empty" role="alert">
+            {{ saveError }}
           </p>
         </div>
-        <div class="assistant-sidebar-footer">
-          <span
-            class="status-dot"
-            :class="{ online: status?.ready }"
-          />只使用已发布知识
+      </section>
+    </dialog>
+    <div class="assistant-chat-main">
+      <div
+        ref="scroll"
+        class="assistant-chat-messages"
+        tabindex="0"
+        role="region"
+        aria-label="对话消息"
+        :class="{ 'is-empty': !hasConversation }"
+      >
+        <div v-if="!hasConversation" class="assistant-chat-welcome">
+          <span class="assistant-welcome-icon"><Bot :size="30" /></span>
+          <h2>今天想了解什么？</h2>
+          <div class="assistant-welcome-prompts">
+            <button v-for="q in examples" :key="q" @click="useExample(q)">
+              {{ q }} <ArrowRight :size="13" aria-hidden="true" />
+            </button>
+          </div>
         </div>
-      </aside>
-      <div class="assistant-chat-main">
-        <div
-          ref="scroll"
-          class="assistant-chat-messages"
-          :class="{ 'is-empty': !hasConversation }"
+        <template
+          v-for="(message, index) in messages"
+          :key="message.time + '-' + index"
         >
-          <div v-if="!hasConversation" class="assistant-chat-welcome">
-            <span class="assistant-welcome-icon"><Bot :size="30" /></span>
-            <h2>今天想了解什么？</h2>
-            <p>
-              描述问题、产品版本和已尝试的方法，我会从团队知识库中整理依据。
-            </p>
-            <div class="assistant-welcome-prompts">
-              <button v-for="q in examples" :key="q" @click="question = q">
-                {{ q }}
+          <div
+            v-if="message.role === 'user'"
+            class="assistant-message user-message"
+            :data-message-time="message.time"
+          >
+            <div class="message-bubble">{{ message.content }}</div>
+          </div>
+          <article
+            v-else-if="message.role === 'assistant'"
+            class="assistant-message"
+          >
+            <span class="message-avatar"><Bot :size="15" /></span>
+            <div class="message-content">
+              <div class="message-bubble assistant-bubble">
+                <MarkdownContent :content="message.content" />
+              </div>
+              <details
+                v-if="message.answer?.trace?.length"
+                class="assistant-reasoning"
+              >
+                <summary>查看分析过程</summary>
+                <div class="assistant-trace-list">
+                  <div
+                    v-for="(step, traceIndex) in message.answer.trace"
+                    :key="traceIndex"
+                    class="assistant-trace-step"
+                  >
+                    <span>{{ traceIndex + 1 }}</span>
+                    <div>
+                      <strong>{{ step.step }}</strong><small>{{
+                        step.detail
+                      }}</small>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              <div v-if="message.answer" class="message-sources">
+                <span class="badge">{{
+                  labels[message.answer.scenario] || "知识分析"
+                }}</span><span class="badge">{{
+                  message.answer.mode === "chain" ? "知识链分析" : "分类检索"
+                }}</span>
+                <details v-if="message.answer.citations?.length">
+                  <summary>
+                    查看 {{ message.answer.citations.length }} 条依据
+                  </summary>
+                  <div
+                    v-for="c in message.answer.citations"
+                    :key="c.id"
+                    class="chat-citation"
+                  >
+                    <RouterLink :to="'/documents/' + encodeURIComponent(c.id)"
+                      >[{{ c.number }}] {{ c.title }}</RouterLink
+                    ><small
+                      >v{{ c.version }} ·
+                      {{ c.truncated ? "节选资料" : "完整资料" }}</small
+                    ><RouterLink
+                      :to="{ path: '/graph', query: { doc: c.id } }"
+                      class="text-link"
+                      >查看知识链 →</RouterLink
+                    >
+                  </div>
+                </details>
+                <RouterLink
+                  v-if="message.answer.citations?.length"
+                  :to="{
+                    path: '/graph',
+                    query: { doc: message.answer.citations[0].id },
+                  }"
+                  class="text-link chat-chain-link"
+                  >查看知识链 →</RouterLink
+                >
+              </div>
+            </div>
+          </article>
+          <div v-else class="assistant-message assistant-error">
+            <span class="message-avatar"><Bot :size="15" /></span>
+            <div class="message-bubble">
+              {{ message.content
+              }}<button
+                class="text-link retry-chat"
+                :disabled="busy"
+                @click="retry"
+              >
+                <RotateCcw :size="13" />重试
               </button>
             </div>
           </div>
-          <template
-            v-for="(message, index) in messages"
-            :key="message.time + '-' + index"
-          >
-            <div
-              v-if="message.role === 'user'"
-              class="assistant-message user-message"
-              :data-message-time="message.time"
-            >
-              <span class="message-avatar"><UserRound :size="15" /></span>
-              <div class="message-bubble">{{ message.content }}</div>
-            </div>
-            <article
-              v-else-if="message.role === 'assistant'"
-              class="assistant-message assistant-message"
-            >
-              <span class="message-avatar"><Bot :size="15" /></span>
-              <div class="message-content">
-                <div class="message-bubble assistant-bubble">
-                  <div class="message-answer-badge">
-                    {{ labels[message.answer?.scenario] || "知识分析" }} ·
-                    {{
-                      message.answer?.mode === "chain"
-                        ? "知识链分析"
-                        : "分类检索"
-                    }}
-                  </div>
-                  <MarkdownContent :content="message.content" />
-                </div>
-                <details
-                  v-if="message.answer?.trace?.length"
-                  class="assistant-reasoning"
-                >
-                  <summary>查看分析过程</summary>
-                  <div class="assistant-trace-list">
-                    <div
-                      v-for="(step, traceIndex) in message.answer.trace"
-                      :key="traceIndex"
-                      class="assistant-trace-step"
-                    >
-                      <span>{{ traceIndex + 1 }}</span>
-                      <div>
-                        <strong>{{ step.step }}</strong><small>{{
-                          step.detail
-                        }}</small>
-                      </div>
-                    </div>
-                  </div>
-                </details>
-                <div v-if="message.answer" class="message-sources">
-                  <span class="badge">{{
-                    labels[message.answer.scenario] || "知识分析"
-                  }}</span><span class="badge">{{
-                    message.answer.mode === "chain" ? "知识链分析" : "分类检索"
-                  }}</span>
-                  <details v-if="message.answer.citations?.length">
-                    <summary>
-                      查看 {{ message.answer.citations.length }} 条依据
-                    </summary>
-                    <div
-                      v-for="c in message.answer.citations"
-                      :key="c.id"
-                      class="chat-citation"
-                    >
-                      <RouterLink :to="'/documents/' + encodeURIComponent(c.id)"
-                        >[{{ c.number }}] {{ c.title }}</RouterLink
-                      ><small
-                        >v{{ c.version }} ·
-                        {{ c.truncated ? "节选资料" : "完整资料" }}</small
-                      ><RouterLink
-                        :to="{ path: '/graph', query: { doc: c.id } }"
-                        class="text-link"
-                        >查看知识链 →</RouterLink
-                      >
-                    </div>
-                  </details>
-                  <RouterLink
-                    v-if="message.answer.citations?.length"
-                    :to="{
-                      path: '/graph',
-                      query: { doc: message.answer.citations[0].id },
-                    }"
-                    class="text-link chat-chain-link"
-                    >查看知识链 →</RouterLink
-                  >
-                </div>
-              </div>
-            </article>
-            <div v-else class="assistant-message assistant-error">
-              <span class="message-avatar"><Bot :size="15" /></span>
-              <div class="message-bubble">
-                {{ message.content
-                }}<button
-                  class="text-link retry-chat"
-                  :disabled="busy"
-                  @click="retry"
-                >
-                  <RotateCcw :size="13" />重试
-                </button>
-              </div>
-            </div>
-          </template>
-          <div v-if="busy" class="assistant-message assistant-message">
-            <span class="message-avatar"><Bot :size="15" /></span>
-            <div class="message-bubble thinking-bubble">
-              <i></i><i></i><i></i><span>正在检索知识并整理依据…</span>
-            </div>
+        </template>
+        <div v-if="busy" class="assistant-message">
+          <span class="message-avatar"><Bot :size="15" /></span>
+          <div class="message-bubble thinking-bubble">
+            <i></i><i></i><i></i><span>正在检索知识并整理依据…</span>
           </div>
         </div>
-        <div v-if="statusError" class="assistant-inline-error" role="alert">
-          {{ statusError }}
-          <button class="text-link" @click="reloadStatus">重新检查</button>
-        </div>
-        <div v-else-if="!status?.ready" class="assistant-inline-error">
-          <h3>模型服务尚未启用</h3>
-          请联系管理员在工作台管理中配置。
-        </div>
-        <p v-if="saveError" class="assistant-inline-error" role="alert">
-          {{ saveError }}
-          <button type="button" class="text-link" @click="saveConversation">
-            重试保存
-          </button>
-        </p>
-        <p
-          v-if="error && !messages.some((m) => m.role === 'error')"
-          class="assistant-inline-error"
-          role="status"
-        >
-          {{ error }}
-        </p>
-        <form
-          class="assistant-chat-composer"
-          @submit.prevent="busy ? cancel() : ask()"
-        >
-          <div class="assistant-composer-options">
-            <AppSelect v-model="category" aria-label="知识范围"
-              ><option value="">全部知识</option>
-              <option
-                v-for="c in categories?.categories || []"
-                :key="c.id"
-                :value="c.id"
-              >
-                {{ c.path }}
-              </option></AppSelect
-            ><AppSelect v-model="mode" aria-label="检索方式"
-              ><option value="auto">智能检索</option>
-              <option value="search">分类检索</option>
-              <option value="chain">知识链分析</option></AppSelect
-            >
-          </div>
-          <textarea
-            id="agent-question"
-            v-model="question"
-            required
-            minlength="2"
-            maxlength="1200"
-            rows="2"
-            placeholder="继续提问…"
-            :disabled="busy"
-            @keydown.enter.exact="
-              !$event.isComposing &&
-              ($event.preventDefault(),
-              !busy && status?.ready && question.trim().length >= 2 && ask())
-            "
-            aria-label="知识问答问题"
-          />
-          <div class="assistant-composer-bottom">
-            <small>回答仅基于已发布团队知识，引用可展开核验</small
-            ><button v-if="busy" type="button" @click="cancel" class="button">
-              <StopCircle :size="15" />停止</button
-            ><button
-              v-else
-              type="submit"
-              class="button primary"
-              :disabled="
-                historyLoading || !status?.ready || question.trim().length < 2
-              "
-            >
-              <Send :size="15" />发送
-            </button>
-          </div>
-        </form>
       </div>
+      <div v-if="statusError" class="assistant-inline-error" role="alert">
+        {{ statusError }}
+        <button class="text-link" @click="reloadStatus">重新检查</button>
+      </div>
+      <div v-else-if="!status?.ready" class="assistant-inline-error">
+        <h3>模型服务尚未启用</h3>
+        请联系管理员在工作台管理中配置。
+      </div>
+      <p v-if="saveError" class="assistant-inline-error" role="alert">
+        {{ saveError }}
+        <button type="button" class="text-link" @click="saveConversation">
+          重试保存
+        </button>
+      </p>
+      <p
+        v-if="error && !messages.some((m) => m.role === 'error')"
+        class="assistant-inline-error"
+        role="status"
+      >
+        {{ error }}
+      </p>
+      <form
+        class="assistant-chat-composer"
+        @submit.prevent="busy ? cancel() : ask()"
+      >
+        <textarea
+          id="agent-question"
+          ref="questionInput"
+          v-model="question"
+          required
+          minlength="2"
+          maxlength="1200"
+          rows="2"
+          :placeholder="hasConversation ? '继续提问…' : '输入你的问题…'"
+          :disabled="busy"
+          @keydown.enter.exact="
+            !$event.isComposing &&
+            ($event.preventDefault(),
+            !busy && status?.ready && question.trim().length >= 2 && ask())
+          "
+          aria-label="知识问答问题"
+        />
+        <div class="assistant-composer-options">
+          <AppSelect v-model="category" aria-label="知识范围"
+            ><option value="">全部知识</option>
+            <option
+              v-for="c in categories?.categories || []"
+              :key="c.id"
+              :value="c.id"
+            >
+              {{ c.path }}
+            </option></AppSelect
+          ><AppSelect v-model="mode" aria-label="检索方式"
+            ><option value="auto">智能检索</option>
+            <option value="search">分类检索</option>
+            <option value="chain">知识链分析</option></AppSelect
+          >
+        </div>
+        <div class="assistant-composer-send">
+          <button
+            v-if="busy"
+            type="button"
+            class="button"
+            aria-label="停止"
+            title="停止"
+            @click="cancel"
+          >
+            <StopCircle :size="18" aria-hidden="true" /></button
+          ><button
+            v-else
+            type="submit"
+            class="button primary"
+            aria-label="发送"
+            title="发送"
+            :disabled="
+              historyLoading || !status?.ready || question.trim().length < 2
+            "
+          >
+            <Send :size="18" aria-hidden="true" />
+          </button>
+        </div>
+      </form>
     </div>
   </section>
 </template>

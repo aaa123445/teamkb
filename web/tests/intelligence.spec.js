@@ -339,7 +339,18 @@ test("saved conversations restore after refresh and remain selectable after new 
   await expect(page.locator(".user-message")).toContainText("连接池故障");
   await page.getByRole("button", { name: "新对话", exact: true }).click();
   await expect(page.locator(".user-message")).toHaveCount(0);
-  await page.locator(".assistant-history-item").click();
+  const history = page.getByRole("button", { name: "对话历史", exact: true });
+  const dialog = page.getByRole("dialog", { name: "对话历史" });
+  await history.click();
+  await expect(
+    dialog.getByRole("button", { name: "关闭对话历史" }),
+  ).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(history).toBeFocused();
+  await history.click();
+  await dialog.getByRole("button", { name: "连接池故障怎么排查？" }).click();
+  await expect(dialog).toBeHidden();
   await expect(page.locator(".assistant-bubble")).toContainText(
     "检查连接池状态",
   );
