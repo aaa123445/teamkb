@@ -22,7 +22,7 @@ const doc = {
 async function navigate(page, label, mobile) {
   if (mobile) await page.getByRole("button", { name: "打开导航" }).click();
   await page
-    .getByRole("navigation")
+    .getByRole(mobile ? "dialog" : "complementary", { name: "工作台导航" })
     .getByRole("link", { name: label, exact: true })
     .click();
 }
@@ -134,13 +134,15 @@ test("检索、阅读、长文续读与 Markdown 安全", async ({ page }) => {
   expect(await page.evaluate(() => window.xssTriggered)).toBeUndefined();
   await page.getByRole("button", { name: "加载后续内容" }).click();
   await expect(page.locator(".prose")).toContainText("后续文档内容");
-  await page
-    .locator(".topbar")
-    .getByRole("button", { name: "文档阅读" })
-    .click();
+  const tabs = page.getByRole("navigation", { name: "工作台页签" });
+  const readerTab = tabs.getByRole("link", { name: doc.title });
+  await expect(readerTab).toHaveAttribute("aria-current", "page");
+  await tabs.getByRole("link", { name: "知识检索" }).click();
   await expect(page.getByRole("textbox", { name: "搜索知识库" })).toHaveValue(
     "组织同步",
   );
+  await readerTab.click();
+  await expect(page.locator(".prose")).toContainText("后续文档内容");
   expect(errors).toEqual([]);
 });
 test("页面导航、清单与移动端无横向溢出", async ({ page, isMobile }) => {

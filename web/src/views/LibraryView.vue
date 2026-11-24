@@ -1,6 +1,6 @@
 <script setup>
 import AppSelect from "../components/ui/AppSelect.vue";
-import { ref, computed, watch, onBeforeUnmount } from "vue";
+import { ref, computed, watch, onDeactivated } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   Folder,
@@ -115,7 +115,7 @@ watch(category, (cid) => {
   }
   collapsed.value = next;
 });
-onBeforeUnmount(() => clearTimeout(timer));
+onDeactivated(() => clearTimeout(timer));
 function toggle(cid) {
   const next = new Set(collapsed.value);
   if (next.has(cid)) next.delete(cid);

@@ -129,6 +129,12 @@ test("编辑工具栏、草稿快捷键与离开确认可用", async ({ page }) 
       "修改后的解决方案还没有保存，应该在离开当前编辑器时出现可取消的确认。",
     );
   await page.getByRole("link", { name: "我的贡献 →", exact: true }).click();
+  const tabs = page.getByRole("navigation", { name: "工作台页签" });
+  await tabs.getByRole("link", { name: "经验沉淀", exact: true }).click();
+  await expect(page.locator("#knowledge-content")).toHaveValue(
+    /修改后的解决方案/,
+  );
+  await tabs.getByRole("button", { name: "关闭 经验沉淀 页签" }).click();
   const dialog = page.getByRole("dialog", { name: "离开编辑器？" });
   await expect(dialog).toBeVisible();
   await page.keyboard.press("Control+k");

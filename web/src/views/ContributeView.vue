@@ -2,6 +2,9 @@
 import AppSelect from "../components/ui/AppSelect.vue";
 import {
   reactive,
+  inject,
+  onActivated,
+  onDeactivated,
   ref,
   computed,
   onMounted,
@@ -9,6 +12,7 @@ import {
   nextTick,
 } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
+import { tabKey, workspaceTabsKey } from "../composables/workspaceTabs";
 import { api, post } from "../services/api";
 import { notify } from "../composables/workspace";
 import MarkdownEditor from "../components/workspace/MarkdownEditor.vue";
@@ -76,24 +80,29 @@ function beforeUnload(e) {
     e.returnValue = "";
   }
 }
-onMounted(() => {
-  window.addEventListener("keydown", keydown);
-  window.addEventListener("beforeunload", beforeUnload);
-});
-onBeforeUnmount(() => {
-  window.removeEventListener("keydown", keydown);
-  window.removeEventListener("beforeunload", beforeUnload);
-});
-onBeforeRouteLeave(
-  () =>
-    JSON.stringify(form) === clean.value ||
+const workspaceTabs = inject(workspaceTabsKey);
+const editorTab = tabKey(route);
+function confirmDiscard() {
+  return (
+    !dirty.value ||
     confirmAction({
       title: "离开编辑器？",
       message: "当前内容尚未保存，离开后将丢失这些更改。",
       confirmLabel: "放弃更改",
       danger: true,
-    }),
-);
+    })
+  );
+}
+workspaceTabs.closeGuards.set(editorTab, confirmDiscard);
+onActivated(() => window.addEventListener("keydown", keydown));
+onDeactivated(() => window.removeEventListener("keydown", keydown));
+onMounted(() => window.addEventListener("beforeunload", beforeUnload));
+onBeforeUnmount(() => {
+  window.removeEventListener("beforeunload", beforeUnload);
+  if (workspaceTabs.closeGuards.get(editorTab) === confirmDiscard)
+    workspaceTabs.closeGuards.delete(editorTab);
+});
+onBeforeRouteLeave((to) => to.meta.layout !== "public" || confirmDiscard());
 onMounted(async () => {
   try {
     categories.value = (await api("/categories")).categories;
@@ -163,7 +172,10 @@ async function save(submit) {
         submit,
       { method: id.value ? "PUT" : "POST", body: payload },
     );
-    if (saved.value.id) id.value = saved.value.id;
+    if (saved.value.id) {
+      id.value = saved.value.id;
+      workspaceTabs.contributionUpdate.value = { id: id.value };
+    }
     clean.value = JSON.stringify(form);
     notify(submit ? "已提交审核，发布后团队可检索" : "草稿已保存");
   } catch (e) {

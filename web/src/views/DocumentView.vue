@@ -1,6 +1,15 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
+import {
+  ref,
+  computed,
+  inject,
+  watch,
+  onActivated,
+  onDeactivated,
+  nextTick,
+} from "vue";
 import { useRoute } from "vue-router";
+import { tabKey, workspaceTabsKey } from "../composables/workspaceTabs";
 import {
   ExternalLink,
   Copy,
@@ -26,6 +35,7 @@ const route = useRoute(),
   article = ref(null),
   progress = ref(0),
   copied = ref(false);
+const workspaceTabs = inject(workspaceTabsKey);
 const emptyLinks = Object.freeze([]);
 const {
   data: doc,
@@ -35,6 +45,10 @@ const {
 } = useResource(
   () => post("/read", { id: route.params.id, max_chars: 60000 }),
   [() => route.params.id],
+);
+watch(
+  () => doc.value?.title,
+  (title) => workspaceTabs.setTitle(tabKey(route), title),
 );
 const minutes = computed(() =>
   Math.max(1, Math.ceil((doc.value?.total_chars || 0) / 500)),
@@ -87,21 +101,27 @@ function jump(id) {
   node?.focus({ preventScroll: true });
   active.value = id;
 }
-let frame;
+let frame, scrollArea;
 function scroll() {
   cancelAnimationFrame(frame);
   frame = requestAnimationFrame(() => {
-    if (!article.value) return;
+    if (!article.value?.isConnected) return;
     const rect = article.value.getBoundingClientRect();
-    const travel = Math.max(1, rect.height - window.innerHeight + 110);
+    const viewport = scrollArea?.getBoundingClientRect();
+    const top = (viewport?.top || 0) + 24;
+    const travel = Math.max(
+      1,
+      rect.height - (viewport?.height || innerHeight) + 48,
+    );
     progress.value = Math.min(
       100,
-      Math.max(0, Math.round(((100 - rect.top) / travel) * 100)),
+      Math.max(0, Math.round(((top - rect.top) / travel) * 100)),
     );
     let current = toc.value[0]?.id || "";
     for (const heading of toc.value) {
       const node = document.getElementById(heading.id);
-      if (node?.getBoundingClientRect().top <= 155) current = heading.id;
+      if (node?.getBoundingClientRect().top <= (viewport?.top || 0) + 120)
+        current = heading.id;
     }
     active.value = current;
   });
@@ -110,9 +130,15 @@ function headings(value) {
   toc.value = value;
   nextTick(scroll);
 }
-onMounted(() => window.addEventListener("scroll", scroll, { passive: true }));
-onBeforeUnmount(() => {
-  window.removeEventListener("scroll", scroll);
+onActivated(() => {
+  scrollArea = document.querySelector(".workspace-scroll");
+  scrollArea?.addEventListener("scroll", scroll, { passive: true });
+  window.addEventListener("resize", scroll);
+  scroll();
+});
+onDeactivated(() => {
+  scrollArea?.removeEventListener("scroll", scroll);
+  window.removeEventListener("resize", scroll);
   cancelAnimationFrame(frame);
 });
 </script>

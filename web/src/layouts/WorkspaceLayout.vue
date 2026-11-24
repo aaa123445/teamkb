@@ -4,6 +4,7 @@ import { lockBodyScroll } from "../composables/scrollLock";
 import {
   ref,
   computed,
+  provide,
   watch,
   nextTick,
   onMounted,
@@ -45,6 +46,10 @@ import {
   statusLabel,
 } from "../composables/session";
 import { apiKey, keyDialogOpen, notice, stats } from "../composables/workspace";
+import {
+  useWorkspaceTabs,
+  workspaceTabsKey,
+} from "../composables/workspaceTabs";
 import { focusMain, trapFocus } from "../composables/accessibility";
 import BrandMark from "../components/ui/BrandMark.vue";
 import CommandPalette from "../components/workspace/CommandPalette.vue";
@@ -67,17 +72,42 @@ const mobileOpen = ref(false),
 const contributionRoute = computed(
   () => route.path === "/contributions" || route.path === "/review",
 );
-const backPath = computed(() => {
-  // Read the router's history after each navigation.
-  const { fullPath, name } = route;
-  const previous = router.options.history.state.back;
-  if (typeof previous === "string" && previous !== fullPath) return previous;
-  return name === "document" ? "/library" : "";
-});
-function goBack() {
-  if (typeof router.options.history.state.back === "string") router.back();
-  else if (backPath.value) router.push(backPath.value);
+const tabStrip = ref(null);
+const identity = computed(
+  () => currentUser.value?.id ?? (apiKey.value ? "api-key" : "guest"),
+);
+const workspaceTabs = useWorkspaceTabs(
+  route,
+  router,
+  identity,
+  apiKey,
+  sessionReady,
+  scrollArea,
+);
+const { tabs, active, cacheNames, currentPage, positions } = workspaceTabs;
+provide(workspaceTabsKey, workspaceTabs);
+async function closeTab(tab, event) {
+  const restoreFocus = event.currentTarget === document.activeElement;
+  if ((await workspaceTabs.close(tab)) && restoreFocus) {
+    await nextTick();
+    tabStrip.value
+      ?.querySelector('[aria-current="page"]')
+      ?.focus({ preventScroll: true });
+  }
 }
+watch(
+  [active, tabStrip],
+  () => {
+    const strip = tabStrip.value;
+    const item = strip?.querySelector('[aria-current="page"]')?.parentElement;
+    if (!item) return;
+    const { left, right } = item.getBoundingClientRect();
+    const viewport = strip.getBoundingClientRect();
+    if (left < viewport.left) strip.scrollLeft += left - viewport.left;
+    else if (right > viewport.right) strip.scrollLeft += right - viewport.right;
+  },
+  { flush: "post" },
+);
 const groups = computed(() => [
   {
     label: "知识空间",
@@ -125,7 +155,11 @@ watch(
     mobileOpen.value = false;
     paletteOpen.value = false;
     await nextTick();
-    scrollArea.value?.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    scrollArea.value?.scrollTo({
+      top: positions.get(active.value) ?? 0,
+      left: 0,
+      behavior: "instant",
+    });
   },
 );
 watch(collapsed, (value) =>
@@ -305,18 +339,7 @@ async function signOut() {
             "
             id="workspace-page-title"
           >
-            <button
-              v-if="backPath"
-              type="button"
-              class="breadcrumb-tab breadcrumb-default"
-              title="返回上一页"
-              @click="goBack"
-            >
-              {{ route.meta.title }}
-            </button>
-            <span v-else class="breadcrumb-default">{{
-              route.meta.title
-            }}</span>
+            {{ route.meta.title }}
           </component>
         </div>
         <div class="topbar-right">
@@ -370,12 +393,52 @@ async function signOut() {
           ></template>
         </div>
       </header>
+      <nav
+        v-if="tabs.length"
+        ref="tabStrip"
+        class="workspace-tabs"
+        aria-label="工作台页签"
+      >
+        <div
+          v-for="tab in tabs"
+          :key="tab.key"
+          class="workspace-tab"
+          :class="{ selected: tab.key === active }"
+        >
+          <RouterLink :to="tab.url" custom v-slot="{ href, navigate }">
+            <a
+              :href="href"
+              :title="tab.label"
+              :aria-current="tab.key === active ? 'page' : undefined"
+              class="workspace-tab-link"
+              @click="navigate"
+              >{{ tab.label }}</a
+            >
+          </RouterLink>
+          <button
+            v-if="tabs.length > 1"
+            type="button"
+            class="workspace-tab-close"
+            :aria-label="'关闭 ' + tab.label + ' 页签'"
+            @click="closeTab(tab, $event)"
+          >
+            <X :size="14" aria-hidden="true" />
+          </button>
+        </div>
+      </nav>
       <div ref="scrollArea" class="workspace-scroll">
         <main id="main" class="content" tabindex="-1">
           <div v-if="!sessionReady" class="async-state" role="status">
             正在恢复工作空间…
           </div>
-          <slot v-else />
+          <KeepAlive v-else :include="cacheNames">
+            <component
+              v-if="currentPage"
+              :is="currentPage"
+              :key="currentPage.name"
+              :location="router.currentRoute.value"
+            />
+          </KeepAlive>
         </main>
         <footer class="page-footer">
           <span>TeamKB</span

@@ -45,6 +45,7 @@ test("长对话和历史记录不撑开聊天页，输入框始终可见", async
     if (path === "/assistant/ask") data = { answer: content, citations: [] };
     return route.fulfill({ json: data });
   });
+  await page.goto("/#/assistant");
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 1024, height: 640 },
@@ -54,7 +55,7 @@ test("长对话和历史记录不撑开聊天页，输入框始终可见", async
     { width: 844, height: 390 },
   ]) {
     await page.setViewportSize(viewport);
-    await page.goto("/#/assistant");
+    await page.reload();
     await expect(page.locator(".assistant-bubble")).toContainText("段落 79");
     await expect(page.getByRole("dialog", { name: "对话历史" })).toBeHidden();
     const checkLayout = async () => {
@@ -132,7 +133,7 @@ test("长对话和历史记录不撑开聊天页，输入框始终可见", async
             el.getBoundingClientRect().top - 1,
         ),
     ).toBe(true);
-    await page.evaluate(() => (location.hash = "#/library"));
-    await expect(page.locator(".workspace-chat")).toHaveCount(0);
   }
+  await page.evaluate(() => (location.hash = "#/library"));
+  await expect(page.locator(".workspace-chat")).toHaveCount(0);
 });

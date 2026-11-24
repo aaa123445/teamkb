@@ -1,6 +1,6 @@
 <script setup>
 import AppSelect from "../components/ui/AppSelect.vue";
-import { ref, computed, watch } from "vue";
+import { ref, computed, onBeforeUnmount, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   Search,
@@ -49,10 +49,11 @@ const {
   return recent;
 });
 const domains = computed(() => Object.keys(stats.value?.by_domain || {}));
-let controller;
-async function search(value = query.value) {
+let controller, lastSearch;
+async function search(value = query.value, updateLocation = true) {
   query.value = value;
   if (!value.trim()) return;
+  lastSearch = JSON.stringify([value, domain.value, category.value]);
   controller?.abort();
   controller = new AbortController();
   const current = controller;
@@ -60,14 +61,15 @@ async function search(value = query.value) {
   error.value = "";
   searched.value = true;
   hint.value = "";
-  router.replace({
-    path: "/workspace",
-    query: {
-      q: value,
-      ...(domain.value ? { domain: domain.value } : {}),
-      ...(category.value ? { category: category.value } : {}),
-    },
-  });
+  if (updateLocation)
+    router.replace({
+      path: "/workspace",
+      query: {
+        q: value,
+        ...(domain.value ? { domain: domain.value } : {}),
+        ...(category.value ? { category: category.value } : {}),
+      },
+    });
   try {
     const data = await post(
       "/search",
@@ -79,10 +81,13 @@ async function search(value = query.value) {
       },
       { signal: current.signal },
     );
-    results.value = data.results || [];
-    hint.value = data.hint || "";
+    if (current === controller) {
+      results.value = data.results || [];
+      hint.value = data.hint || "";
+    }
   } catch (e) {
-    if (e.name !== "AbortError") error.value = e.message;
+    if (current === controller && e.name !== "AbortError")
+      error.value = e.message;
   } finally {
     if (current === controller) loading.value = false;
   }
@@ -92,13 +97,32 @@ function filter(value) {
   if (query.value.trim()) search();
 }
 watch(authVersion, () => {
-  if (query.value.trim()) search();
+  if (query.value.trim()) search(query.value, false);
   else {
     searched.value = false;
     error.value = "";
   }
 });
-if (query.value.trim()) search();
+watch(
+  () => route.fullPath,
+  () => {
+    const params = [
+      route.query.q,
+      route.query.domain,
+      route.query.category,
+    ].map((value) => String(value || ""));
+    if (JSON.stringify(params) === lastSearch) return;
+    [query.value, domain.value, category.value] = params;
+    if (query.value.trim()) search(query.value, false);
+    else {
+      controller?.abort();
+      searched.value = false;
+      lastSearch = undefined;
+    }
+  },
+);
+onBeforeUnmount(() => controller?.abort());
+if (query.value.trim()) search(query.value, false);
 </script>
 <template>
   <section class="search-page">

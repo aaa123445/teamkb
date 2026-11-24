@@ -79,16 +79,17 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <component
-    :is="route.meta.layout === 'public' ? PublicLayout : WorkspaceLayout"
-    :online="online"
-    ><RouterView v-slot="{ Component }"
-      ><Transition name="page" :duration="{ enter: 120, leave: 0 }"
-        ><div :key="route.path" class="route-page">
-          <component
-            :is="Component"
-          /></div></Transition></RouterView></component
-  ><KeyDialog /><ConfirmDialog /><Transition name="toast"
+  <PublicLayout v-if="route.meta.layout === 'public'" :online="online">
+    <RouterView v-slot="{ Component }">
+      <Transition name="page" :duration="{ enter: 120, leave: 0 }">
+        <div :key="route.path" class="route-page">
+          <component :is="Component" />
+        </div>
+      </Transition>
+    </RouterView>
+  </PublicLayout>
+  <WorkspaceLayout v-else :online="online" />
+  <KeyDialog /><ConfirmDialog /><Transition name="toast"
     ><div v-if="notice" class="toast" :class="notice.kind" role="status">
       <CircleAlert v-if="notice.kind === 'error'" :size="19" /><CheckCircle2
         v-else

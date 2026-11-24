@@ -1,6 +1,11 @@
 <script setup>
-import { ref, computed, watch, nextTick } from "vue";
-import { useRoute } from "vue-router";
+import { ref, computed, inject, shallowReactive, watch, nextTick } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import {
+  contributionId,
+  contributionTabKey,
+  workspaceTabsKey,
+} from "../composables/workspaceTabs";
 import { api, post } from "../services/api";
 import { useResource } from "../composables/useResource";
 import { notify, refreshStats, authVersion } from "../composables/workspace";
@@ -10,21 +15,30 @@ import MarkdownContent from "../components/MarkdownContent.vue";
 import AsyncState from "../components/AsyncState.vue";
 import "../styles/contributions.css";
 const route = useRoute(),
+  router = useRouter(),
+  workspaceTabs = inject(workspaceTabsKey),
   review = computed(() => route.path === "/review"),
-  status = ref(route.path === "/review" ? "pending" : ""),
+  status = ref(review.value ? "pending" : ""),
   page = ref(1),
-  selected = ref(null),
-  note = ref(""),
-  busy = ref(false),
-  detailError = ref(""),
-  detailLoading = ref(false),
   detailRoot = ref(null),
   listRoot = ref(null),
-  activeId = ref(null),
+  activeId = computed(() => contributionId(route)),
   noteInput = ref(null);
-let detailSequence = 0,
-  previousCard,
-  listScrollTop = 0;
+const details = shallowReactive(new Map());
+const detailTab = (id) =>
+  workspaceTabs.tabs.find(
+    (tab) => tab.key === contributionTabKey(route.path, id),
+  );
+const current = computed(() => details.get(activeId.value));
+const selected = computed(() => current.value?.item);
+const note = computed({
+  get: () => current.value?.note ?? "",
+  set: (value) => {
+    if (current.value) current.value.note = value;
+  },
+});
+let listScrollTop = 0;
+let openedFromCard = false;
 const labels = {
   draft: "草稿",
   pending: "待审核",
@@ -44,90 +58,122 @@ const { data, loading, error, reload } = useResource(
     ),
   [review, status, page],
 );
-watch([review, status, page, authVersion], () => {
-  detailSequence++;
-  activeId.value = null;
-  selected.value = null;
-  detailError.value = "";
-  detailLoading.value = false;
-});
-async function open(item, card) {
-  const sequence = ++detailSequence;
-  previousCard = card;
-  listScrollTop = listRoot.value?.scrollTop ?? 0;
-  activeId.value = item.id;
-  selected.value = null;
-  detailError.value = "";
-  detailLoading.value = true;
-  try {
-    const out = await api("/contributions/" + item.id);
-    if (sequence !== detailSequence) return;
-    selected.value = out;
-    note.value = "";
-  } catch (e) {
-    if (sequence === detailSequence) detailError.value = e.message;
-  } finally {
-    if (sequence === detailSequence) detailLoading.value = false;
-  }
-}
-watch(
-  activeId,
-  (id) => {
-    if (!id || !detailRoot.value) return;
-    detailRoot.value.scrollTop = 0;
-    if (matchMedia("(max-width: 700px)").matches) {
-      detailRoot.value.focus({ preventScroll: true });
-    }
-  },
-  { flush: "post" },
-);
-function closeDetail() {
-  detailSequence++;
-  activeId.value = null;
-  selected.value = null;
-  detailError.value = "";
-  detailLoading.value = false;
-  nextTick(() => {
-    if (listRoot.value) listRoot.value.scrollTop = listScrollTop;
-    previousCard?.focus({ preventScroll: true });
+function newDetail() {
+  return shallowReactive({
+    item: null,
+    note: "",
+    scrollTop: 0,
+    loading: false,
+    error: "",
+    busy: false,
   });
 }
+async function loadDetail(id) {
+  const tab = detailTab(id);
+  if (!tab) return;
+  const entry = details.get(id) ?? newDetail();
+  details.set(id, entry);
+  if (entry.item || entry.loading) return;
+  entry.loading = true;
+  entry.error = "";
+  try {
+    entry.item = await api("/contributions/" + encodeURIComponent(id));
+    if (detailTab(id) === tab)
+      workspaceTabs.setTitle(tab.key, entry.item.title);
+  } catch (e) {
+    entry.error = e.message;
+  } finally {
+    entry.loading = false;
+  }
+}
+async function open(item) {
+  if (activeId.value === item.id) return;
+  openedFromCard = true;
+  const target = { path: route.path, query: { contribution: item.id } };
+  try {
+    if (!(await router.push(target))) {
+      const tab = detailTab(item.id);
+      if (tab && !current.value?.item)
+        workspaceTabs.setTitle(tab.key, item.title);
+    }
+  } finally {
+    openedFromCard = false;
+  }
+}
+watch(workspaceTabs.cacheNames, () => {
+  for (const id of details.keys()) {
+    if (!detailTab(id)) details.delete(id);
+  }
+});
+watch(workspaceTabs.contributionUpdate, (update) => {
+  if (!update) return;
+  const { id, reviewedIn } = update;
+  if (reviewedIn === route.path) return;
+  const entry = details.get(id);
+  if (entry) {
+    details.delete(id);
+    if (id === activeId.value) loadDetail(id);
+  }
+  reload();
+});
+watch(authVersion, () => {
+  details.clear();
+  if (activeId.value) loadDetail(activeId.value);
+});
+watch([status, page], () => {
+  listScrollTop = 0;
+});
+watch(
+  activeId,
+  async (id, previous) => {
+    const previousEntry = details.get(previous);
+    if (previousEntry && detailRoot.value)
+      previousEntry.scrollTop = detailRoot.value.scrollTop;
+    if (listRoot.value?.clientHeight) listScrollTop = listRoot.value.scrollTop;
+
+    if (id) loadDetail(id);
+    await nextTick();
+    if (activeId.value !== id) return;
+    if (detailRoot.value && id) {
+      detailRoot.value.scrollTop = current.value?.scrollTop ?? 0;
+      if (openedFromCard && matchMedia("(max-width: 700px)").matches)
+        detailRoot.value.focus({ preventScroll: true });
+    }
+    if (listRoot.value?.clientHeight) listRoot.value.scrollTop = listScrollTop;
+  },
+  { immediate: true },
+);
+
 async function decide(action) {
-  if (action !== "publish" && !note.value.trim()) {
+  const entry = current.value;
+  if (!entry?.item || entry.busy) return;
+  if (action !== "publish" && !entry.note.trim()) {
     notify("请填写审核意见，让贡献者知道需要如何改进。", "error");
     noteInput.value?.focus();
     return;
   }
-  const sequence = detailSequence;
-  busy.value = true;
+  entry.busy = true;
   try {
-    const result = await post(
-      "/contributions/" + selected.value.id + "/review",
-      { action, note: note.value },
+    entry.item = await post(
+      "/contributions/" + encodeURIComponent(entry.item.id) + "/review",
+      { action, note: entry.note },
     );
-    if (sequence === detailSequence) selected.value = result;
+    workspaceTabs.contributionUpdate.value = {
+      id: entry.item.id,
+      reviewedIn: route.path,
+    };
     notify("审核操作已保存");
     refreshStats().catch(() => {});
     await reload();
   } catch (e) {
     notify(e.message, "error");
   } finally {
-    busy.value = false;
+    entry.busy = false;
   }
 }
 </script>
 <template>
   <section class="contributions-page">
-    <Teleport v-if="activeId" to="#workspace-page-title">
-      <button
-        type="button"
-        class="breadcrumb-tab contribution-back"
-        title="返回贡献列表"
-        @click="closeDetail"
-      >
-        {{ route.meta.title }}
-      </button>
-    </Teleport>
     <div class="contribution-toolbar">
       <div class="contribution-tabs" aria-label="贡献状态筛选">
         <button
@@ -196,7 +242,7 @@ async function decide(action) {
               class="panel kb-contribution"
               :class="{ active: activeId === item.id }"
               :aria-current="activeId === item.id ? 'true' : undefined"
-              @click="open(item, $event.currentTarget)"
+              @click="open(item)"
             >
               <span class="badge status-badge" :data-status="item.status">{{
                 labels[item.status]
@@ -256,11 +302,14 @@ async function decide(action) {
           aria-label="贡献详情"
           tabindex="0"
         >
-          <div v-if="detailLoading" class="async-state" role="status">
+          <div v-if="current?.loading" class="async-state" role="status">
             <LoaderCircle class="spin" :size="24" />正在加载贡献详情…
           </div>
-          <p v-if="detailError" class="error-text" role="alert">
-            {{ detailError }}
+          <p v-if="current?.error" class="error-text" role="alert">
+            {{ current.error }}
+            <button type="button" class="button" @click="loadDetail(activeId)">
+              重新加载
+            </button>
           </p>
           <template v-if="selected"
             ><div class="section-heading">
@@ -359,19 +408,19 @@ async function decide(action) {
                 />
               </label>
               <div class="kb-actions">
-                <button class="button primary" :disabled="busy">
+                <button class="button primary" :disabled="current?.busy">
                   审核并发布</button
                 ><button
                   class="button"
                   type="button"
-                  :disabled="busy"
+                  :disabled="current?.busy"
                   @click="decide('changes_requested')"
                 >
                   退回修改</button
                 ><button
                   class="button danger"
                   type="button"
-                  :disabled="busy"
+                  :disabled="current?.busy"
                   @click="decide('reject')"
                 >
                   拒绝
@@ -395,7 +444,7 @@ async function decide(action) {
             </p></template
           >
           <div
-            v-else-if="!detailLoading && !detailError"
+            v-else-if="!current?.loading && !current?.error"
             class="review-placeholder"
           >
             <span><Files :size="30" /></span>

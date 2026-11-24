@@ -5,6 +5,8 @@ import {
   computed,
   ref,
   onMounted,
+  onActivated,
+  onDeactivated,
   onBeforeUnmount,
   watch,
   nextTick,
@@ -89,8 +91,8 @@ const scope = ref(
     ? "project"
     : "user",
 );
-const key = ref(takeConnectionKey()),
-  includeKey = ref(!!key.value),
+const key = ref(""),
+  includeKey = ref(false),
   autoSubmit = ref(true);
 const manifest = ref(null),
   loading = ref(false),
@@ -214,10 +216,20 @@ watch(
   },
 );
 onMounted(loadManifest);
+onActivated(() => {
+  const handoff = takeConnectionKey();
+  if (handoff) {
+    key.value = handoff;
+    includeKey.value = true;
+  }
+});
 onBeforeUnmount(() => {
   controller.abort();
   clearTimeout(copyTimer);
+});
+onDeactivated(() => {
   key.value = "";
+  includeKey.value = false;
 });
 </script>
 <template>
