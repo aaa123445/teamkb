@@ -233,12 +233,23 @@
   font-weight: 500;
   color: var(--night-text, #344054);
 }
-#workspace-back {
-  display: flex;
-  flex-shrink: 0;
+.breadcrumb-tab {
+  padding: 0;
+  min-height: 32px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-#workspace-back:empty,
-#workspace-back:has(.contribution-back) .workspace-back {
+.breadcrumb-tab:hover,
+.breadcrumb-tab:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.breadcrumb-tab:focus-visible {
+  outline-offset: -2px;
+}
+#workspace-page-title:has(.contribution-back) > .breadcrumb-default {
   display: none;
 }
 .topbar-right {

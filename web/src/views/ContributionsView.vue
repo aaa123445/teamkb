@@ -4,14 +4,7 @@ import { useRoute } from "vue-router";
 import { api, post } from "../services/api";
 import { useResource } from "../composables/useResource";
 import { notify, refreshStats, authVersion } from "../composables/workspace";
-import {
-  Files,
-  Inbox,
-  ArrowLeft,
-  Plus,
-  RefreshCw,
-  LoaderCircle,
-} from "lucide-vue-next";
+import { Files, Inbox, Plus, RefreshCw, LoaderCircle } from "lucide-vue-next";
 import { plainText, relativeDate } from "../utils/format";
 import MarkdownContent from "../components/MarkdownContent.vue";
 import AsyncState from "../components/AsyncState.vue";
@@ -125,15 +118,14 @@ async function decide(action) {
 </script>
 <template>
   <section class="contributions-page">
-    <Teleport v-if="activeId" to="#workspace-back">
+    <Teleport v-if="activeId" to="#workspace-page-title">
       <button
         type="button"
-        class="icon-button contribution-back"
-        aria-label="返回贡献列表"
+        class="breadcrumb-tab contribution-back"
         title="返回贡献列表"
         @click="closeDetail"
       >
-        <ArrowLeft :size="18" aria-hidden="true" />
+        {{ route.meta.title }}
       </button>
     </Teleport>
     <div class="contribution-toolbar">

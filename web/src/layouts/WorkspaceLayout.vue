@@ -17,7 +17,6 @@ import {
   ChartNoAxesCombined,
   Settings2,
   ArrowUpRight,
-  ArrowLeft,
   ChevronRight,
   KeyRound,
   Menu,
@@ -293,29 +292,32 @@ async function signOut() {
         >
           <Menu :size="21" />
         </button>
-        <div id="workspace-back">
-          <button
-            v-if="backPath"
-            type="button"
-            class="icon-button workspace-back"
-            aria-label="返回上一页"
-            title="返回上一页"
-            @click="goBack"
-          >
-            <ArrowLeft :size="18" aria-hidden="true" />
-          </button>
-        </div>
         <div class="breadcrumb">
           <span>{{ route.meta.section }}</span><ChevronRight
             :size="14"
             aria-hidden="true"
           />
-          <strong
-            v-if="route.name === 'document' || route.path === '/contribute'"
+          <component
+            :is="
+              route.name === 'document' || route.path === '/contribute'
+                ? 'strong'
+                : 'h1'
+            "
+            id="workspace-page-title"
           >
-            {{ route.meta.title }}
-          </strong>
-          <h1 v-else>{{ route.meta.title }}</h1>
+            <button
+              v-if="backPath"
+              type="button"
+              class="breadcrumb-tab breadcrumb-default"
+              title="返回上一页"
+              @click="goBack"
+            >
+              {{ route.meta.title }}
+            </button>
+            <span v-else class="breadcrumb-default">{{
+              route.meta.title
+            }}</span>
+          </component>
         </div>
         <div class="topbar-right">
           <button

@@ -136,7 +136,7 @@ test("检索、阅读、长文续读与 Markdown 安全", async ({ page }) => {
   await expect(page.locator(".prose")).toContainText("后续文档内容");
   await page
     .locator(".topbar")
-    .getByRole("button", { name: "返回上一页" })
+    .getByRole("button", { name: "文档阅读" })
     .click();
   await expect(page.getByRole("textbox", { name: "搜索知识库" })).toHaveValue(
     "组织同步",

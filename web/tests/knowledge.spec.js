@@ -226,22 +226,20 @@ test("长贡献列表与详情在各自区域滚动", async ({ page, isMobile })
     await page.locator(".workspace-scroll").evaluate((el) => el.scrollTop),
   ).toBe(0);
 
+  const back = header.getByRole("button", { name: "我的贡献", exact: true });
+  await expect(back).toHaveAttribute("title", "返回贡献列表");
+  await expect(back).toBeInViewport();
+  await back.click();
+  await expect(last).toBeFocused();
+  expect(await list.evaluate((el) => el.scrollTop)).toBe(listScroll);
+
   if (isMobile) {
-    const back = header.getByRole("button", { name: "返回贡献列表" });
-    await expect(back).toBeInViewport();
-    await back.click();
-    await expect(last).toBeFocused();
-    expect(await list.evaluate((el) => el.scrollTop)).toBe(listScroll);
     failDetail = true;
     await last.click();
     await expect(detail.getByRole("alert")).toBeVisible();
     await back.click();
     await expect(last).toBeFocused();
   } else {
-    expect(await list.evaluate((el) => el.scrollTop)).toBe(listScroll);
-    await header.getByRole("button", { name: "返回贡献列表" }).click();
-    await expect(last).toBeFocused();
-    expect(await list.evaluate((el) => el.scrollTop)).toBe(listScroll);
     await first.click();
     await expect(
       detail.getByRole("heading", { name: "测试贡献 0" }),
