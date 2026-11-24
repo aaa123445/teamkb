@@ -99,20 +99,13 @@ html {
 }
 .workspace-main,
 .topbar,
-.topbar-right,
-.breadcrumb {
+.topbar-right {
   min-width: 0;
 }
-.breadcrumb strong,
-.breadcrumb h1,
 .account-chip strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.breadcrumb strong,
-.breadcrumb h1 {
-  max-width: 12em;
 }
 .account-chip strong {
   max-width: 9em;
@@ -127,10 +120,6 @@ html {
   }
   .topbar-right {
     gap: 3px;
-  }
-  .breadcrumb {
-    flex: 1;
-    overflow: hidden;
   }
   .site-header-actions {
     gap: 8px;

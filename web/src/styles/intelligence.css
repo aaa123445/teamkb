@@ -1,7 +1,7 @@
 .intelligence-muted {
   font-size: 12px;
   line-height: 1.8;
-  color: #667085;
+  color: var(--night-muted, #667085);
 }
 .graph-controls {
   display: flex;
@@ -38,11 +38,11 @@
   text-align: left;
   background: none;
   border: 0;
-  color: #344054;
+  color: var(--night-text, #344054);
   cursor: pointer;
 }
 .graph-search-results button:hover {
-  background: #f0f4ff;
+  background: var(--night-soft, #f0f4ff);
 }
 .graph-workspace {
   display: grid;
@@ -58,7 +58,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #667085;
+  color: var(--night-muted, #667085);
   font-size: 12px;
 }
 .graph-canvas-heading > span {
@@ -73,7 +73,11 @@
 .knowledge-graph {
   width: 100%;
   min-height: 340px;
-  background: radial-gradient(ellipse, #f4f7ff, white 70%);
+  background: radial-gradient(
+    ellipse,
+    var(--night-soft, #f4f7ff),
+    var(--night-surface, white) 70%
+  );
   border-radius: 10px;
 }
 .graph-edge {
@@ -84,7 +88,7 @@
   stroke-dasharray: 5 5;
 }
 .graph-edge.highlight {
-  stroke: #7e93c9;
+  stroke: var(--night-muted, #7e93c9);
   stroke-width: 2.4;
 }
 .graph-node {
@@ -103,7 +107,7 @@
 }
 .graph-node text {
   font-size: 12px;
-  fill: #475467;
+  fill: var(--night-muted, #475467);
   font-family: inherit;
 }
 .graph-legend {
@@ -111,7 +115,7 @@
   flex-wrap: wrap;
   gap: 18px;
   font-size: 10px;
-  color: #667085;
+  color: var(--night-muted, #667085);
 }
 .graph-legend span {
   display: flex;
@@ -141,22 +145,22 @@
 }
 .graph-detail .eyebrow {
   font-size: 9px;
-  color: #8490a7;
+  color: var(--night-muted, #8490a7);
 }
 .graph-relation {
   position: relative;
   display: grid;
   gap: 7px;
   padding: 14px 0;
-  border-bottom: 1px solid #eaecf0;
+  border-bottom: 1px solid var(--night-border, #eaecf0);
 }
 .graph-relation small {
   font-size: 10px;
-  color: #667085;
+  color: var(--night-muted, #667085);
 }
 .graph-relation p {
   font-size: 11px;
-  color: #667085;
+  color: var(--night-muted, #667085);
   margin: 0;
 }
 .graph-relation .icon-button {
@@ -185,14 +189,14 @@
   display: grid;
   gap: 7px;
   padding: 13px 0;
-  border-bottom: 1px solid #eaecf0;
+  border-bottom: 1px solid var(--night-border, #eaecf0);
   font-size: 12px;
 }
 .graph-suggestion > a {
-  color: #344054;
+  color: var(--night-text, #344054);
 }
 .graph-suggestion small {
-  color: #667085;
+  color: var(--night-muted, #667085);
   font-size: 11px;
 }
 .graph-empty {
@@ -206,7 +210,7 @@
   font-size: 19px;
 }
 .graph-empty p {
-  color: #667085;
+  color: var(--night-muted, #667085);
   font-size: 13px;
   max-width: 520px;
   margin: 18px auto;
@@ -216,7 +220,11 @@
   text-align: center;
   padding: 35px 25px;
   margin-bottom: 20px;
-  background: linear-gradient(120deg, #f3f5ff, #fff);
+  background: linear-gradient(
+    120deg,
+    var(--night-soft, #f3f5ff),
+    var(--night-surface, #fff)
+  );
 }
 .assistant-avatar {
   display: inline-grid;
@@ -224,7 +232,7 @@
   width: 60px;
   height: 60px;
   border-radius: 18px;
-  background: #eef2ff;
+  background: var(--night-soft, #eef2ff);
   color: var(--primary);
 }
 .assistant-hero h2 {
@@ -232,7 +240,7 @@
   margin: 18px 0 10px;
 }
 .assistant-hero > p {
-  color: #667085;
+  color: var(--night-muted, #667085);
   font-size: 13px;
 }
 .assistant-examples {
@@ -246,9 +254,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid #e4e7ec;
-  background: #fff;
-  color: #475467;
+  border: 1px solid var(--night-border, #e4e7ec);
+  background: var(--night-surface, #fff);
+  color: var(--night-muted, #475467);
   font-size: 11px;
   padding: 12px 14px;
   border-radius: 9px;
@@ -271,7 +279,7 @@
 }
 .assistant-unconfigured p {
   font-size: 12px;
-  color: #667085;
+  color: var(--night-muted, #667085);
   line-height: 1.8;
   margin: 0;
 }
@@ -301,7 +309,7 @@
 }
 .assistant-submit small {
   font-size: 11px;
-  color: #8490a7;
+  color: var(--night-muted, #8490a7);
   line-height: 1.8;
 }
 .assistant-submit button {
@@ -337,7 +345,7 @@
 }
 .assistant-answer-meta small {
   font-size: 10px;
-  color: #8490a7;
+  color: var(--night-muted, #8490a7);
 }
 .assistant-sources h2 {
   font-size: 14px;
@@ -348,7 +356,7 @@
 }
 .assistant-source {
   padding: 16px 0;
-  border-bottom: 1px solid #eaecf0;
+  border-bottom: 1px solid var(--night-border, #eaecf0);
   display: grid;
   gap: 8px;
 }
@@ -358,12 +366,12 @@
   color: var(--primary);
 }
 .assistant-source small {
-  color: #8490a7;
+  color: var(--night-muted, #8490a7);
   font-size: 10px;
 }
 .assistant-source p {
   font-size: 11px;
-  color: #667085;
+  color: var(--night-muted, #667085);
   line-height: 1.8;
   margin: 0;
   overflow-wrap: anywhere;

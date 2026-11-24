@@ -10,8 +10,8 @@
   border: 1px solid var(--input);
   border-radius: 8px;
   padding: 11px 13px;
-  background-color: #fff;
-  color: #303746;
+  background-color: var(--night-surface, #fff);
+  color: var(--night-text, #303746);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -21,7 +21,7 @@
     background-color 160ms;
 }
 .app-select:hover:not(:disabled) {
-  border-color: #b7afcf;
+  border-color: var(--night-border, #b7afcf);
 }
 .app-select:focus-visible,
 .app-select.is-open {
@@ -39,11 +39,11 @@
   white-space: nowrap;
 }
 .app-select-value.is-placeholder {
-  color: #9299a6;
+  color: var(--night-muted, #9299a6);
 }
 .app-select-chevron {
   flex-shrink: 0;
-  color: #8b849b;
+  color: var(--night-muted, #8b849b);
   transition: transform 180ms;
 }
 .app-select.is-open .app-select-chevron {
@@ -53,13 +53,13 @@
   position: fixed;
   z-index: 3000;
   padding: 5px;
-  border: 1px solid #e9e5f0;
+  border: 1px solid var(--night-border, #e9e5f0);
   border-radius: 12px;
-  background: #fff;
+  background: var(--night-surface, #fff);
   box-shadow:
     0 12px 40px #25203f1a,
     0 2px 8px #25203f08;
-  color: #414054;
+  color: var(--night-text, #414054);
   font-size: 13px;
 }
 .app-select-options {
@@ -84,12 +84,12 @@
   overflow-wrap: anywhere;
 }
 .app-select-option.is-active {
-  background: #f5f2fa;
+  background: var(--night-soft, #f5f2fa);
 }
 .app-select-option.is-selected {
-  color: #6e50ad;
+  color: var(--night-6e50ad, #6e50ad);
   font-weight: 500;
-  background: #f1ebfa;
+  background: var(--night-soft, #f1ebfa);
 }
 .app-select-option[aria-disabled="true"] {
   opacity: 0.4;
@@ -101,8 +101,8 @@
   gap: 8px;
   padding: 4px 9px 8px;
   margin-bottom: 5px;
-  border-bottom: 1px solid #f0edf5;
-  color: #9a91a9;
+  border-bottom: 1px solid var(--night-border, #f0edf5);
+  color: var(--night-muted, #9a91a9);
 }
 .app-select-search input {
   width: 100%;
@@ -120,7 +120,7 @@
 .app-select-empty {
   padding: 22px 12px;
   text-align: center;
-  color: #9290a1;
+  color: var(--night-muted, #9290a1);
   font-size: 12px;
 }
 .select-popover-enter-active,

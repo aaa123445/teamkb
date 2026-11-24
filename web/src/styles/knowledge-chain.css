@@ -15,8 +15,8 @@
   padding-left: 0;
 }
 .chain-page .graph-controls :is(select, .app-select) {
-  border-color: #ebe7f0;
-  background-color: #fcfbfd;
+  border-color: var(--night-border, #ebe7f0);
+  background-color: var(--night-surface, #fcfbfd);
   font-size: 11px;
   border-radius: 8px;
 }
@@ -45,96 +45,96 @@
   display: block;
   font-size: 9px;
   letter-spacing: 0.13em;
-  color: #a09aa9;
+  color: var(--night-muted, #a09aa9);
   font-weight: 500;
 }
 .chain-canvas-top h2 {
   font-size: 15px;
   line-height: 1.7;
-  color: #51495d;
+  color: var(--night-muted, #51495d);
   margin: 5px 0 0;
   font-weight: 550;
 }
 .chain-count {
   font-size: 10px;
-  background: #eeebf4;
-  border: 1px solid #e6e0ee;
+  background: var(--night-soft, #eeebf4);
+  border: 1px solid var(--night-border, #e6e0ee);
   padding: 5px 9px;
   border-radius: 6px;
-  color: #8c7ca0;
+  color: var(--night-muted, #8c7ca0);
   white-space: nowrap;
 }
 .chain-page .graph-detail {
   border-radius: 13px;
-  border-color: #eae6ee;
-  background: #fff;
+  border-color: var(--night-border, #eae6ee);
+  background: var(--night-surface, #fff);
   padding: 23px 20px;
   max-height: 640px;
 }
 .chain-page .graph-detail .eyebrow {
   letter-spacing: 0.05em;
-  color: #a397ad;
+  color: var(--night-muted, #a397ad);
 }
 .chain-page .graph-detail h2 {
   font-size: 16px;
   font-weight: 550;
-  color: #4c4358;
+  color: var(--night-muted, #4c4358);
   margin: 16px 0 10px;
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
 .chain-page .graph-detail .button {
   font-size: 11px;
-  border-color: #e9e4ee;
+  border-color: var(--night-border, #e9e4ee);
 }
 .chain-page .graph-detail h3 {
   display: flex;
   gap: 7px;
   align-items: center;
-  color: #8b8096;
+  color: var(--night-muted, #8b8096);
   font-size: 11px;
   font-weight: 500;
-  border-top: 1px solid #f0edf3;
+  border-top: 1px solid var(--night-border, #f0edf3);
   padding-top: 22px;
   margin-top: 24px;
 }
 .chain-page .graph-relation {
   gap: 9px;
-  border-bottom-color: #f2eff5;
+  border-bottom-color: var(--night-border, #f2eff5);
 }
 .chain-page .graph-relation .text-link {
   font-size: 12px;
-  color: #8062a6;
+  color: var(--night-8062a6, #8062a6);
   text-align: left;
   line-height: 1.7;
 }
 .chain-page .graph-relation small {
   font-size: 9px;
-  color: #a79dae;
+  color: var(--night-muted, #a79dae);
 }
 .chain-page .graph-relation .icon-button {
   height: 24px;
   width: 24px;
-  color: #b8b0c0;
+  color: var(--night-muted, #b8b0c0);
 }
 .chain-page .graph-legend {
   padding: 14px 3px;
   gap: 20px;
-  color: #a298ad;
+  color: var(--night-muted, #a298ad);
   font-size: 9px;
 }
 .chain-page .graph-legend i {
-  border-color: #b3a2cd;
+  border-color: var(--night-border, #b3a2cd);
 }
 .chain-page .graph-legend i.dashed {
-  border-color: #c0c9d4;
+  border-color: var(--night-border, #c0c9d4);
 }
 .chain-standalone {
   min-height: 420px;
   box-sizing: border-box;
-  border: 1px dashed #e3dce9;
+  border: 1px dashed var(--night-border, #e3dce9);
   border-radius: 14px;
-  background: linear-gradient(145deg, #fcfafec9, #f7f6fa);
+  background: linear-gradient(145deg, var(--card), var(--muted));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -148,8 +148,8 @@
   width: 70px;
   height: 78px;
   border-radius: 18px;
-  color: #a38cbe;
-  background: #f0eaf7;
+  color: var(--night-muted, #a38cbe);
+  background: var(--night-soft, #f0eaf7);
   box-shadow: 0 8px 25px #8d70ae0a;
   margin-bottom: 24px;
   transform: rotate(-5deg);
@@ -157,20 +157,20 @@
 .chain-standalone h2 {
   font-size: 20px;
   font-weight: 500;
-  color: #665773;
+  color: var(--night-muted, #665773);
   margin: 12px 0 0;
 }
 .chain-standalone p {
   max-width: 390px;
   font-size: 12px;
   line-height: 1.9;
-  color: #a195aa;
+  color: var(--night-muted, #a195aa);
   margin: 15px 0 24px;
 }
 .chain-standalone .text-link {
   font-size: 10px;
   margin-top: 17px;
-  color: #9d8aac;
+  color: var(--night-muted, #9d8aac);
 }
 .chain-page .button.primary {
   background: var(--primary);
@@ -184,20 +184,20 @@
   align-items: center;
   gap: 10px;
   margin: 20px 0 0;
-  border-top: 1px solid #ece8f0;
+  border-top: 1px solid var(--night-border, #ece8f0);
   padding-top: 20px;
   flex-wrap: wrap;
 }
 .chain-secondary-actions > .button {
   font-size: 11px;
-  color: #8e7c9f;
-  border-color: #e7e0ed;
-  background: #fcfafd;
+  color: var(--night-muted, #8e7c9f);
+  border-color: var(--night-border, #e7e0ed);
+  background: var(--night-surface, #fcfafd);
   gap: 7px;
 }
 .chain-secondary-actions > span {
   font-size: 10px;
-  color: #b0a7b7;
+  color: var(--night-muted, #b0a7b7);
   margin-left: auto;
 }
 .chain-page .graph-bottom {
@@ -205,18 +205,22 @@
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 .chain-page .graph-bottom .panel {
-  border-color: #eae4f0;
+  border-color: var(--night-border, #eae4f0);
   border-radius: 12px;
 }
 .chain-page .graph-bottom h2 {
-  color: #7d6b8e;
+  color: var(--night-muted, #7d6b8e);
   font-weight: 500;
   font-size: 13px;
   margin: 0 0 12px;
 }
 .chain-page .graph-empty {
-  border: 1px dashed #e3dce9;
-  background: linear-gradient(145deg, #fcfbfe, #f8f6fb);
+  border: 1px dashed var(--night-border, #e3dce9);
+  background: linear-gradient(
+    145deg,
+    var(--night-surface, #fcfbfe),
+    var(--night-soft, #f8f6fb)
+  );
   border-radius: 16px;
   padding: 80px 25px 75px;
   display: flex;
@@ -229,32 +233,32 @@
   width: 80px;
   height: 80px;
   border-radius: 25px;
-  background: #efe9f7;
-  color: #a58bbe;
+  background: var(--night-soft, #efe9f7);
+  color: var(--night-muted, #a58bbe);
   margin-bottom: 25px;
   box-shadow: 0 10px 35px #8164a014;
 }
 .chain-page .graph-empty h2 {
   font-weight: 500;
-  color: #6e5d7b;
+  color: var(--night-muted, #6e5d7b);
   font-size: 22px;
   margin: 15px 0 0;
 }
 .chain-page .graph-empty p {
   font-size: 12px;
-  color: #a497ae;
+  color: var(--night-muted, #a497ae);
   max-width: 430px;
   line-height: 1.9;
   margin: 18px auto 27px;
 }
 .chain-page .graph-empty .button {
-  color: #8f79a1;
-  border-color: #e1d7ea;
+  color: var(--night-muted, #8f79a1);
+  border-color: var(--night-border, #e1d7ea);
   font-size: 12px;
   padding: 10px 22px;
 }
 .chain-page .graph-search-results {
-  border-color: #e8e0f0;
+  border-color: var(--night-border, #e8e0f0);
   max-height: 280px;
   overflow: auto;
 }
@@ -263,21 +267,21 @@
   border-radius: 7px;
 }
 .chain-page .graph-search-results button:hover {
-  background: #f7f1fc;
+  background: var(--night-soft, #f7f1fc);
 }
 .chain-page .graph-reading-order {
-  border-color: #eae4f0;
+  border-color: var(--night-border, #eae4f0);
 }
 .chain-page .graph-reading-order h2 {
   font-weight: 500;
-  color: #837093;
+  color: var(--night-muted, #837093);
 }
 .chain-page .graph-reading-order ol {
-  color: #9984ad;
+  color: var(--night-muted, #9984ad);
   font-size: 11px;
 }
 .chain-page .graph-reading-order a {
-  color: #806993;
+  color: var(--night-muted, #806993);
 }
 @media (max-width: 1000px) {
   .chain-page .graph-workspace {
@@ -331,7 +335,7 @@
 .chain-entrypoints h2 {
   font-size: 15px;
   font-weight: 500;
-  color: #796587;
+  color: var(--night-muted, #796587);
   margin: 0 0 10px;
 }
 .chain-entry-grid {
@@ -345,10 +349,10 @@
   gap: 9px;
   text-align: left;
   padding: 18px;
-  background: #fcfaff;
-  border: 1px solid #e9e0f0;
+  background: var(--night-surface, #fcfaff);
+  border: 1px solid var(--night-border, #e9e0f0);
   border-radius: 10px;
-  color: #8e76a6;
+  color: var(--night-muted, #8e76a6);
   cursor: pointer;
 }
 .chain-entry-grid strong {
@@ -362,15 +366,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #b1a3ba;
+  color: var(--night-muted, #b1a3ba);
 }
 .chain-accessible-list {
   margin-top: 12px;
   padding: 14px 16px;
-  border: 1px solid #ebe5f0;
+  border: 1px solid var(--night-border, #ebe5f0);
   border-radius: 10px;
   font-size: 11px;
-  color: #8b789b;
+  color: var(--night-muted, #8b789b);
 }
 .chain-accessible-list summary {
   cursor: pointer;
@@ -383,20 +387,20 @@
   padding-top: 13px;
 }
 .chain-accessible-list a {
-  color: #80629e;
+  color: var(--night-muted, #80629e);
 }
 .chain-accessible-list span {
-  color: #b0a3b9;
+  color: var(--night-muted, #b0a3b9);
 }
 .chain-render-notice {
   padding: 60px 25px;
   text-align: center;
   min-height: 260px;
   box-sizing: border-box;
-  border: 1px solid #e9e0ef;
+  border: 1px solid var(--night-border, #e9e0ef);
   border-radius: 14px;
-  background: #faf7fd;
-  color: #9d86af;
+  background: var(--night-soft, #faf7fd);
+  color: var(--night-muted, #9d86af);
   font-size: 12px;
 }
 .chain-render-notice p {
@@ -409,20 +413,20 @@
   gap: 13px;
   margin-bottom: 20px;
   flex-wrap: wrap;
-  border-color: #e9e1ef;
+  border-color: var(--night-border, #e9e1ef);
 }
 .chain-all-note strong {
   font-weight: 500;
   font-size: 14px;
-  color: #806997;
+  color: var(--night-muted, #806997);
 }
 .chain-all-note > span:not(.chain-mini-label) {
   font-size: 11px;
-  color: #aa98b7;
+  color: var(--night-muted, #aa98b7);
 }
 .chain-all-note small {
   font-size: 10px;
-  color: #b4a7bd;
+  color: var(--night-muted, #b4a7bd);
   margin-left: auto;
 }
 @media (max-width: 800px) {

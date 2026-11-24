@@ -18,7 +18,6 @@ import {
   ChartNoAxesCombined,
   Settings2,
   ArrowUpRight,
-  ChevronRight,
   KeyRound,
   Menu,
   X,
@@ -96,7 +95,7 @@ async function closeTab(tab, event) {
   }
 }
 watch(
-  [active, tabStrip],
+  [active, tabStrip, () => tabs.map((tab) => tab.label).join("\n")],
   () => {
     const strip = tabStrip.value;
     const item = strip?.querySelector('[aria-current="page"]')?.parentElement;
@@ -326,22 +325,45 @@ async function signOut() {
         >
           <Menu :size="21" />
         </button>
-        <div class="breadcrumb">
-          <span>{{ route.meta.section }}</span><ChevronRight
-            :size="14"
-            aria-hidden="true"
-          />
-          <component
-            :is="
-              route.name === 'document' || route.path === '/contribute'
-                ? 'strong'
-                : 'h1'
-            "
-            id="workspace-page-title"
+        <h1
+          v-if="route.name !== 'document' && route.path !== '/contribute'"
+          class="sr-only"
+        >
+          {{ route.meta.title }}
+        </h1>
+        <nav
+          v-if="tabs.length"
+          ref="tabStrip"
+          class="workspace-tabs"
+          aria-label="工作台页签"
+        >
+          <div
+            v-for="tab in tabs"
+            :key="tab.key"
+            class="workspace-tab"
+            :class="{ selected: tab.key === active }"
           >
-            {{ route.meta.title }}
-          </component>
-        </div>
+            <RouterLink :to="tab.url" custom v-slot="{ href, navigate }">
+              <a
+                :href="href"
+                :title="tab.label"
+                :aria-current="tab.key === active ? 'page' : undefined"
+                class="workspace-tab-link"
+                @click="navigate"
+                >{{ tab.label }}</a
+              >
+            </RouterLink>
+            <button
+              v-if="tabs.length > 1"
+              type="button"
+              class="workspace-tab-close"
+              :aria-label="'关闭 ' + tab.label + ' 页签'"
+              @click="closeTab(tab, $event)"
+            >
+              <X :size="14" aria-hidden="true" />
+            </button>
+          </div>
+        </nav>
         <div class="topbar-right">
           <button
             type="button"
@@ -393,39 +415,6 @@ async function signOut() {
           ></template>
         </div>
       </header>
-      <nav
-        v-if="tabs.length"
-        ref="tabStrip"
-        class="workspace-tabs"
-        aria-label="工作台页签"
-      >
-        <div
-          v-for="tab in tabs"
-          :key="tab.key"
-          class="workspace-tab"
-          :class="{ selected: tab.key === active }"
-        >
-          <RouterLink :to="tab.url" custom v-slot="{ href, navigate }">
-            <a
-              :href="href"
-              :title="tab.label"
-              :aria-current="tab.key === active ? 'page' : undefined"
-              class="workspace-tab-link"
-              @click="navigate"
-              >{{ tab.label }}</a
-            >
-          </RouterLink>
-          <button
-            v-if="tabs.length > 1"
-            type="button"
-            class="workspace-tab-close"
-            :aria-label="'关闭 ' + tab.label + ' 页签'"
-            @click="closeTab(tab, $event)"
-          >
-            <X :size="14" aria-hidden="true" />
-          </button>
-        </div>
-      </nav>
       <div ref="scrollArea" class="workspace-scroll">
         <main id="main" class="content" tabindex="-1">
           <div v-if="!sessionReady" class="async-state" role="status">

@@ -216,20 +216,20 @@ onBeforeUnmount(() => {
 .command-dialog {
   width: 620px;
   max-width: 100%;
-  background: white;
-  border: 1px solid #e4e7ec;
+  background: var(--night-surface, white);
+  border: 1px solid var(--night-border, #e4e7ec);
   border-radius: 18px;
   box-shadow: 0 30px 100px #10182840;
   overflow: hidden;
-  color: #344054;
+  color: var(--night-text, #344054);
 }
 .command-input {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 20px;
-  border-bottom: 1px solid #eaecf0;
-  color: #98a2b3;
+  border-bottom: 1px solid var(--night-border, #eaecf0);
+  color: var(--night-muted, #98a2b3);
 }
 .command-input input {
   width: 100%;
@@ -247,7 +247,7 @@ onBeforeUnmount(() => {
 .command-label {
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: #98a2b3;
+  color: var(--night-muted, #98a2b3);
   margin: 6px 10px 10px;
 }
 .command-result {
@@ -258,12 +258,12 @@ onBeforeUnmount(() => {
   gap: 14px;
   padding: 13px 12px;
   border-radius: 9px;
-  color: #667085;
+  color: var(--night-muted, #667085);
 }
 .command-result > span {
   flex: 1;
   min-width: 0;
-  color: #344054;
+  color: var(--night-text, #344054);
   font-size: 14px;
 }
 .command-result strong {
@@ -276,7 +276,7 @@ onBeforeUnmount(() => {
 .command-result small {
   display: block;
   font-size: 12px;
-  color: #98a2b3;
+  color: var(--night-muted, #98a2b3);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -288,22 +288,22 @@ onBeforeUnmount(() => {
 }
 .command-empty {
   padding: 25px 16px;
-  color: #667085;
+  color: var(--night-muted, #667085);
   font-size: 14px;
 }
 .command-dialog footer {
   display: flex;
   justify-content: space-between;
   padding: 12px 20px;
-  border-top: 1px solid #eaecf0;
+  border-top: 1px solid var(--night-border, #eaecf0);
   font-size: 11px;
-  color: #98a2b3;
-  background: #fcfcfd;
+  color: var(--night-muted, #98a2b3);
+  background: var(--night-surface, #fcfcfd);
 }
 .command-dialog kbd {
   display: inline-block;
-  border: 1px solid #e4e7ec;
-  background: white;
+  border: 1px solid var(--night-border, #e4e7ec);
+  background: var(--night-surface, white);
   border-radius: 4px;
   padding: 1px 4px;
   font-family: inherit;

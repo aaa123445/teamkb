@@ -97,21 +97,21 @@ onBeforeUnmount(() => {
 .confirm-dialog > p {
   font-size: 14px;
   line-height: 1.85;
-  color: #667085;
+  color: var(--night-muted, #667085);
   white-space: pre-line;
 }
 .confirm-icon {
   display: grid;
   place-items: center;
-  background: #eef2ff;
-  color: #465fff;
+  background: var(--night-soft, #eef2ff);
+  color: var(--night-465fff, #465fff);
   width: 48px;
   height: 48px;
   border-radius: 14px;
 }
 .confirm-icon.is-danger {
-  background: #fff0ef;
-  color: #d92d20;
+  background: var(--night-soft, #fff0ef);
+  color: var(--night-d92d20, #d92d20);
 }
 .confirm-actions {
   display: flex;

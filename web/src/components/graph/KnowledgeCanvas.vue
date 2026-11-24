@@ -230,8 +230,8 @@ onBeforeUnmount(() => {
   background-size:
     auto,
     20px 20px;
-  background-color: #faf9fc;
-  border: 1px solid #ece8f2;
+  background-color: var(--night-soft, #faf9fc);
+  border: 1px solid var(--night-border, #ece8f2);
 }
 .kb-canvas-shell .knowledge-graph {
   position: absolute;
@@ -257,7 +257,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 7px;
   font-size: 11px;
-  color: #847b95;
+  color: var(--night-muted, #847b95);
 }
 .kb-canvas-toolbar > span i {
   width: 6px;
@@ -271,7 +271,7 @@ onBeforeUnmount(() => {
   gap: 3px;
   padding: 4px;
   background: #ffffffed;
-  border: 1px solid #e9e4ef;
+  border: 1px solid var(--night-border, #e9e4ef);
   border-radius: 10px;
   box-shadow: 0 4px 15px #3d254208;
   pointer-events: auto;
@@ -284,17 +284,17 @@ onBeforeUnmount(() => {
   background: none;
   border: 0;
   border-radius: 6px;
-  color: #797086;
+  color: var(--night-muted, #797086);
   cursor: pointer;
 }
 .kb-canvas-toolbar button:hover {
-  color: #7552b8;
-  background: #f1ecfa;
+  color: var(--night-7552b8, #7552b8);
+  background: var(--night-soft, #f1ecfa);
 }
 .kb-canvas-toolbar div > span {
   height: 17px;
   width: 1px;
-  background: #ece7f0;
+  background: var(--night-soft, #ece7f0);
   margin: 0 3px;
 }
 .kb-canvas-hint {
@@ -302,7 +302,7 @@ onBeforeUnmount(() => {
   bottom: 16px;
   left: 18px;
   font-size: 10px;
-  color: #98909f;
+  color: var(--night-muted, #98909f);
   display: flex;
   gap: 6px;
   align-items: center;
@@ -315,8 +315,8 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: #faf9fc;
-  color: #667085;
+  background: var(--night-soft, #faf9fc);
+  color: var(--night-muted, #667085);
 }
 .kb-graph-card {
   width: 176px;
@@ -328,10 +328,10 @@ onBeforeUnmount(() => {
   justify-content: center;
   text-align: left;
   padding: 12px 14px;
-  background: #fff;
-  border: 1px solid #e9e4ef;
+  background: var(--night-surface, #fff);
+  border: 1px solid var(--night-border, #e9e4ef);
   border-radius: 12px;
-  color: #534b60;
+  color: var(--night-muted, #534b60);
   box-shadow: 0 4px 12px #48386009;
   cursor: grab;
   font-family: inherit;
@@ -340,7 +340,7 @@ onBeforeUnmount(() => {
     box-shadow 0.15s;
 }
 .kb-graph-card:hover {
-  border-color: #c6b5df;
+  border-color: var(--night-border, #c6b5df);
   box-shadow: 0 5px 15px #5d437514;
 }
 .kb-graph-card.selected {
@@ -350,7 +350,7 @@ onBeforeUnmount(() => {
     0 6px 18px #604b7712;
 }
 .kb-graph-card.center {
-  background: #fcfaff;
+  background: var(--night-surface, #fcfaff);
 }
 .kb-graph-card-top {
   display: flex;
@@ -369,10 +369,10 @@ onBeforeUnmount(() => {
   font-size: 8px;
   font-style: normal;
   margin-left: auto;
-  background: #ede7f7;
+  background: var(--night-soft, #ede7f7);
   border-radius: 4px;
   padding: 1px 4px;
-  color: #8d72b9;
+  color: var(--night-8d72b9, #8d72b9);
 }
 .kb-graph-card strong {
   font-size: 11px;

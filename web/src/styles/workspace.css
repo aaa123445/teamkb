@@ -217,37 +217,22 @@
   background: var(--night-soft, #e6e9ef);
   flex-shrink: 0;
 }
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--night-muted, #98a2b3);
-  font-size: 12px;
-  white-space: nowrap;
-}
-.breadcrumb strong,
-.breadcrumb h1 {
-  margin: 0;
-  font-size: inherit;
-  line-height: 1.4;
-  font-weight: 500;
-  color: var(--night-text, #344054);
-}
 .workspace-tabs {
   display: flex;
-  flex-shrink: 0;
+  flex: 1;
   gap: 5px;
-  padding: 5px 16px;
+  padding: 6px 2px;
   min-width: 0;
   overflow-x: auto;
-  border-bottom: 1px solid var(--border);
-  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  container-type: inline-size;
 }
 .workspace-tab {
   display: flex;
   align-items: center;
   flex: 0 0 auto;
-  max-width: 210px;
+  max-width: min(210px, 100cqi);
   border: 1px solid transparent;
   border-radius: 7px;
   color: var(--muted-foreground);
@@ -280,6 +265,9 @@
   margin-right: 4px;
   border-radius: 4px;
 }
+.workspace-tab :focus-visible {
+  outline-offset: -2px;
+}
 .workspace-tab-close:hover {
   background: var(--night-soft);
   color: var(--foreground);
@@ -288,6 +276,7 @@
   display: flex;
   align-items: center;
   gap: 13px;
+  flex-shrink: 0;
   margin-left: auto;
 }
 .account-chip {
@@ -335,7 +324,7 @@
 }
 .workspace-scroll {
   --sticky-top: 16px;
-  --sticky-max-height: calc(100dvh - 153px - var(--workspace-inset) * 2);
+  --sticky-max-height: calc(100dvh - 110px - var(--workspace-inset) * 2);
   flex: 1;
   min-height: 0;
   min-width: 0;
@@ -588,11 +577,6 @@
   .topbar-right {
     gap: 7px;
   }
-  .breadcrumb {
-    font-size: 12px;
-  }
-  .breadcrumb > span,
-  .breadcrumb > svg,
   .key-avatar {
     display: none;
   }

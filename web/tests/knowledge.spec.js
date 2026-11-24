@@ -186,6 +186,10 @@ test("长贡献列表与详情在各自区域滚动", async ({ page, isMobile })
   const detail = page.getByRole("article", { name: "贡献详情" });
   const header = page.locator(".topbar");
   const toolbar = page.locator(".contribution-toolbar");
+  const tabBar = header.getByRole("navigation", { name: "工作台页签" });
+  await expect(tabBar.getByRole("link", { name: "我的贡献" })).toBeVisible();
+  await expect(page.locator(".breadcrumb")).toHaveCount(0);
+
   const first = list.getByRole("button", { name: /测试贡献 0\b/ });
   const last = list.getByRole("button", { name: /测试贡献 19\b/ });
   await expect(first).toBeVisible();
@@ -201,6 +205,30 @@ test("长贡献列表与详情在各自区域滚动", async ({ page, isMobile })
       page.locator(".sidebar-header").getByRole("button", { name: "收起侧栏" }),
     ).toBeVisible();
   }
+  for (const colorScheme of ["dark", "light"]) {
+    await page.emulateMedia({ colorScheme });
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-theme",
+      colorScheme,
+    );
+    const cardColor = await page.evaluate(() =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--card")
+        .trim(),
+    );
+    const cardBackground = await page.evaluate((color) => {
+      const probe = document.createElement("span");
+      probe.style.backgroundColor = color;
+      document.body.append(probe);
+      const background = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return background;
+    }, cardColor);
+    await expect(first).toHaveCSS("background-color", cardBackground);
+    if (!isMobile)
+      await expect(detail).toHaveCSS("background-color", cardBackground);
+  }
+
   const toolbarBox = await toolbar.boundingBox();
   const detailBox = isMobile ? null : await detail.boundingBox();
   await list.hover();
@@ -234,7 +262,6 @@ test("长贡献列表与详情在各自区域滚动", async ({ page, isMobile })
   ).toBe(0);
 
   const detailScroll = await detail.evaluate((el) => el.scrollTop);
-  const tabBar = page.getByRole("navigation", { name: "工作台页签" });
   const listTab = tabBar.getByRole("link", { name: "我的贡献", exact: true });
   const lastTab = tabBar.getByRole("link", {
     name: "测试贡献 19",

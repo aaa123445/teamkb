@@ -45,7 +45,10 @@ test("custom select supports keyboard selection, dismissal and focus restoration
   await expect(page.getByRole("listbox")).toHaveCount(0);
   await expect(control).toBeFocused();
   await control.click();
-  await page.getByRole("heading", { name: "知识链", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "工作台页签" })
+    .getByRole("link", { name: "知识链", exact: true })
+    .click();
   await expect(control).toHaveAttribute("aria-expanded", "false");
 });
 test("searchable options stay within the viewport and close when navigating", async ({

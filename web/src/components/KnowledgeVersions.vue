@@ -211,15 +211,15 @@ onBeforeUnmount(() => {
   bottom: 0;
   width: 720px;
   max-width: 100%;
-  background: #fff;
+  background: var(--night-surface, #fff);
   box-shadow: -15px 0 60px #10182820;
   display: flex;
   flex-direction: column;
-  color: #344054;
+  color: var(--night-text, #344054);
 }
 .version-drawer > header {
   padding: 28px 30px;
-  border-bottom: 1px solid #eaecf0;
+  border-bottom: 1px solid var(--night-border, #eaecf0);
   display: flex;
   align-items: flex-start;
   gap: 15px;
@@ -230,7 +230,7 @@ onBeforeUnmount(() => {
 }
 .version-drawer > header .eyebrow {
   font-size: 9px;
-  color: #98a2b3;
+  color: var(--night-muted, #98a2b3);
 }
 .version-drawer h2 {
   font-size: 23px;
@@ -238,7 +238,7 @@ onBeforeUnmount(() => {
 }
 .version-drawer header p {
   font-size: 12px;
-  color: #98a2b3;
+  color: var(--night-muted, #98a2b3);
   margin: 0;
   overflow-wrap: anywhere;
 }
@@ -258,23 +258,23 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 9px;
   padding: 11px 13px;
-  border: 1px solid #e4e7ec;
+  border: 1px solid var(--night-border, #e4e7ec);
   border-radius: 8px;
   text-align: left;
 }
 .version-list button.active {
-  border-color: #a4bcfd;
-  background: #f5f7ff;
+  border-color: var(--night-border, #a4bcfd);
+  background: var(--night-soft, #f5f7ff);
 }
 .version-list strong {
   display: block;
   font-size: 12px;
-  color: #475467;
+  color: var(--night-muted, #475467);
   font-weight: 500;
 }
 .version-list small {
   font-size: 10px;
-  color: #98a2b3;
+  color: var(--night-muted, #98a2b3);
   display: block;
   margin-top: 5px;
 }
@@ -282,15 +282,15 @@ onBeforeUnmount(() => {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #bccafa;
-  border: 2px solid #eef2ff;
+  background: var(--night-tint, #bccafa);
+  border: 2px solid var(--night-border, #eef2ff);
 }
 .version-meta {
   font-size: 11px;
-  color: #98a2b3;
+  color: var(--night-muted, #98a2b3);
   margin: 0 0 25px;
   padding-bottom: 15px;
-  border-bottom: 1px solid #eaecf0;
+  border-bottom: 1px solid var(--night-border, #eaecf0);
 }
 .version-hint {
   display: flex;
@@ -303,22 +303,22 @@ onBeforeUnmount(() => {
 }
 .version-hint h3 {
   font-size: 16px;
-  color: #667085;
+  color: var(--night-muted, #667085);
   margin: 22px 0 10px;
 }
 .version-hint p {
   font-size: 12px;
-  color: #98a2b3;
+  color: var(--night-muted, #98a2b3);
 }
 .version-drawer > footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  border-top: 1px solid #eaecf0;
+  border-top: 1px solid var(--night-border, #eaecf0);
   padding: 18px 30px;
   font-size: 11px;
-  color: #98a2b3;
+  color: var(--night-muted, #98a2b3);
 }
 .version-drawer .button.primary {
   background: var(--primary);
