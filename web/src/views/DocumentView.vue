@@ -1,8 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import {
-  ArrowLeft,
   ExternalLink,
   Copy,
   FileText,
@@ -21,7 +20,6 @@ import AsyncState from "../components/AsyncState.vue";
 import KnowledgeVersions from "../components/KnowledgeVersions.vue";
 import MarkdownContent from "../components/MarkdownContent.vue";
 const route = useRoute(),
-  router = useRouter(),
   moreBusy = ref(false),
   toc = ref([]),
   active = ref(""),
@@ -78,10 +76,6 @@ async function copy() {
     notify("复制失败，请检查浏览器剪贴板权限", "error");
   }
 }
-function back() {
-  if (window.history.state.back) router.back();
-  else router.push("/library");
-}
 function jump(id) {
   const node = document.getElementById(id);
   node?.scrollIntoView({
@@ -124,11 +118,6 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <section class="document-page">
-    <div class="reader-topline">
-      <button class="text-link back-link" @click="back">
-        <ArrowLeft :size="16" />返回上一页</button
-      ><span>团队知识 / 文档阅读</span>
-    </div>
     <AsyncState :loading="loading" :error="error" @retry="reload"
       ><div v-if="doc" class="document-layout">
         <article ref="article" class="reader">

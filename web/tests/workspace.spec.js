@@ -122,7 +122,7 @@ test("检索、阅读、长文续读与 Markdown 安全", async ({ page }) => {
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/#/workspace");
   await expect(
-    page.getByRole("heading", { name: "让开发有据可循." }),
+    page.getByRole("heading", { name: "知识检索", exact: true }),
   ).toBeVisible();
   await page.getByRole("textbox", { name: "搜索知识库" }).fill("组织同步");
   await page.getByRole("button", { name: "搜索知识", exact: true }).click();
@@ -134,6 +134,13 @@ test("检索、阅读、长文续读与 Markdown 安全", async ({ page }) => {
   expect(await page.evaluate(() => window.xssTriggered)).toBeUndefined();
   await page.getByRole("button", { name: "加载后续内容" }).click();
   await expect(page.locator(".prose")).toContainText("后续文档内容");
+  await page
+    .locator(".topbar")
+    .getByRole("button", { name: "返回上一页" })
+    .click();
+  await expect(page.getByRole("textbox", { name: "搜索知识库" })).toHaveValue(
+    "组织同步",
+  );
   expect(errors).toEqual([]);
 });
 test("页面导航、清单与移动端无横向溢出", async ({ page, isMobile }) => {

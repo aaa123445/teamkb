@@ -103,13 +103,6 @@ if (query.value.trim()) search();
 <template>
   <section class="search-page">
     <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">
-          <span class="tiny-line" /> YOUR KNOWLEDGE, CONNECTED
-        </div>
-        <h1>让开发有据可循<span class="heading-dot">.</span></h1>
-        <p>从平台文档到团队经验，快速找到下一步的答案。</p>
-      </div>
       <RouterLink to="/contribute" class="button"
         ><Plus :size="16" />沉淀新知识 <ArrowUpRight :size="15"
       /></RouterLink>

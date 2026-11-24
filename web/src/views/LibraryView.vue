@@ -133,15 +133,6 @@ const totalPages = computed(() =>
 <template>
   <section class="library-page">
     <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">YOUR TEAM, CONNECTED</div>
-        <h1>团队知识库<span class="title-dot">.</span></h1>
-        <p>
-          {{
-            currentUser ? currentUser.display_name + "，欢迎回来。" : ""
-          }}把分散的经验，连接成团队共同的答案。
-        </p>
-      </div>
       <RouterLink to="/contribute" class="button primary"
         ><Plus :size="17" />贡献知识</RouterLink
       >

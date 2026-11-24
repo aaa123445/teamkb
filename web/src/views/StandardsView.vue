@@ -79,13 +79,6 @@ async function remove(r) {
 <template>
   <section>
     <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">TEAM STANDARDS</div>
-        <h1>团队规范</h1>
-        <p>
-          按分类维护团队约定、执行清单和参考文档，Agent 可通过 kb_rules 获取。
-        </p>
-      </div>
       <button v-if="isAdmin" class="button primary" @click="edit(null)">
         新增规范
       </button>

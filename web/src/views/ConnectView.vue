@@ -223,13 +223,6 @@ onBeforeUnmount(() => {
 <template>
   <section class="connect-page">
     <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">CONNECT YOUR LOCAL AGENT</div>
-        <h1>一键接入</h1>
-        <p>
-          Codex / Claude Code 复制命令在终端安装，其他智能体使用安装提示词。
-        </p>
-      </div>
       <RouterLink to="/guide" class="button"
         >完整使用说明 <ArrowRight :size="15"
       /></RouterLink>

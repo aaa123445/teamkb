@@ -44,10 +44,11 @@
 }
 .sidebar-header {
   height: 74px;
-  padding: 18px 22px;
+  padding: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 4px;
   flex-shrink: 0;
 }
 .sidebar .brand-symbol {
@@ -69,28 +70,8 @@
 .sidebar-mobile-close {
   display: none;
 }
-.sidebar-search {
-  display: flex;
-  align-items: center;
-  gap: 9px;
+.sidebar-toggle {
   flex-shrink: 0;
-  min-height: 39px;
-  padding: 0 11px;
-  margin: 0 14px 20px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: var(--workspace-surface);
-  color: var(--muted-foreground);
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
-}
-.sidebar-search:hover {
-  color: var(--primary);
-  border-color: var(--primary);
-}
-.workspace .topbar .mobile-search {
-  display: none;
 }
 .sidebar-body {
   flex: 1;
@@ -244,9 +225,21 @@
   font-size: 12px;
   white-space: nowrap;
 }
-.breadcrumb strong {
+.breadcrumb strong,
+.breadcrumb h1 {
+  margin: 0;
+  font-size: inherit;
+  line-height: 1.4;
   font-weight: 500;
   color: var(--night-text, #344054);
+}
+#workspace-back {
+  display: flex;
+  flex-shrink: 0;
+}
+#workspace-back:empty,
+#workspace-back:has(.contribution-back) .workspace-back {
+  display: none;
 }
 .topbar-right {
   display: flex;
@@ -322,26 +315,31 @@
   outline: none;
   overflow: visible;
 }
-/* Chat owns the remaining height; its message list is the scroll container. */
-.workspace-chat .workspace-scroll {
+/* These views manage scrolling within their panes. */
+:is(.workspace-chat, .workspace-contributions) .workspace-scroll {
   overflow: hidden;
   scrollbar-gutter: auto;
 }
-.workspace-chat .content {
+:is(.workspace-chat, .workspace-contributions) .content {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding: 8px;
   overflow: hidden;
 }
-.workspace-chat .route-page {
+.workspace-chat .content {
+  padding: 8px;
+}
+.workspace-contributions .content {
+  padding: 16px;
+}
+:is(.workspace-chat, .workspace-contributions) .route-page {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
-.workspace-chat .page-footer {
+:is(.workspace-chat, .workspace-contributions) .page-footer {
   display: none;
 }
 .page-heading {
@@ -350,6 +348,11 @@
   justify-content: space-between;
   gap: 20px;
   margin-bottom: 28px;
+}
+.page-heading:not(:has(h1)) {
+  justify-content: flex-end;
+  min-height: 0;
+  margin-bottom: 12px;
 }
 .page-heading h1 {
   font-size: 27px;
@@ -394,14 +397,9 @@
   --sidebar-width: 80px;
 }
 .sidebar-collapsed .sidebar-header {
-  padding: 18px 21px;
-}
-.sidebar-collapsed .sidebar-search {
-  justify-content: center;
-  padding: 0;
-}
-.sidebar-collapsed .sidebar-search span {
-  display: none;
+  height: auto;
+  flex-direction: column;
+  padding: 14px 0 8px;
 }
 .sidebar-collapsed .sidebar .brand-name,
 .sidebar-collapsed .nav-label,
@@ -478,12 +476,6 @@
     border: 0;
     border-radius: 0;
   }
-  .sidebar-search {
-    display: none;
-  }
-  .workspace .topbar .mobile-search {
-    display: grid;
-  }
   .sidebar-mobile-close {
     display: grid;
   }
@@ -495,7 +487,7 @@
     backdrop-filter: blur(3px);
     z-index: 35;
   }
-  .desktop-toggle {
+  .sidebar-toggle {
     display: none;
   }
   .mobile-toggle {
@@ -513,7 +505,8 @@
     display: none;
   }
   .sidebar-collapsed .sidebar-header {
-    padding: 25px 24px;
+    flex-direction: row;
+    padding: 14px;
   }
   .sidebar-collapsed .sidebar .brand-name {
     display: flex;
@@ -557,7 +550,6 @@
   }
   .breadcrumb > span,
   .breadcrumb > svg,
-  .topbar > .header-divider,
   .key-avatar {
     display: none;
   }
@@ -600,5 +592,17 @@
   }
   .page-footer > a {
     white-space: nowrap;
+  }
+}
+@media (max-width: 380px) {
+  .topbar {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+  .topbar-right {
+    gap: 2px;
+  }
+  .topbar .icon-button {
+    width: 30px;
   }
 }

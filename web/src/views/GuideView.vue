@@ -35,11 +35,6 @@ function select(i) {
 <template>
   <section class="guide-page">
     <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">GET CONNECTED, START BUILDING</div>
-        <h1>使用说明</h1>
-        <p>从账号入网到 Agent 接入，一份文档完成 MCP、Skill 和 CLI 的配置。</p>
-      </div>
       <div class="inline-actions">
         <RouterLink to="/connect" class="button primary"
           ><PlugZap :size="16" />一键接入</RouterLink

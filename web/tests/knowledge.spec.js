@@ -137,3 +137,115 @@ test("分类浏览、草稿提交、审核与版本入口", async ({ page }) => 
   ).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test("长贡献列表与详情在各自区域滚动", async ({ page, isMobile }) => {
+  await page.setViewportSize({ width: isMobile ? 390 : 952, height: 828 });
+  await page.addInitScript(() =>
+    localStorage.setItem("v8wb_key", "test-admin"),
+  );
+  const contributions = Array.from({ length: 20 }, (_, index) => ({
+    id: `con-${index}`,
+    title: `测试贡献 ${index}`,
+    status: "draft",
+    summary: "这是用于检查列表高度的一段较长摘要。".repeat(12),
+    updated_at: 1700000000,
+  }));
+  let failDetail = false;
+  await page.route("**/api/v1/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith("/auth/me"))
+      return route.fulfill({ status: 401, json: { message: "登录" } });
+    if (path.endsWith("/contributions"))
+      return route.fulfill({ json: { items: contributions, total: 21 } });
+    const contribution = contributions.find(({ id }) =>
+      path.endsWith(`/${id}`),
+    );
+    if (contribution && failDetail)
+      return route.fulfill({ status: 500, json: { detail: "加载详情失败" } });
+    return route.fulfill({
+      json: contribution
+        ? {
+            ...contribution,
+            content: "## 完整正文\n\n" + "验证贡献详情滚动。\n\n".repeat(90),
+            payload: {},
+            similar: [],
+            events: [],
+          }
+        : {},
+    });
+  });
+  await page.goto("/#/contributions");
+  const list = page.getByRole("region", { name: "贡献列表" });
+  const detail = page.getByRole("article", { name: "贡献详情" });
+  const header = page.locator(".topbar");
+  const toolbar = page.locator(".contribution-toolbar");
+  const first = list.getByRole("button", { name: /测试贡献 0\b/ });
+  const last = list.getByRole("button", { name: /测试贡献 19\b/ });
+  await expect(first).toBeVisible();
+  await expect(header.getByRole("heading", { name: "我的贡献" })).toBeVisible();
+  await expect(
+    page.locator("main").getByRole("heading", { name: "我的贡献" }),
+  ).toHaveCount(0);
+  await expect(
+    header.getByRole("button", { name: "打开全局搜索" }),
+  ).toBeVisible();
+  if (!isMobile) {
+    await expect(
+      page.locator(".sidebar-header").getByRole("button", { name: "收起侧栏" }),
+    ).toBeVisible();
+  }
+  const toolbarBox = await toolbar.boundingBox();
+  const detailBox = isMobile ? null : await detail.boundingBox();
+  await list.hover();
+  await page.mouse.wheel(0, 1500);
+  await expect
+    .poll(() => list.evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(0);
+  await last.scrollIntoViewIfNeeded();
+  const listScroll = await list.evaluate((el) => el.scrollTop);
+  expect(await toolbar.boundingBox()).toEqual(toolbarBox);
+  if (!isMobile) expect(await detail.boundingBox()).toEqual(detailBox);
+  await expect(
+    page.getByRole("navigation", { name: "贡献分页" }),
+  ).toBeInViewport();
+
+  await last.click();
+  await expect(
+    detail.getByRole("heading", { name: "测试贡献 19" }),
+  ).toBeInViewport();
+  await expect
+    .poll(() => detail.evaluate((el) => el.scrollHeight - el.clientHeight))
+    .toBeGreaterThan(0);
+  await detail.hover();
+  await page.mouse.wheel(0, 1300);
+  await expect
+    .poll(() => detail.evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(0);
+  expect(await toolbar.boundingBox()).toEqual(toolbarBox);
+  expect(
+    await page.locator(".workspace-scroll").evaluate((el) => el.scrollTop),
+  ).toBe(0);
+
+  if (isMobile) {
+    const back = header.getByRole("button", { name: "返回贡献列表" });
+    await expect(back).toBeInViewport();
+    await back.click();
+    await expect(last).toBeFocused();
+    expect(await list.evaluate((el) => el.scrollTop)).toBe(listScroll);
+    failDetail = true;
+    await last.click();
+    await expect(detail.getByRole("alert")).toBeVisible();
+    await back.click();
+    await expect(last).toBeFocused();
+  } else {
+    expect(await list.evaluate((el) => el.scrollTop)).toBe(listScroll);
+    await header.getByRole("button", { name: "返回贡献列表" }).click();
+    await expect(last).toBeFocused();
+    expect(await list.evaluate((el) => el.scrollTop)).toBe(listScroll);
+    await first.click();
+    await expect(
+      detail.getByRole("heading", { name: "测试贡献 0" }),
+    ).toBeInViewport();
+    expect(await detail.evaluate((el) => el.scrollTop)).toBe(0);
+  }
+});

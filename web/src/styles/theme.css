@@ -104,12 +104,14 @@ html {
   min-width: 0;
 }
 .breadcrumb strong,
+.breadcrumb h1,
 .account-chip strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.breadcrumb strong {
+.breadcrumb strong,
+.breadcrumb h1 {
   max-width: 12em;
 }
 .account-chip strong {

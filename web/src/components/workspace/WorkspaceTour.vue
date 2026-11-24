@@ -14,7 +14,6 @@ const steps = [
   },
   {
     target: '[data-tour="search"]',
-    mobileTarget: '[data-tour="mobile-search"]',
     title: "快速找知识",
     text: "打开搜索，输入文档名称或问题关键词，也能跳转到常用功能。",
   },

@@ -24,10 +24,7 @@ test("首次访问依次高亮工作台入口，完成后不再自动打开", as
 
   const steps = [
     ["浏览工作台", isMobile ? ".mobile-toggle" : ".sidebar"],
-    [
-      "快速找知识",
-      isMobile ? '[data-tour="mobile-search"]' : '[data-tour="search"]',
-    ],
+    ["快速找知识", '[data-tour="search"]'],
     ["切换主题", '[data-tour="theme"]'],
     ["接入本地智能体", isMobile ? ".mobile-toggle" : '[data-tour="connect"]'],
   ];

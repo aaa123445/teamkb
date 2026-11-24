@@ -17,6 +17,7 @@ import {
   ChartNoAxesCombined,
   Settings2,
   ArrowUpRight,
+  ArrowLeft,
   ChevronRight,
   KeyRound,
   Menu,
@@ -64,6 +65,20 @@ const mobileOpen = ref(false),
   sidebarEl = ref(null),
   scrollArea = ref(null),
   tourOpen = ref(false);
+const contributionRoute = computed(
+  () => route.path === "/contributions" || route.path === "/review",
+);
+const backPath = computed(() => {
+  // Read the router's history after each navigation.
+  const { fullPath, name } = route;
+  const previous = router.options.history.state.back;
+  if (typeof previous === "string" && previous !== fullPath) return previous;
+  return name === "document" ? "/library" : "";
+});
+function goBack() {
+  if (typeof router.options.history.state.back === "string") router.back();
+  else if (backPath.value) router.push(backPath.value);
+}
 const groups = computed(() => [
   {
     label: "知识空间",
@@ -192,6 +207,7 @@ async function signOut() {
     :class="{
       'sidebar-collapsed': collapsed,
       'workspace-chat': route.path === '/assistant',
+      'workspace-contributions': contributionRoute,
     }"
   >
     <a class="skip-link" href="#main" @click.prevent="focusMain"
@@ -214,6 +230,16 @@ async function signOut() {
         <RouterLink to="/" class="brand" aria-label="TeamKB 官网"
           ><BrandMark :compact="collapsed" /></RouterLink
         ><button
+          type="button"
+          class="icon-button sidebar-toggle"
+          :aria-label="collapsed ? '展开侧栏' : '收起侧栏'"
+          :title="collapsed ? '展开侧栏' : '收起侧栏'"
+          :aria-expanded="!collapsed"
+          @click="collapsed = !collapsed"
+        >
+          <PanelLeftOpen v-if="collapsed" :size="18" aria-hidden="true" />
+          <PanelLeftClose v-else :size="18" aria-hidden="true" /></button
+        ><button
           class="icon-button sidebar-mobile-close"
           aria-label="关闭导航"
           @click="mobileOpen = false"
@@ -221,18 +247,6 @@ async function signOut() {
           <X :size="19" />
         </button>
       </div>
-      <button
-        type="button"
-        class="sidebar-search"
-        data-tour="search"
-        aria-label="打开全局搜索"
-        aria-keyshortcuts="Control+K Meta+K"
-        title="打开全局搜索"
-        @click="paletteOpen = true"
-      >
-        <Search :size="17" aria-hidden="true" />
-        <span>搜索知识</span>
-      </button>
       <div class="sidebar-body">
         <nav
           v-for="group in groups"
@@ -277,26 +291,37 @@ async function signOut() {
           :aria-expanded="mobileOpen"
           @click="mobileOpen = !mobileOpen"
         >
-          <Menu :size="21" /></button
-        ><button
-          class="icon-button desktop-toggle"
-          :aria-label="collapsed ? '展开侧栏' : '收起侧栏'"
-          @click="collapsed = !collapsed"
-        >
-          <PanelLeftOpen v-if="collapsed" :size="20" /><PanelLeftClose
-            v-else
-            :size="20"
-          /></button
-        ><span class="header-divider" />
+          <Menu :size="21" />
+        </button>
+        <div id="workspace-back">
+          <button
+            v-if="backPath"
+            type="button"
+            class="icon-button workspace-back"
+            aria-label="返回上一页"
+            title="返回上一页"
+            @click="goBack"
+          >
+            <ArrowLeft :size="18" aria-hidden="true" />
+          </button>
+        </div>
         <div class="breadcrumb">
           <span>{{ route.meta.section }}</span><ChevronRight
             :size="14"
-          /><strong>{{ route.meta.title }}</strong>
+            aria-hidden="true"
+          />
+          <strong
+            v-if="route.name === 'document' || route.path === '/contribute'"
+          >
+            {{ route.meta.title }}
+          </strong>
+          <h1 v-else>{{ route.meta.title }}</h1>
         </div>
         <div class="topbar-right">
           <button
-            class="icon-button mobile-search"
-            data-tour="mobile-search"
+            type="button"
+            class="icon-button"
+            data-tour="search"
             aria-label="打开全局搜索"
             title="打开全局搜索"
             aria-keyshortcuts="Control+K Meta+K"

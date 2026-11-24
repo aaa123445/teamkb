@@ -402,9 +402,6 @@
 .document-row:hover {
   color: var(--primary);
 }
-.back-link {
-  margin-bottom: 23px;
-}
 .reader {
   background: #fff;
   border: 1px solid var(--border);

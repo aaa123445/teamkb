@@ -66,11 +66,6 @@ async function changePassword() {
 <template>
   <section class="account-page">
     <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">YOUR ACCOUNT, YOUR ACCESS</div>
-        <h1>个人中心</h1>
-        <p>查看入网状态，管理只属于你的客户端访问凭据。</p>
-      </div>
       <RouterLink to="/account/logs" class="button"
         ><Activity :size="16" />我的调用日志</RouterLink
       >

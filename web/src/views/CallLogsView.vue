@@ -92,13 +92,6 @@ function resize() {
 <template>
   <section class="call-logs-page">
     <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">YOUR ACTIVITY, IN CONTEXT</div>
-        <h1>我的调用日志</h1>
-        <p>
-          回溯知识调用的请求、状态与结果，网页和个人 Key 的调用都能找到依据。
-        </p>
-      </div>
       <button class="button" :disabled="loading || !hasAccess" @click="reload">
         <RefreshCw :class="{ spin: loading }" :size="15" />刷新日志
       </button>

@@ -131,14 +131,6 @@ async function copy() {
 </script>
 <template>
   <section>
-    <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">WORKSPACE SETTINGS</div>
-        <h1>工作台管理</h1>
-        <p>管理访问权限、同步知识库，让协作有序进行。</p>
-      </div>
-      <span class="badge green"><ShieldCheck :size="14" />管理员空间</span>
-    </div>
     <AccountApprovals />
     <AgentSettings />
     <AsyncState :loading="loading" :error="error" @retry="reload"

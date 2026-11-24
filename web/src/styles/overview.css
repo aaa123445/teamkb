@@ -23,9 +23,6 @@
   margin: 0;
   gap: 12px;
 }
-.overview-heading h1 {
-  letter-spacing: 0;
-}
 .overview-actions {
   display: flex;
   align-items: center;
@@ -235,9 +232,6 @@
 @media (max-width: 660px) {
   .overview {
     gap: 14px;
-  }
-  .overview-heading h1 {
-    font-size: 22px;
   }
   .overview-actions .overview-library {
     min-height: 36px;

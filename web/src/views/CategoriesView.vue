@@ -37,13 +37,6 @@ async function remove(c) {
 </script>
 <template>
   <section>
-    <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">TAXONOMY</div>
-        <h1>分类管理</h1>
-        <p>管理员可以创建分类、调整层级。知识可通过更新建议移动到其他分类。</p>
-      </div>
-    </div>
     <AsyncState :loading="loading" :error="error" @retry="reload"
       ><div class="kb-review-layout">
         <div class="panel kb-review-detail">

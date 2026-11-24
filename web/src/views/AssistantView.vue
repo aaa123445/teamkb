@@ -259,7 +259,6 @@ onBeforeUnmount(() => controller?.abort());
 <template>
   <section class="intelligence-page assistant-page assistant-chat-page">
     <header class="assistant-chat-heading">
-      <h1>云端智能体</h1>
       <div class="assistant-heading-actions">
         <button
           ref="historyTrigger"

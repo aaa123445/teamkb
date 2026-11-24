@@ -198,11 +198,6 @@ onBeforeUnmount(() => {
 <template>
   <section class="intelligence-page chain-page">
     <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">KNOWLEDGE CONNECTIONS</div>
-        <h1>知识链</h1>
-        <p>在需要串联思路时，沿真实引用与明确关系展开阅读。</p>
-      </div>
       <div class="inline-actions">
         <RouterLink v-if="!showingAll" to="/graph" class="button"
           >返回全库知识链</RouterLink

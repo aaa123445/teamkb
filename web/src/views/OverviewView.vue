@@ -78,7 +78,6 @@ function refresh() {
 <template>
   <section class="overview">
     <div class="page-heading overview-heading">
-      <h1>知识总览</h1>
       <div class="overview-actions">
         <button
           class="icon-button overview-refresh"

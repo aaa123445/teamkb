@@ -7,17 +7,15 @@ import { notify, refreshStats, authVersion } from "../composables/workspace";
 import {
   Files,
   Inbox,
-  ChevronLeft,
-  Check,
-  MessageSquare,
+  ArrowLeft,
+  Plus,
   RefreshCw,
-  Clock3,
   LoaderCircle,
-  ArrowUpRight,
 } from "lucide-vue-next";
 import { plainText, relativeDate } from "../utils/format";
 import MarkdownContent from "../components/MarkdownContent.vue";
 import AsyncState from "../components/AsyncState.vue";
+import "../styles/contributions.css";
 const route = useRoute(),
   review = computed(() => route.path === "/review"),
   status = ref(route.path === "/review" ? "pending" : ""),
@@ -28,9 +26,12 @@ const route = useRoute(),
   detailError = ref(""),
   detailLoading = ref(false),
   detailRoot = ref(null),
+  listRoot = ref(null),
+  activeId = ref(null),
   noteInput = ref(null);
 let detailSequence = 0,
-  previousCard;
+  previousCard,
+  listScrollTop = 0;
 const labels = {
   draft: "草稿",
   pending: "待审核",
@@ -52,13 +53,16 @@ const { data, loading, error, reload } = useResource(
 );
 watch([review, status, page, authVersion], () => {
   detailSequence++;
+  activeId.value = null;
   selected.value = null;
   detailError.value = "";
   detailLoading.value = false;
 });
-async function open(item) {
+async function open(item, card) {
   const sequence = ++detailSequence;
-  previousCard = document.activeElement;
+  previousCard = card;
+  listScrollTop = listRoot.value?.scrollTop ?? 0;
+  activeId.value = item.id;
   selected.value = null;
   detailError.value = "";
   detailLoading.value = true;
@@ -67,23 +71,33 @@ async function open(item) {
     if (sequence !== detailSequence) return;
     selected.value = out;
     note.value = "";
-    await nextTick();
-    if (window.innerWidth <= 700) {
-      detailRoot.value?.scrollIntoView({ block: "start" });
-      detailRoot.value?.focus({ preventScroll: true });
-    }
   } catch (e) {
     if (sequence === detailSequence) detailError.value = e.message;
   } finally {
     if (sequence === detailSequence) detailLoading.value = false;
   }
 }
+watch(
+  activeId,
+  (id) => {
+    if (!id || !detailRoot.value) return;
+    detailRoot.value.scrollTop = 0;
+    if (matchMedia("(max-width: 700px)").matches) {
+      detailRoot.value.focus({ preventScroll: true });
+    }
+  },
+  { flush: "post" },
+);
 function closeDetail() {
   detailSequence++;
+  activeId.value = null;
   selected.value = null;
   detailError.value = "";
   detailLoading.value = false;
-  nextTick(() => previousCard?.focus());
+  nextTick(() => {
+    if (listRoot.value) listRoot.value.scrollTop = listScrollTop;
+    previousCard?.focus({ preventScroll: true });
+  });
 }
 async function decide(action) {
   if (action !== "publish" && !note.value.trim()) {
@@ -91,12 +105,14 @@ async function decide(action) {
     noteInput.value?.focus();
     return;
   }
+  const sequence = detailSequence;
   busy.value = true;
   try {
-    selected.value = await post(
+    const result = await post(
       "/contributions/" + selected.value.id + "/review",
       { action, note: note.value },
     );
+    if (sequence === detailSequence) selected.value = result;
     notify("审核操作已保存");
     refreshStats().catch(() => {});
     await reload();
@@ -108,21 +124,18 @@ async function decide(action) {
 }
 </script>
 <template>
-  <section>
-    <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">KNOWLEDGE CONTRIBUTIONS</div>
-        <h1>{{ review ? "贡献审核" : "我的贡献" }}</h1>
-        <p>
-          {{
-            review
-              ? "检查内容质量、重复项与验证证据，再决定发布或退回修改。"
-              : "查看草稿、审核进度和管理员反馈。"
-          }}
-        </p>
-      </div>
-      <RouterLink to="/contribute" class="button primary">新增知识</RouterLink>
-    </div>
+  <section class="contributions-page">
+    <Teleport v-if="activeId" to="#workspace-back">
+      <button
+        type="button"
+        class="icon-button contribution-back"
+        aria-label="返回贡献列表"
+        title="返回贡献列表"
+        @click="closeDetail"
+      >
+        <ArrowLeft :size="18" aria-hidden="true" />
+      </button>
+    </Teleport>
     <div class="contribution-toolbar">
       <div class="contribution-tabs" aria-label="贡献状态筛选">
         <button
@@ -148,60 +161,89 @@ async function decide(action) {
           }}<small v-if="status === value">{{ data?.total ?? "—" }}</small>
         </button>
       </div>
-      <button class="button small" :disabled="loading" @click="reload">
-        <RefreshCw :size="13" :class="{ spin: loading }" />刷新
-      </button>
+      <div class="contribution-actions">
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="刷新"
+          title="刷新"
+          :disabled="loading"
+          @click="reload"
+        >
+          <RefreshCw :size="17" :class="{ spin: loading }" aria-hidden="true" />
+        </button>
+        <RouterLink
+          to="/contribute"
+          class="icon-button"
+          aria-label="新增知识"
+          title="新增知识"
+        >
+          <Plus :size="19" aria-hidden="true" />
+        </RouterLink>
+      </div>
     </div>
     <AsyncState :loading="loading" :error="error" @retry="reload"
       ><div
         :class="[
           'kb-review-layout',
           'contributions-layout',
-          { 'has-selection': selected || detailLoading },
+          { 'has-selection': activeId },
         ]"
       >
-        <div>
-          <button
-            v-for="item in data?.items"
-            :key="item.id"
-            class="panel kb-contribution"
-            :class="{ active: selected?.id === item.id }"
-            @click="open(item)"
+        <div class="contribution-list">
+          <div
+            ref="listRoot"
+            class="contribution-items"
+            role="region"
+            aria-label="贡献列表"
+            tabindex="0"
           >
-            <span class="badge status-badge" :data-status="item.status">{{
-              labels[item.status]
-            }}</span>
-            <h3>{{ item.title }}</h3>
-            <p>
-              {{
-                plainText(item.summary) ||
-                "点击查看知识正文、验证材料和审核记录"
-              }}
-            </p>
-            <small
-              >{{ item.source === "agent" ? "Agent 自动沉淀" : "成员贡献" }} ·
-              {{ relativeDate(item.updated_at) }}</small
+            <button
+              v-for="item in data?.items"
+              :key="item.id"
+              class="panel kb-contribution"
+              :class="{ active: activeId === item.id }"
+              :aria-current="activeId === item.id ? 'true' : undefined"
+              @click="open(item, $event.currentTarget)"
             >
-          </button>
-          <div v-if="!data?.total" class="contribution-empty">
-            <Inbox :size="29" />
-            <h3>
-              {{
-                review ? "待审核的贡献都处理完了" : "你的第一份分享，从这里开始"
-              }}
-            </h3>
-            <p>
-              {{
-                review
-                  ? "新的经验到来时，会出现在这里。"
-                  : "记录一个值得复用的解决方案，让团队少走弯路。"
-              }}
-            </p>
-            <RouterLink v-if="!review" to="/contribute" class="button primary"
-              >开始贡献</RouterLink
-            >
+              <span class="badge status-badge" :data-status="item.status">{{
+                labels[item.status]
+              }}</span>
+              <h3>{{ item.title }}</h3>
+              <p v-if="item.summary" class="contribution-summary">
+                {{ plainText(item.summary) }}
+              </p>
+              <small
+                >{{ item.source === "agent" ? "Agent 自动沉淀" : "成员贡献" }} ·
+                {{ relativeDate(item.updated_at) }}</small
+              >
+            </button>
+            <div v-if="!data?.total" class="contribution-empty">
+              <Inbox :size="29" />
+              <h3>
+                {{
+                  review
+                    ? "待审核的贡献都处理完了"
+                    : "你的第一份分享，从这里开始"
+                }}
+              </h3>
+              <p>
+                {{
+                  review
+                    ? "新的经验到来时，会出现在这里。"
+                    : "记录一个值得复用的解决方案，让团队少走弯路。"
+                }}
+              </p>
+              <RouterLink v-if="!review" to="/contribute" class="button primary"
+                >开始贡献</RouterLink
+              >
+            </div>
           </div>
-          <div class="kb-pagination">
+          <nav
+            v-if="data?.total > 20"
+            class="kb-pagination"
+            aria-label="贡献分页"
+          >
             <button class="button" :disabled="page <= 1" @click="page--">
               上一页</button
             ><span
@@ -214,24 +256,20 @@ async function decide(action) {
             >
               下一页
             </button>
-          </div>
+          </nav>
         </div>
         <article
           ref="detailRoot"
           class="panel kb-review-detail contribution-detail"
-          tabindex="-1"
+          aria-label="贡献详情"
+          tabindex="0"
         >
-          <button
-            v-if="selected || detailLoading"
-            class="text-link review-mobile-back"
-            @click="closeDetail"
-          >
-            <ChevronLeft :size="15" />返回贡献列表
-          </button>
           <div v-if="detailLoading" class="async-state" role="status">
             <LoaderCircle class="spin" :size="24" />正在加载贡献详情…
           </div>
-          <p v-if="detailError" class="error-text">{{ detailError }}</p>
+          <p v-if="detailError" class="error-text" role="alert">
+            {{ detailError }}
+          </p>
           <template v-if="selected"
             ><div class="section-heading">
               <h2>{{ selected.title }}</h2>
@@ -369,19 +407,7 @@ async function decide(action) {
             class="review-placeholder"
           >
             <span><Files :size="30" /></span>
-            <h3>
-              {{
-                review
-                  ? "让好的经验，被更多人看见"
-                  : "每一次分享，都在积累团队的可能"
-              }}
-            </h3>
-            <p>选择左侧的一份贡献，查看完整内容与审核进度。</p>
-            <div>
-              <Check :size="13" />验证方案 <span />
-              <MessageSquare :size="13" />交流反馈 <span />
-              <ArrowUpRight :size="13" />分享知识
-            </div>
+            <p>选择一条贡献查看详情</p>
           </div>
         </article>
       </div></AsyncState
