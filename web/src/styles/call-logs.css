@@ -347,11 +347,8 @@
   }
 }
 
-@media (max-width: 640px) {
-  .call-logs-page .page-heading {
-    flex-wrap: wrap;
-  }
-  .call-logs-page .page-heading > .button {
-    display: inline-flex;
-  }
+.call-log-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

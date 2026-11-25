@@ -13,7 +13,7 @@ import {
 } from "vue";
 import { useRoute } from "vue-router";
 import {
-  PlugZap,
+  LifeBuoy,
   Copy,
   Check,
   ArrowRight,
@@ -234,25 +234,23 @@ onDeactivated(() => {
 </script>
 <template>
   <section class="connect-page">
-    <div class="page-heading">
-      <RouterLink to="/guide" class="button"
-        >完整使用说明 <ArrowRight :size="15"
-      /></RouterLink>
-    </div>
-    <div class="connect-banner">
-      <span class="connect-logo"><PlugZap :size="30" /></span>
-      <div>
-        <h2>把团队知识带到你的开发现场</h2>
-      </div>
-    </div>
     <div class="connect-step-layout">
       <ConnectStepNav :steps="connectSteps" />
       <div class="connect-layout">
         <div class="connect-settings">
           <section id="connect-method" class="panel connect-panel">
-            <h2 tabindex="-1">
-              <span class="connect-number">1</span>选择接入方式
-            </h2>
+            <div class="section-heading">
+              <h2 tabindex="-1">
+                <span class="connect-number">1</span>选择接入方式
+              </h2>
+              <RouterLink
+                to="/guide"
+                class="icon-button"
+                aria-label="完整使用说明"
+                title="完整使用说明"
+                ><LifeBuoy :size="17" aria-hidden="true"
+              /></RouterLink>
+            </div>
             <label class="field"
               >本地智能体<AppSelect v-model="agent">
                 <option value="codex">Codex · 一键安装命令</option>

@@ -1,11 +1,14 @@
-.chain-page .page-heading {
-  margin-bottom: 25px;
-}
 .chain-page .graph-controls {
   padding: 14px 16px;
   border-radius: 12px;
   box-shadow: 0 2px 8px #29334a02;
   gap: 10px;
+}
+.graph-navigation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
 }
 .chain-page .graph-controls form input {
   border: 0;

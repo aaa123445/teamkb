@@ -197,15 +197,6 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <section class="intelligence-page chain-page">
-    <div class="page-heading">
-      <div class="inline-actions">
-        <RouterLink v-if="!showingAll" to="/graph" class="button"
-          >返回全库知识链</RouterLink
-        ><RouterLink to="/library" class="button"
-          ><FileText :size="15" />浏览知识库</RouterLink
-        >
-      </div>
-    </div>
     <div class="panel graph-controls">
       <form @submit.prevent="search">
         <Search :size="17" /><input
@@ -233,6 +224,18 @@ onBeforeUnmount(() => {
         <option :value="1">一跳关联</option>
         <option :value="2">两跳关联</option>
       </AppSelect>
+      <div class="graph-navigation">
+        <RouterLink v-if="!showingAll" to="/graph" class="button"
+          >返回全库知识链</RouterLink
+        >
+        <RouterLink
+          to="/library"
+          class="icon-button"
+          aria-label="浏览知识库"
+          title="浏览知识库"
+          ><FileText :size="17" aria-hidden="true"
+        /></RouterLink>
+      </div>
     </div>
     <div v-if="matches.length" class="panel graph-search-results">
       <button v-for="d in matches" :key="d.id" @click="center(d.id)">

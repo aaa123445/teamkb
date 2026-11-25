@@ -71,7 +71,6 @@ const mobileOpen = ref(false),
 const contributionRoute = computed(
   () => route.path === "/contributions" || route.path === "/review",
 );
-const tabStrip = ref(null);
 const identity = computed(
   () => currentUser.value?.id ?? (apiKey.value ? "api-key" : "guest"),
 );
@@ -85,27 +84,8 @@ const workspaceTabs = useWorkspaceTabs(
 );
 const { tabs, active, cacheNames, currentPage, positions } = workspaceTabs;
 provide(workspaceTabsKey, workspaceTabs);
-async function closeTab(tab, event) {
-  const restoreFocus = event.currentTarget === document.activeElement;
-  if ((await workspaceTabs.close(tab)) && restoreFocus) {
-    await nextTick();
-    tabStrip.value
-      ?.querySelector('[aria-current="page"]')
-      ?.focus({ preventScroll: true });
-  }
-}
-watch(
-  [active, tabStrip, () => tabs.map((tab) => tab.label).join("\n")],
-  () => {
-    const strip = tabStrip.value;
-    const item = strip?.querySelector('[aria-current="page"]')?.parentElement;
-    if (!item) return;
-    const { left, right } = item.getBoundingClientRect();
-    const viewport = strip.getBoundingClientRect();
-    if (left < viewport.left) strip.scrollLeft += left - viewport.left;
-    else if (right > viewport.right) strip.scrollLeft += right - viewport.right;
-  },
-  { flush: "post" },
+const currentTitle = computed(
+  () => tabs.find((tab) => tab.key === active.value)?.label || route.meta.title,
 );
 const groups = computed(() => [
   {
@@ -195,11 +175,10 @@ watch(
   { immediate: true, flush: "post" },
 );
 function key(event) {
-  const dialog = document.querySelector('[aria-modal="true"]');
   if (
-    dialog &&
-    !dialog.classList.contains("sidebar") &&
-    !dialog.classList.contains("command-dialog")
+    document.querySelector(
+      '[aria-modal="true"]:not(.sidebar, .command-dialog)',
+    )
   )
     return;
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
@@ -325,45 +304,12 @@ async function signOut() {
         >
           <Menu :size="21" />
         </button>
-        <h1
-          v-if="route.name !== 'document' && route.path !== '/contribute'"
-          class="sr-only"
+        <component
+          :is="route.name === 'document' ? 'span' : 'h1'"
+          class="workspace-title"
+          :title="currentTitle"
+          >{{ currentTitle }}</component
         >
-          {{ route.meta.title }}
-        </h1>
-        <nav
-          v-if="tabs.length"
-          ref="tabStrip"
-          class="workspace-tabs"
-          aria-label="工作台页签"
-        >
-          <div
-            v-for="tab in tabs"
-            :key="tab.key"
-            class="workspace-tab"
-            :class="{ selected: tab.key === active }"
-          >
-            <RouterLink :to="tab.url" custom v-slot="{ href, navigate }">
-              <a
-                :href="href"
-                :title="tab.label"
-                :aria-current="tab.key === active ? 'page' : undefined"
-                class="workspace-tab-link"
-                @click="navigate"
-                >{{ tab.label }}</a
-              >
-            </RouterLink>
-            <button
-              v-if="tabs.length > 1"
-              type="button"
-              class="workspace-tab-close"
-              :aria-label="'关闭 ' + tab.label + ' 页签'"
-              @click="closeTab(tab, $event)"
-            >
-              <X :size="14" aria-hidden="true" />
-            </button>
-          </div>
-        </nav>
         <div class="topbar-right">
           <button
             type="button"

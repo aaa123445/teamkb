@@ -46,8 +46,8 @@ test("custom select supports keyboard selection, dismissal and focus restoration
   await expect(control).toBeFocused();
   await control.click();
   await page
-    .getByRole("navigation", { name: "工作台页签" })
-    .getByRole("link", { name: "知识链", exact: true })
+    .locator(".topbar")
+    .getByRole("heading", { name: "知识链", exact: true })
     .click();
   await expect(control).toHaveAttribute("aria-expanded", "false");
 });
@@ -74,8 +74,8 @@ test("searchable options stay within the viewport and close when navigating", as
   await search.press("Escape");
   await expect(control).toBeFocused();
   await page
+    .locator(".graph-controls")
     .getByRole("link", { name: "浏览知识库", exact: true })
-    .first()
     .click();
   await expect(page.locator(".route-page")).toHaveCount(1);
   await expect(page.locator(".route-page")).toBeVisible();

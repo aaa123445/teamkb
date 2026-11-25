@@ -91,11 +91,6 @@ function resize() {
 </script>
 <template>
   <section class="call-logs-page">
-    <div class="page-heading">
-      <button class="button" :disabled="loading || !hasAccess" @click="reload">
-        <RefreshCw :class="{ spin: loading }" :size="15" />刷新日志
-      </button>
-    </div>
     <div v-if="!hasAccess" class="panel account-login-prompt">
       <Activity :size="32" />
       <h2>
@@ -210,12 +205,27 @@ function resize() {
               >{{ data?.total ?? "—" }} 条</span
             >
           </h2>
-          <span class="hint"
-            >{{
-              data?.scope === "key" ? "当前 Key 的调用" : "当前账号的调用"
-            }}
-            · 由新到旧</span
-          >
+          <div class="call-log-actions">
+            <span class="hint"
+              >{{
+                data?.scope === "key" ? "当前 Key 的调用" : "当前账号的调用"
+              }}
+              · 由新到旧</span
+            >
+            <button
+              class="icon-button"
+              aria-label="刷新日志"
+              title="刷新日志"
+              :disabled="loading"
+              @click="reload"
+            >
+              <RefreshCw
+                :class="{ spin: loading }"
+                :size="16"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
         </div>
         <AsyncState
           :loading="loading"

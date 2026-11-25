@@ -78,8 +78,13 @@ async function remove(r) {
 </script>
 <template>
   <section>
-    <div class="page-heading">
-      <button v-if="isAdmin" class="button primary" @click="edit(null)">
+    <div class="section-heading">
+      <h2>规范列表</h2>
+      <button
+        v-if="isAdmin && !editing"
+        class="button primary small"
+        @click="edit(null)"
+      >
         新增规范
       </button>
     </div>
@@ -144,7 +149,8 @@ async function remove(r) {
         </article>
       </div>
       <div v-if="!data?.standards?.length" class="panel async-state">
-        尚未配置团队规范，管理员可以按知识分类添加。Agent 可通过 kb_rules 获取团队规范，通过 kb_search 检索已有规范文档。
+        尚未配置团队规范，管理员可以按知识分类添加。Agent 可通过 kb_rules
+        获取团队规范，通过 kb_search 检索已有规范文档。
       </div></AsyncState
     >
   </section>

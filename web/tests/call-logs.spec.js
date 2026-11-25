@@ -168,7 +168,7 @@ test("调用详情安全显示请求与返回结果，关闭后焦点恢复", as
 test("个人中心与侧栏均可进入日志页面", async ({ page, isMobile }) => {
   await page.goto("/#/account");
   await page
-    .locator(".page-heading")
+    .locator(".account-profile")
     .getByRole("link", { name: "我的调用日志" })
     .click();
   await expect(

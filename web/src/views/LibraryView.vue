@@ -132,11 +132,6 @@ const totalPages = computed(() =>
 </script>
 <template>
   <section class="library-page">
-    <div class="page-heading">
-      <RouterLink to="/contribute" class="button primary"
-        ><Plus :size="17" />贡献知识</RouterLink
-      >
-    </div>
     <div class="library-intro">
       <div>
         <span class="library-intro-label"
@@ -150,6 +145,7 @@ const totalPages = computed(() =>
           ><RouterLink to="/guide"
             >连接你的 Agent <ArrowUpRight :size="14"
           /></RouterLink>
+          <RouterLink to="/contribute"><Plus :size="14" />贡献知识</RouterLink>
         </div>
       </div>
       <div class="intro-illustration" aria-hidden="true">

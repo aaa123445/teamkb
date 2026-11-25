@@ -34,18 +34,6 @@ function select(i) {
 </script>
 <template>
   <section class="guide-page">
-    <div class="page-heading">
-      <div class="inline-actions">
-        <RouterLink to="/connect" class="button primary"
-          ><PlugZap :size="16" />一键接入</RouterLink
-        ><a
-          :href="downloadUrl"
-          download="v8-workbench-使用说明.md"
-          class="button"
-          ><Download :size="16" />下载完整文档</a
-        >
-      </div>
-    </div>
     <div class="guide-layout">
       <nav class="guide-toc panel" aria-label="使用说明目录">
         <h2><BookOpen :size="18" />快速导航</h2>
@@ -62,6 +50,17 @@ function select(i) {
         /></RouterLink>
       </nav>
       <article class="panel guide-body">
+        <div class="inline-actions guide-actions">
+          <RouterLink to="/connect" class="button primary small">
+            <PlugZap :size="16" />一键接入
+          </RouterLink>
+          <a
+            :href="downloadUrl"
+            download="v8-workbench-使用说明.md"
+            class="button small"
+            ><Download :size="16" />下载完整文档</a
+          >
+        </div>
         <MarkdownContent :content="selected.content" />
         <div class="guide-pagination">
           <button v-if="index > 0" class="button" @click="select(index - 1)">

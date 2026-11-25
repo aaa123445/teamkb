@@ -107,7 +107,7 @@ test("知识视图持久保存，筛选可清除且排序发送到服务器", as
   await page.getByRole("button", { name: "卡片视图", exact: true }).click();
   await expect(page.locator(".kb-cards")).not.toHaveClass(/is-list/);
 });
-test("编辑工具栏、草稿快捷键与离开确认可用", async ({ page }) => {
+test("编辑工具栏、草稿快捷键与离开确认可用", async ({ page, isMobile }) => {
   await page.goto("/#/contribute");
   await page
     .getByRole("textbox", { name: "知识标题" })
@@ -128,13 +128,18 @@ test("编辑工具栏、草稿快捷键与离开确认可用", async ({ page }) 
     .fill(
       "修改后的解决方案还没有保存，应该在离开当前编辑器时出现可取消的确认。",
     );
-  await page.getByRole("link", { name: "我的贡献 →", exact: true }).click();
-  const tabs = page.getByRole("navigation", { name: "工作台页签" });
-  await tabs.getByRole("link", { name: "经验沉淀", exact: true }).click();
+  await page
+    .locator(".editor-form-heading")
+    .getByRole("link", { name: "我的贡献", exact: true })
+    .click();
+  await expect(page.locator(".workspace-title")).toHaveText("我的贡献");
+  await page.goBack();
+  await expect(page.locator(".workspace-title")).toHaveText("经验沉淀");
   await expect(page.locator("#knowledge-content")).toHaveValue(
     /修改后的解决方案/,
   );
-  await tabs.getByRole("button", { name: "关闭 经验沉淀 页签" }).click();
+  if (isMobile) await page.getByRole("button", { name: "打开导航" }).click();
+  await page.getByRole("link", { name: "返回官网" }).click();
   const dialog = page.getByRole("dialog", { name: "离开编辑器？" });
   await expect(dialog).toBeVisible();
   await page.keyboard.press("Control+k");

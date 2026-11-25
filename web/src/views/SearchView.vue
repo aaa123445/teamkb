@@ -10,7 +10,6 @@ import {
   ArrowUpRight,
   SlidersHorizontal,
   Clock3,
-  Sparkles,
   Plus,
   KeyRound,
 } from "lucide-vue-next";
@@ -126,19 +125,13 @@ if (query.value.trim()) search(query.value, false);
 </script>
 <template>
   <section class="search-page">
-    <div class="page-heading">
-      <RouterLink to="/contribute" class="button"
-        ><Plus :size="16" />沉淀新知识 <ArrowUpRight :size="15"
-      /></RouterLink>
-    </div>
     <div class="search-hero">
-      <div class="hero-label">
-        <span><Sparkles :size="16" /> 团队知识引擎</span
-        ><span class="live-label"
-          ><span class="status-dot online" />平台知识 · 持续积累</span
-        >
+      <div class="search-hero-heading">
+        <h2>你正在解决什么问题？</h2>
+        <RouterLink to="/contribute" class="button small">
+          <Plus :size="16" />沉淀新知识
+        </RouterLink>
       </div>
-      <h2>你正在解决什么问题？</h2>
       <p>输入技术关键词、业务场景或待解决的问题，检索你的知识工作空间。</p>
       <form class="search-input-wrap" @submit.prevent="search()">
         <Search :size="22" /><input

@@ -19,18 +19,10 @@
   --overview-series-6: #4d5661;
   --overview-shadow: none;
 }
-.overview .overview-heading {
-  margin: 0;
-  gap: 12px;
-}
 .overview-actions {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-.overview-actions .overview-refresh {
-  border: 1px solid var(--border);
-  background: var(--workspace-surface);
 }
 .overview-metrics,
 .overview-charts {
@@ -98,6 +90,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 17px;
 }
 .overview-section-heading h2 {
@@ -232,12 +225,6 @@
 @media (max-width: 660px) {
   .overview {
     gap: 14px;
-  }
-  .overview-actions .overview-library {
-    min-height: 36px;
-    gap: 4px;
-    padding: 6px 8px;
-    font-size: 12px;
   }
   .overview-charts {
     grid-template-columns: minmax(0, 1fr);

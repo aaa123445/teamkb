@@ -205,8 +205,7 @@
   color: #344054;
   font-weight: 600;
 }
-.workspace .search-hero > p,
-.workspace .hero-label {
+.workspace .search-hero > p {
   color: #8490a3;
 }
 .workspace .search-input-wrap {
@@ -619,19 +618,11 @@
   border-bottom: 1px solid var(--night-border, #eaecf0);
   margin-bottom: 25px;
 }
-.editor-step {
-  display: grid;
-  place-items: center;
-  font-size: 11px;
-  color: var(--night-muted, #8799c8);
-  border: 1px solid var(--night-border, #e4eaf9);
-  border-radius: 9px;
-  background: var(--night-soft, #f5f7fc);
-  min-width: 34px;
-  height: 35px;
-}
 .editor-form-heading > div {
   flex: 1;
+}
+.editor-form-heading > .icon-button {
+  flex-shrink: 0;
 }
 .workspace .editor-form-heading h2 {
   font-size: 15px;
@@ -1216,10 +1207,6 @@
   }
   .save-status {
     font-size: 9px;
-  }
-  .editor-step {
-    min-width: 30px;
-    height: 32px;
   }
   .studio-editor-form > .field,
   .studio-editor-form > .form-row,

@@ -77,27 +77,6 @@ function refresh() {
 
 <template>
   <section class="overview">
-    <div class="page-heading overview-heading">
-      <div class="overview-actions">
-        <button
-          class="icon-button overview-refresh"
-          aria-label="刷新数据"
-          title="刷新数据"
-          :disabled="loading || recentLoading"
-          @click="refresh"
-        >
-          <RefreshCw
-            :size="17"
-            :class="{ spin: loading || recentLoading }"
-            aria-hidden="true"
-          />
-        </button>
-        <RouterLink to="/library" class="button primary overview-library">
-          团队知识库 <ArrowRight :size="16" aria-hidden="true" />
-        </RouterLink>
-      </div>
-    </div>
-
     <AsyncState :loading="loading" :error="error" @retry="reload">
       <template v-if="data">
         <dl class="overview-metrics">
@@ -170,6 +149,24 @@ function refresh() {
         >
           <div class="overview-section-heading">
             <h2 id="overview-updates">最近更新</h2>
+            <div class="overview-actions">
+              <button
+                class="icon-button"
+                aria-label="刷新数据"
+                title="刷新数据"
+                :disabled="loading || recentLoading"
+                @click="refresh"
+              >
+                <RefreshCw
+                  :size="17"
+                  :class="{ spin: loading || recentLoading }"
+                  aria-hidden="true"
+                />
+              </button>
+              <RouterLink to="/library" class="button small">
+                团队知识库 <ArrowRight :size="16" aria-hidden="true" />
+              </RouterLink>
+            </div>
           </div>
           <AsyncState
             :loading="recentLoading"

@@ -65,11 +65,6 @@ async function changePassword() {
 </script>
 <template>
   <section class="account-page">
-    <div class="page-heading">
-      <RouterLink to="/account/logs" class="button"
-        ><Activity :size="16" />我的调用日志</RouterLink
-      >
-    </div>
     <div v-if="!currentUser" class="panel account-login-prompt">
       <UserRound :size="32" />
       <h2>使用账号管理个人 Key</h2>
@@ -83,6 +78,9 @@ async function changePassword() {
         ><button class="button" @click="keyDialogOpen = true">
           已有管理员 Key
         </button>
+        <RouterLink to="/account/logs" class="button">
+          <Activity :size="16" />我的调用日志
+        </RouterLink>
       </div>
     </div>
     <template v-else
@@ -96,13 +94,16 @@ async function changePassword() {
         </div>
         <span
           :class="['badge', { green: currentUser.status === 'approved' }]"
-          >{{ statusLabel(currentUser.status) }}</span><button
-          class="button small"
-          :disabled="busy"
-          @click="refresh"
+          >{{ statusLabel(currentUser.status) }}</span
         >
-          <RefreshCw :class="{ spin: busy }" :size="14" />刷新状态
-        </button>
+        <div class="inline-actions account-profile-actions">
+          <button class="button small" :disabled="busy" @click="refresh">
+            <RefreshCw :class="{ spin: busy }" :size="14" />刷新状态
+          </button>
+          <RouterLink to="/account/logs" class="button small">
+            <Activity :size="15" />我的调用日志
+          </RouterLink>
+        </div>
       </div>
       <div
         v-if="currentUser.status !== 'approved'"

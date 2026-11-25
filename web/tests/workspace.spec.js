@@ -134,23 +134,26 @@ test("检索、阅读、长文续读与 Markdown 安全", async ({ page }) => {
   expect(await page.evaluate(() => window.xssTriggered)).toBeUndefined();
   await page.getByRole("button", { name: "加载后续内容" }).click();
   await expect(page.locator(".prose")).toContainText("后续文档内容");
-  const tabs = page.getByRole("navigation", { name: "工作台页签" });
-  const readerTab = tabs.getByRole("link", { name: doc.title });
-  await expect(readerTab).toHaveAttribute("aria-current", "page");
-  await tabs.getByRole("link", { name: "知识检索" }).click();
+  const title = page.locator(".workspace-title");
+  await expect(title).toHaveText(doc.title);
+  await page.goBack();
+  await expect(title).toHaveText("知识检索");
   await expect(page.getByRole("textbox", { name: "搜索知识库" })).toHaveValue(
     "组织同步",
   );
-  await readerTab.click();
+  await page.goForward();
+  await expect(title).toHaveText(doc.title);
   await expect(page.locator(".prose")).toContainText("后续文档内容");
   expect(errors).toEqual([]);
 });
 test("页面导航、清单与移动端无横向溢出", async ({ page, isMobile }) => {
   await page.goto("/#/workspace");
   await navigate(page, "团队规范", isMobile);
+  await expect(page.locator(".workspace-title")).toHaveText("团队规范");
   await expect(page.getByText("确认接口签名", { exact: true })).toBeVisible();
   await expect(page.getByText("验证扩展行为", { exact: true })).toBeVisible();
   await navigate(page, "知识总览", isMobile);
+  await expect(page.locator(".workspace-title")).toHaveText("知识总览");
   await expect(page.locator(".overview-metric").first()).toContainText("234");
   await expect(page.getByRole("table", { name: "最近更新" })).toBeVisible();
   await expect(page.getByRole("link", { name: doc.title })).toHaveAttribute(

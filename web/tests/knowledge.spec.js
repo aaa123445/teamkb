@@ -186,8 +186,7 @@ test("长贡献列表与详情在各自区域滚动", async ({ page, isMobile })
   const detail = page.getByRole("article", { name: "贡献详情" });
   const header = page.locator(".topbar");
   const toolbar = page.locator(".contribution-toolbar");
-  const tabBar = header.getByRole("navigation", { name: "工作台页签" });
-  await expect(tabBar.getByRole("link", { name: "我的贡献" })).toBeVisible();
+  const title = header.locator(".workspace-title");
   await expect(page.locator(".breadcrumb")).toHaveCount(0);
 
   const first = list.getByRole("button", { name: /测试贡献 0\b/ });
@@ -262,13 +261,13 @@ test("长贡献列表与详情在各自区域滚动", async ({ page, isMobile })
   ).toBe(0);
 
   const detailScroll = await detail.evaluate((el) => el.scrollTop);
-  const listTab = tabBar.getByRole("link", { name: "我的贡献", exact: true });
-  const lastTab = tabBar.getByRole("link", {
-    name: "测试贡献 19",
-    exact: true,
-  });
-  await expect(lastTab).toHaveAttribute("aria-current", "page");
-  await listTab.click();
+  await expect(title).toHaveText("测试贡献 19");
+  await expect(
+    header.getByRole("button", { name: "切换打开的页面" }),
+  ).toHaveCount(0);
+  await expect(header.getByRole("navigation")).toHaveCount(0);
+  await page.goBack();
+  await expect(title).toHaveText("我的贡献");
   await expect(last).toBeInViewport();
   expect(await list.evaluate((el) => el.scrollTop)).toBe(listScroll);
 
@@ -277,23 +276,20 @@ test("长贡献列表与详情在各自区域滚动", async ({ page, isMobile })
     detail.getByRole("heading", { name: "测试贡献 0" }),
   ).toBeInViewport();
   expect(await detail.evaluate((el) => el.scrollTop)).toBe(0);
-  await lastTab.click();
+  await expect(title).toHaveText("测试贡献 0");
+  await page.goBack();
+  await expect(title).toHaveText("我的贡献");
+  await last.click();
+  await expect(title).toHaveText("测试贡献 19");
   expect(await detail.evaluate((el) => el.scrollTop)).toBe(detailScroll);
   expect(detailRequests.get("con-19")).toBe(1);
-  await tabBar.getByRole("button", { name: "关闭 测试贡献 19 页签" }).click();
-  await expect(lastTab).toHaveCount(0);
-
-  await listTab.click();
   failDetail = true;
-  await last.click();
+  await page.reload();
   await expect(detail.getByRole("alert")).toBeVisible();
   failDetail = false;
   await detail.getByRole("button", { name: "重新加载" }).click();
   await expect(
     detail.getByRole("heading", { name: "测试贡献 19" }),
   ).toBeVisible();
-  await page.reload();
-  await expect(listTab).toBeVisible();
-  await expect(lastTab).toHaveAttribute("aria-current", "page");
-  await expect(tabBar.getByRole("link")).toHaveCount(3);
+  await expect(title).toHaveText("测试贡献 19");
 });

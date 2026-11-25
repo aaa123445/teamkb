@@ -54,7 +54,6 @@ export function useWorkspaceTabs(
   const tabs = shallowReactive([]);
   const pages = new Map();
   const positions = new Map();
-  const closeGuards = new Map();
   const contributionUpdate = shallowRef(null);
   const active = computed(() => tabKey(route));
   const cacheNames = computed(() => tabs.map((tab) => tab.page.name));
@@ -134,7 +133,6 @@ export function useWorkspaceTabs(
         const restoring = owner === undefined;
         tabs.splice(0);
         pages.clear();
-        closeGuards.clear();
         contributionUpdate.value = null;
         positions.clear();
         owner = user;
@@ -163,36 +161,13 @@ export function useWorkspaceTabs(
     if (tab && title) tab.label = title;
   }
 
-  async function close(tab) {
-    if (tabs.length < 2 || !(await (closeGuards.get(tab.key)?.() ?? true)))
-      return false;
-    if (tab.key === active.value) {
-      const index = tabs.indexOf(tab);
-      const neighbor = tabs[index - 1] ?? tabs[index + 1];
-      if (!neighbor || (await router.replace(neighbor.url))) return false;
-    }
-    const index = tabs.indexOf(tab);
-    if (index < 0 || tab.key === active.value) return false;
-    tabs.splice(index, 1);
-    positions.delete(tab.key);
-    closeGuards.delete(tab.key);
-    if (!tabs.some((item) => item.page === tab.page)) {
-      const key = pageKey(router.resolve(tab.url));
-      pages.delete(key);
-    }
-    persist();
-    return true;
-  }
-
   return {
     tabs,
     active,
     cacheNames,
     currentPage,
     positions,
-    closeGuards,
     contributionUpdate,
     setTitle,
-    close,
   };
 }

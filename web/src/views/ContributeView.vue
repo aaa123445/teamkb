@@ -2,7 +2,6 @@
 import AppSelect from "../components/ui/AppSelect.vue";
 import {
   reactive,
-  inject,
   onActivated,
   onDeactivated,
   ref,
@@ -12,12 +11,12 @@ import {
   nextTick,
 } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
-import { tabKey, workspaceTabsKey } from "../composables/workspaceTabs";
 import { api, post } from "../services/api";
 import { notify } from "../composables/workspace";
 import MarkdownEditor from "../components/workspace/MarkdownEditor.vue";
 import {
   FileCheck2,
+  Files,
   Check,
   Circle,
   ArrowRight,
@@ -80,8 +79,6 @@ function beforeUnload(e) {
     e.returnValue = "";
   }
 }
-const workspaceTabs = inject(workspaceTabsKey);
-const editorTab = tabKey(route);
 function confirmDiscard() {
   return (
     !dirty.value ||
@@ -93,15 +90,10 @@ function confirmDiscard() {
     })
   );
 }
-workspaceTabs.closeGuards.set(editorTab, confirmDiscard);
 onActivated(() => window.addEventListener("keydown", keydown));
 onDeactivated(() => window.removeEventListener("keydown", keydown));
 onMounted(() => window.addEventListener("beforeunload", beforeUnload));
-onBeforeUnmount(() => {
-  window.removeEventListener("beforeunload", beforeUnload);
-  if (workspaceTabs.closeGuards.get(editorTab) === confirmDiscard)
-    workspaceTabs.closeGuards.delete(editorTab);
-});
+onBeforeUnmount(() => window.removeEventListener("beforeunload", beforeUnload));
 onBeforeRouteLeave((to) => to.meta.layout !== "public" || confirmDiscard());
 onMounted(async () => {
   try {
@@ -200,16 +192,6 @@ async function template() {
 </script>
 <template>
   <section>
-    <div class="page-heading">
-      <div>
-        <div class="eyebrow section-eyebrow">CONTRIBUTE & IMPROVE</div>
-        <h1>
-          {{ form.target_doc_id ? "建议更新知识" : "让经验成为团队的资产" }}
-        </h1>
-        <p>草稿仅自己可见，提交后由管理员审核，发布后进入团队知识库。</p>
-      </div>
-      <RouterLink to="/contributions" class="button">我的贡献 →</RouterLink>
-    </div>
     <div v-if="saved" class="success-banner" role="status">
       {{
         saved.status === "draft"
@@ -233,14 +215,28 @@ async function template() {
         @submit.prevent="save(true)"
       >
         <div class="editor-form-heading">
-          <span class="editor-step">01</span>
           <div>
-            <h2>{{ id ? "编辑贡献" : "写下一份值得分享的知识" }}</h2>
-            <p>让读到它的人，少走一次弯路。</p>
+            <h2>
+              {{
+                form.target_doc_id
+                  ? "建议更新知识"
+                  : id
+                    ? "编辑贡献"
+                    : "新增知识"
+              }}
+            </h2>
+            <p>草稿仅自己可见，提交后由管理员审核。</p>
           </div>
           <span :class="['save-status', { dirty }]"
             ><i />{{ dirty ? "尚未保存" : id ? "已保存" : "新知识" }}</span
           >
+          <RouterLink
+            to="/contributions"
+            class="icon-button"
+            aria-label="我的贡献"
+            title="我的贡献"
+            ><Files :size="17" aria-hidden="true"
+          /></RouterLink>
         </div>
         <label class="field"
           >知识标题 *<input
