@@ -8,7 +8,6 @@
   --workspace-surface: var(--card);
   --workspace-glow: color-mix(in srgb, var(--primary) 9%, var(--background));
   --workspace-side-glow: color-mix(in srgb, var(--primary) 10%, var(--muted));
-  --workspace-active-shadow: 0 2px 8px #11151c12;
   --radius: 14px;
   height: 100vh;
   height: 100dvh;
@@ -22,7 +21,6 @@
   --workspace-frame: #0d0f10;
   --workspace-glow: color-mix(in srgb, var(--primary) 6%, var(--background));
   --workspace-side-glow: color-mix(in srgb, var(--primary) 5%, var(--card));
-  --workspace-active-shadow: 0 0 0 transparent;
 }
 .sidebar {
   position: fixed;
@@ -120,19 +118,16 @@
   stroke-width: 1.7;
 }
 .sidebar nav > a:hover {
-  background: var(--muted, var(--night-soft, #f9fafb));
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
   color: var(--night-text, #344054);
 }
 .sidebar nav > a.selected {
-  background: var(--workspace-surface);
-  box-shadow:
-    var(--workspace-active-shadow),
-    inset 0 0 0 1px var(--border);
-  color: var(--primary);
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+  color: var(--foreground);
   font-weight: 600;
 }
 .sidebar nav > a.selected > svg {
-  color: var(--primary);
+  color: currentColor;
 }
 .nav-count {
   font-size: 10px;

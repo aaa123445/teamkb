@@ -177,7 +177,7 @@ watch(
 function key(event) {
   if (
     document.querySelector(
-      '[aria-modal="true"]:not(.sidebar, .command-dialog)',
+      '[aria-modal="true"]:not(.sidebar, .command-dialog, dialog:not([open]))',
     )
   )
     return;

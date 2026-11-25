@@ -859,25 +859,6 @@
   font-size: 14px;
   margin-top: 30px;
 }
-.kb-category-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--night-border, #f1f5f9);
-}
-.kb-category-row > div {
-  flex: 1;
-}
-.kb-category-row strong {
-  font-size: 12px;
-}
-.kb-category-row small {
-  display: block;
-  font-size: 10px;
-  color: var(--night-muted, #98a2b3);
-  margin-top: 6px;
-}
 .kb-editor {
   margin-bottom: 24px;
 }
